@@ -3,16 +3,16 @@
 
     # Define the inputs (dependencies) for this flake
     inputs = {
-        # Use the official NixOS package repository
-        nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+        determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/0.1";
+        nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.2405.0";
 
         # You can add other inputs like:
-        # home-manager.url = "github:nix-community/home-manager";
-        # home-manager.inputs.nixpkgs.follows = "nixpkgs";
+        home-manager.url = "github:nix-community/home-manager";
+        home-manager.inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # Define the outputs generated from those inputs
-    outputs = { self, nixpkgs, ... }@inputs: {
+    outputs = { self, nixpkgs, determinate, ... }@inputs: {
         # Define a NixOS configuration
         nixosConfigurations = {
             # Replace "my-system" with your hostname
@@ -27,6 +27,7 @@
                 modules = [
                     ./configuration.nix
                     ./hardware-configuration.nix
+                    determinate.nixosModules.default
                 ];
             };
         };

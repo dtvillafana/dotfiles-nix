@@ -35,9 +35,20 @@
     # Enable the X11 windowing system.
     services.xserver.enable = true;
 
-    # Enable the XFCE Desktop Environment.
+    # Disable XFCE and enable i3 window manager
     services.xserver.displayManager.lightdm.enable = true;
-    services.xserver.desktopManager.xfce.enable = true;
+    services.xserver.desktopManager.xfce.enable = false;
+    
+    # Enable i3 window manager
+    services.xserver.windowManager.i3 = {
+      enable = true;
+      extraPackages = with pkgs; [
+        dmenu
+        i3status
+        i3lock
+        i3blocks
+      ];
+    };
 
     # Configure keymap in X11
     services.xserver.xkb = {
@@ -82,6 +93,7 @@
 
     # Allow unfree packages
     nixpkgs.config.allowUnfree = true;
+    nix.settings.experimental-features = ["nix-command" "flakes"];
 
     # List packages installed in system profile. To search, run:
     # $ nix search wget

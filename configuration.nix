@@ -37,23 +37,23 @@
 
     # Disable XFCE and enable i3 window manager
     services.xserver.displayManager.lightdm.enable = true;
-    services.xserver.desktopManager.xfce.enable = false;
-    
+
     # Enable i3 window manager
     services.xserver.windowManager.i3 = {
-      enable = true;
-      extraPackages = with pkgs; [
-        dmenu
-        i3status
-        i3lock
-        i3blocks
-      ];
+        enable = true;
+        extraPackages = with pkgs; [
+            dmenu
+            i3status
+            i3lock
+            i3blocks
+        ];
     };
 
     # Configure keymap in X11
     services.xserver.xkb = {
         layout = "us";
         variant = "";
+        options = "ctrl:swapcaps";  # This option swaps Caps Lock and Control
     };
 
     # Enable CUPS to print documents.

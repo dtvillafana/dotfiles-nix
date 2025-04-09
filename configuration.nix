@@ -43,6 +43,7 @@
         enable = true;
         extraPackages = with pkgs; [
             dmenu
+            dunst
             i3status
             i3lock
             i3blocks

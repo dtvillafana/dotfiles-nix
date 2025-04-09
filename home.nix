@@ -42,6 +42,14 @@
         # Terminal configuration - WezTerm (since you have it installed)
         programs.wezterm = {
             enable = true;
+            extraConfig = ''
+                local wezterm = require 'wezterm'
+                -- This will hold the configuration.
+                local config = wezterm.config_builder()
+                config.use_fancy_tab_bar = false
+                config.show_tabs_in_tab_bar = false
+                config.show_new_tab_button_in_tab_bar = false
+                return config'';
             # Add custom configuration if needed
         };
 
@@ -157,6 +165,7 @@
                     { criteria = { class = "Brave-browser"; }; command = "move to workspace $web"; }
                     { criteria = { class = "brave-browser"; }; command = "move to workspace $web"; }
                     { criteria = { class = "org.wezfurlong.wezterm"; }; command = "move to workspace $terms"; }
+                    { criteria = { class = "wezterm"; }; command = "move to workspace $terms"; }
                     { criteria = { class = "vlc"; }; command = "move to workspace $media"; }
                     { criteria = { class = "Signal"; }; command = "move to workspace $comms"; }
                     { criteria = { class = "TelegramDesktop"; }; command = "move to workspace $comms"; }

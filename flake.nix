@@ -6,9 +6,12 @@
         determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/0.1";
         nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.2405.0";
 
-        # You can add other inputs like:
-        home-manager.url = "github:nix-community/home-manager";
-        home-manager.inputs.nixpkgs.follows = "nixpkgs";
+         # Use the matching release branch of home-manager for your nixpkgs version
+        home-manager = {
+            url = "github:nix-community/home-manager/release-24.05";
+            # This ensures home-manager uses the same nixpkgs as your system
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
     };
 
     # Define the outputs generated from those inputs

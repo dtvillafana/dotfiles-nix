@@ -92,6 +92,7 @@
             git
         ];
     };
+    users.groups.vir = {};
 
 
     # Allow unfree packages

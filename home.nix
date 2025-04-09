@@ -41,6 +41,21 @@
             # Add custom configuration if needed
         };
 
+        programs.rofi = {
+            enable = true;
+            terminal = "wezterm";
+            theme = "Arc-Dark";
+            font = "DejaVu Sans Mono 11";
+            extraConfig = {
+                modi = "run,drun,window";
+                icon-theme = "Papirus";
+                show-icons = true;
+                drun-display-format = "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";
+                disable-history = false;
+                hide-scrollbar = true;
+            };
+        };
+
         programs.i3status = {
             enable = true;
             general = {
@@ -227,10 +242,10 @@
                     misc = "misc";
                     termsbk = "Background Processes";
                 in {
-                    "${mod}+Return" = "exec neovide";
+                    "${mod}+Return" = "exec wezterm";
                     "${mod}+Shift+t" = "exec i3-sensible-terminal";
                     "${mod}+Shift+q" = "kill";
-                    "${mod}+40" = "exec rofi -modi drun,run -show drun";
+                    "${mod}+d" = "exec rofi -show drun";
                     "${mod}+g" = "exec gopass ls --flat | rofi -dmenu | xargs --no-run-if-empty gopass show -o | xdotool type --clearmodifiers --file -";
                     "${mod}+minus" = "exec --no-startup-id brightnessctl set 5%- && notify-send -t 300 \"`brightnessctl | grep -E '[0-9]{2}%' `\"";
                     "${mod}+plus" = "exec --no-startup-id brightnessctl set +5% && notify-send -t 300 \"`brightnessctl | grep -E '[0-9]{2}%' `\"";
@@ -330,6 +345,6 @@
         # configuration is compatible with. This helps avoid breakage
         # when a new Home Manager release introduces backwards
         # incompatible changes.
-        home.stateVersion = "24.11";
+        home.stateVersion = "24.05";
     };
 }

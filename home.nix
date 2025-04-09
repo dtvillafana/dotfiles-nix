@@ -33,6 +33,10 @@
             brightnessctl
             gopass
             i3status
+            vlc
+            signal-desktop
+            telegram-desktop
+            libreoffice
         ];
 
         # Terminal configuration - WezTerm (since you have it installed)

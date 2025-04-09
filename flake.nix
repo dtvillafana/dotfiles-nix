@@ -12,7 +12,7 @@
     };
 
     # Define the outputs generated from those inputs
-    outputs = { self, nixpkgs, determinate, ... }@inputs: {
+    outputs = { self, nixpkgs, determinate, home-manager, ... }@inputs: {
         # Define a NixOS configuration
         nixosConfigurations = {
             # Replace "my-system" with your hostname
@@ -22,12 +22,15 @@
                 specialArgs = {
                     inherit (nixpkgs) lib;
                     modulesPath = "${nixpkgs}/nixos/modules";
+                    home-manager = home-manager;
                 };
 
                 modules = [
+                    determinate.nixosModules.default
+                    home-manager.nixosModules.home-manager
                     ./configuration.nix
                     ./hardware-configuration.nix
-                    determinate.nixosModules.default
+                    ./home.nix
                 ];
             };
         };

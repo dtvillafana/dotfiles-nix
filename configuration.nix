@@ -85,11 +85,13 @@
         extraGroups = [ "networkmanager" "wheel" ];
         packages = with pkgs; [
             neovim
+            brave
+            wezterm
+            signal-desktop
+            git
         ];
     };
 
-    # Install firefox.
-    programs.firefox.enable = true;
 
     # Allow unfree packages
     nixpkgs.config.allowUnfree = true;
@@ -102,6 +104,7 @@
         wget
         curl
         git
+        pavucontrol
     ];
 
     # Some programs need SUID wrappers, can be configured further or are
@@ -130,5 +133,4 @@
     # Before changing this value read the documentation for this option
     # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
     system.stateVersion = "24.11"; # Did you read the comment?
-
 }

@@ -1,8 +1,10 @@
-{ config, pkgs, ... }:
+{ nixpkgs, config, pkgs, ... }:
 {
+
     # Bootloader.
     boot.loader.systemd-boot.enable = true;
     boot.loader.efi.canTouchEfiVariables = true;
+
 
     networking.hostName = "hpenvynix"; # Define your hostname.
     # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -32,29 +34,31 @@
         LC_TIME = "en_US.UTF-8";
     };
 
-    # Enable the X11 windowing system.
-    services.xserver.enable = true;
-
-    # Disable XFCE and enable i3 window manager
-    services.xserver.displayManager.lightdm.enable = true;
-
-    # Enable i3 window manager
-    services.xserver.windowManager.i3 = {
+    services.xserver = {
         enable = true;
-        extraPackages = with pkgs; [
-            dmenu
-            dunst
-            i3status
-            i3lock
-            i3blocks
-        ];
-    };
 
-    # Configure keymap in X11
-    services.xserver.xkb = {
-        layout = "us";
-        variant = "";
-        options = "ctrl:swapcaps";  # This option swaps Caps Lock and Control
+        # Don't use a display manager, we start X manually
+        displayManager.startx.enable = true;
+
+        desktopManager.xterm.enable = false;
+
+        windowManager.i3 = {
+            enable = true;
+            extraPackages = with pkgs; [
+                dmenu
+                dunst
+                i3status
+                i3lock
+                i3blocks
+                # enable wifi drivers
+                linuxKernel.packages.linux_6_6_hardened.broadcom_sta
+            ];
+        };
+
+        xkb = {
+            layout = "us";
+            options = "ctrl:swapcaps";
+        };
     };
 
     # Enable CUPS to print documents.
@@ -94,6 +98,7 @@
     };
     users.groups.vir = {};
 
+    security.sudo.wheelNeedsPassword = false;
 
     # Allow unfree packages
     nixpkgs.config.allowUnfree = true;
@@ -102,25 +107,41 @@
     # List packages installed in system profile. To search, run:
     # $ nix search wget
     environment.systemPackages = with pkgs; [
-        neovim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+        neovim
         wget
         curl
         git
         pavucontrol
+        pinentry-tty
+        gnupg
+        file
     ];
 
     # Some programs need SUID wrappers, can be configured further or are
     # started in user sessions.
     # programs.mtr.enable = true;
-    # programs.gnupg.agent = {
-    #   enable = true;
-    #   enableSSHSupport = true;
-    # };
+
+    # services.pcscd.enable = true;
+    programs.gnupg.agent = {
+        enable = true;
+        # pinentryPackage = pkgs.pinentry-tty;
+        enableSSHSupport = true;
+    };
 
     # List services that you want to enable:
 
     # Enable the OpenSSH daemon.
     services.openssh.enable = true;
+    # programs.ssh.askPassword = "${pkgs.pinentry-tty}/bin/pinentry";
+    programs.direnv = {
+        package = pkgs.direnv;
+        silent = false;
+        loadInNixShell = true;
+        nix-direnv = {
+            enable = true;
+            package = pkgs.nix-direnv;
+        };
+    };
 
     # Open ports in the firewall.
     # networking.firewall.allowedTCPPorts = [ ... ];

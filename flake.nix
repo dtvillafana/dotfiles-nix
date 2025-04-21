@@ -4,18 +4,19 @@
     # Define the inputs (dependencies) for this flake
     inputs = {
         determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/0.1";
-        nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.2405.0";
-
+        nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.2411.0";
          # Use the matching release branch of home-manager for your nixpkgs version
         home-manager = {
-            url = "github:nix-community/home-manager/release-24.05";
+            url = "github:nix-community/home-manager/release-24.11";
             # This ensures home-manager uses the same nixpkgs as your system
             inputs.nixpkgs.follows = "nixpkgs";
         };
+        sops-nix.url = "github:Mic92/sops-nix";
+
     };
 
     # Define the outputs generated from those inputs
-    outputs = { self, nixpkgs, determinate, home-manager, ... }@inputs: {
+    outputs = { self, nixpkgs, determinate, home-manager, sops-nix, ... }@inputs: {
         # Define a NixOS configuration
         nixosConfigurations = {
             # Replace "my-system" with your hostname
@@ -26,11 +27,13 @@
                     inherit (nixpkgs) lib;
                     modulesPath = "${nixpkgs}/nixos/modules";
                     home-manager = home-manager;
+                    nixpkgs = nixpkgs;
                 };
 
                 modules = [
                     determinate.nixosModules.default
                     home-manager.nixosModules.home-manager
+                    sops-nix.nixosModules.sops
                     ./configuration.nix
                     ./hardware-configuration.nix
                     ./home.nix

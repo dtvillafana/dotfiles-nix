@@ -133,15 +133,6 @@
     # Enable the OpenSSH daemon.
     services.openssh.enable = true;
     # programs.ssh.askPassword = "${pkgs.pinentry-tty}/bin/pinentry";
-    programs.direnv = {
-        package = pkgs.direnv;
-        silent = false;
-        loadInNixShell = true;
-        nix-direnv = {
-            enable = true;
-            package = pkgs.nix-direnv;
-        };
-    };
 
     # Open ports in the firewall.
     # networking.firewall.allowedTCPPorts = [ ... ];

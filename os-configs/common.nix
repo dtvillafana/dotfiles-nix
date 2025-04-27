@@ -1,12 +1,28 @@
-{ nixpkgs, config, pkgs, ... }:
+{ nixpkgs, config, pkgs, nodename, ... }:
 {
 
     # Bootloader.
     boot.loader.systemd-boot.enable = true;
     boot.loader.efi.canTouchEfiVariables = true;
 
+    sops = {
+        defaultSopsFile = ./secrets/secrets.json;
+        defaultSopsFormat = "json";
+        age.keyFile = "/home/vir/.config/sops/age/keys.txt";
+        secrets = {
+            "git_github" = {
+                owner = config.users.users.vir.name;
+            };
+            "git_gitlab" = {
+                owner = config.users.users.vir.name;
+            };
+            "git_vps" = {
+                owner = config.users.users.vir.name;
+            };
+        };
+    };
 
-    networking.hostName = "hpenvynix"; # Define your hostname.
+    networking.hostName = nodename; # Define your hostname.
     # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
     # Configure network proxy if necessary

@@ -1,4 +1,48 @@
 {config, pkgs, home-manager, ...}:
+let
+    external_git_repos = [
+        {
+            name = "nixvim";
+            url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/nixvim";
+            path = "$HOME/git-repos/nixvim";
+        }
+        {
+            name = "nostr-playground";
+            url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/nostr-playground";
+            path = "$HOME/git-repos/nostr-playground";
+        }
+        {
+            name = "orgfiles";
+            url = "https://dvillafanaiv:$(cat ${config.sops.secrets.git_gitlab.path})@gitlab.com/personal2673713/org.git";
+            path = "$HOME/git-repos/orgfiles";
+        }
+        {
+            name = "homelab-nixos-generators";
+            url = "https://dvillafanaiv:$(cat ${config.sops.secrets.git_gitlab.path})@gitlab.com/spectrum-it-solutions/nixos-generators.git";
+            path = "$HOME/git-repos/homelab-nixos-generators";
+        }
+        # {
+        #     name = "gopass";
+        #     url = "vps:~/git-repos/pass";
+        #     path = "$HOME/.local/share/gopass/stores/root";
+        # }
+    ];
+
+    # Function to create a clone action for a Git forge repo
+    make_git_forge_repo_action = repo: {
+        name = "clone_${builtins.replaceStrings ["-"] ["_"] repo.name}";
+        value = home-manager.lib.hm.dag.entryAfter ["writeBoundary"] ''
+          if [ ! -d "${repo.path}" ]; then
+              export GIT_SSH="${pkgs.openssh}/bin/ssh"
+            ${pkgs.git}/bin/git clone ${repo.url} ${repo.path}
+          else
+              cd ${repo.path} && ${pkgs.git}/bin/git pull
+          fi
+        '';
+    };
+
+    external_git_actions = builtins.listToAttrs (map make_git_forge_repo_action external_git_repos);
+in
 {
     home-manager.useGlobalPkgs = true;
     home-manager.useUserPackages = true;
@@ -21,6 +65,19 @@ exec i3
         # Let Home Manager install and manage itself
         programs.home-manager.enable = true;
 
+        home.activation = external_git_actions;
+
+        home.file = {
+            ".ssh/config".text = ''
+Host vps
+    HostName 104.207.135.195
+    IdentityFile ${config.sops.secrets.git_vps.path}
+    User root
+    port 4455'';
+            ".local/share/gopass/stores/.keep" = {
+                source = builtins.toFile "keep" "";
+            };
+        };
         # Packages that should be installed to the user profile
         home.packages = with pkgs; [
             git
@@ -53,13 +110,13 @@ exec i3
         programs.wezterm = {
             enable = true;
             extraConfig = ''
-                local wezterm = require 'wezterm'
-                -- This will hold the configuration.
-                local config = wezterm.config_builder()
-                config.use_fancy_tab_bar = false
-                config.show_tabs_in_tab_bar = false
-                config.show_new_tab_button_in_tab_bar = false
-                return config'';
+local wezterm = require 'wezterm'
+-- This will hold the configuration.
+local config = wezterm.config_builder()
+config.use_fancy_tab_bar = false
+config.show_tabs_in_tab_bar = false
+config.show_new_tab_button_in_tab_bar = false
+return config'';
             # Add custom configuration if needed
         };
 
@@ -69,7 +126,7 @@ exec i3
             theme = "Arc-Dark";
             font = "DejaVu Sans Mono 11";
             extraConfig = {
-                modi = "run,drun,window";
+                modi = "run,drun";
                 icon-theme = "Papirus";
                 show-icons = true;
                 drun-display-format = "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";
@@ -157,8 +214,10 @@ exec i3
             enable = true;
             userName = "David Villafaña"; # Replace with your name
             userEmail = "dvillafanaiv@proton.me"; # Replace with your email
-            extraConfig ={
-                credential.helper = "store";
+            extraConfig = {
+                core.sshCommand = "${pkgs.openssh}/bin/ssh";
+                credential."https://github.com".helper = "store --file=${config.users.users.vir.home}/.git-credentials-github";
+                credential."https://gitlab.com".helper = "store --file=${config.users.users.vir.home}/.git-credentials-gitlab";
             };
         };
 
@@ -356,26 +415,26 @@ exec i3
                     ];
                 };
                 extraConfig = ''
-              # Define workspace variables
-              set $terms "terminals"
-              set $web "web"
-              set $docs "documents"
-              set $media "media"
-              set $comms "comms"
-              set $VMs "VMs"
-              set $DB "DB"
-              set $ssh "SSH"
-              set $misc "misc"
-              set $termsbk "Background Processes"
+# Define workspace variables
+set $terms "terminals"
+set $web "web"
+set $docs "documents"
+set $media "media"
+set $comms "comms"
+set $VMs "VMs"
+set $DB "DB"
+set $ssh "SSH"
+set $misc "misc"
+set $termsbk "Background Processes"
 
-              # Define mode variables
-              set $mode_system System (l) lock, (e) logout, (s) shutdown, (h) hibernate, (r) reboot, (CTRL+s) suspend
-              set $mode_i3bar i3bar: hide (mod+h) unhide (mod+shift+h)
-              set $mouseMover Mouse movement : quit(c)|move(hjkl)|move less(shift+hjkl)|click(i)|click&exit(spacebar/enter)|right click(shift+spacebar/I)|scroll(o/p)
-              set $mode_workspaces (h) move workspace left, (l) move workspace right
+# Define mode variables
+set $mode_system System (l) lock, (e) logout, (s) shutdown, (h) hibernate, (r) reboot, (CTRL+s) suspend
+set $mode_i3bar i3bar: hide (mod+h) unhide (mod+shift+h)
+set $mouseMover Mouse movement : quit(c)|move(hjkl)|move less(shift+hjkl)|click(i)|click&exit(spacebar/enter)|right click(shift+spacebar/I)|scroll(o/p)
+set $mode_workspaces (h) move workspace left, (l) move workspace right
 
-              # Define i3status refresh command
-              set $refresh_i3status killall -SIGUSR1 i3status
+# Define i3status refresh command
+set $refresh_i3status killall -SIGUSR1 i3status
                 '';
             };
         };

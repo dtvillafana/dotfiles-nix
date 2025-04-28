@@ -8,6 +8,8 @@
     boot.initrd.kernelModules = [ "wl" ];
     boot.kernelModules = [ "kvm-intel" ];
     boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
+    boot.loader.systemd-boot.enable = true;
+    boot.loader.efi.canTouchEfiVariables = true;
     hardware.enableAllFirmware = true;
 
     fileSystems."/" =

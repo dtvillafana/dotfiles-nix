@@ -9,7 +9,7 @@ put the age secret key at (can be retrieved from gopass)
 
 replace nodename with your nodes name
 ```bash
-sudo nixos-rebuild switch --flake github:dvillafana/dotfiles-nix#nodename
+sudo nixos-rebuild switch --flake github:dtvillafana/dotfiles-nix#nodename
 # or if cloned locally
 sudo nixos-rebuild switch --flake "path:/home/vir/dotfiles-nix#nodename" --impure
 

@@ -46,14 +46,14 @@ in
 {
     home-manager.useGlobalPkgs = true;
     home-manager.useUserPackages = true;
+    home-manager.backupFileExtension = "hm-bak";
     home-manager.users.vir = { pkgs, ... }: {
         # Home Manager needs a bit of information about you and the paths it should manage
         home.username = "vir";
         home.homeDirectory = "/home/vir";
 
         home.file.".xinitrc".text = ''
-exec i3
-        '';
+exec i3'';
 #         home.file.".gnupg/gpg-agent.conf".text = ''
 # enable-ssh-support
 # pinentry-program /run/current-system/sw/bin/pinentry

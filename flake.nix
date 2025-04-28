@@ -34,7 +34,7 @@
                         home-manager.nixosModules.home-manager
                         sops-nix.nixosModules.sops
                         ./os-configs/common.nix
-                        ./os-configs/${nodename}.nix
+                        ./os-configs/${nodename}
                         ./hardware-configs/${nodename}.nix
                         ./home.nix
                     ];

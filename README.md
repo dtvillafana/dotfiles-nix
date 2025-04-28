@@ -1,5 +1,5 @@
 # nixos-configs
-This is the dev environment for David
+These are David's nixos configs
 # additional setup
 put the age secret key at (can be retrieved from gopass)
 ```nix

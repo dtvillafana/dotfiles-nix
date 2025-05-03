@@ -43,7 +43,7 @@ let
 
     external_git_actions = builtins.listToAttrs (map make_git_forge_repo_action external_git_repos);
 in
-{
+    {
     home-manager.useGlobalPkgs = true;
     home-manager.useUserPackages = true;
     home-manager.backupFileExtension = "hm-bak";
@@ -54,10 +54,11 @@ in
 
         home.file.".xinitrc".text = ''
 exec i3'';
-#         home.file.".gnupg/gpg-agent.conf".text = ''
-# enable-ssh-support
-# pinentry-program /run/current-system/sw/bin/pinentry
-#         '';
+
+        #         home.file.".gnupg/gpg-agent.conf".text = ''
+        # enable-ssh-support
+        # pinentry-program /run/current-system/sw/bin/pinentry
+        #         '';
 
         # Allow unfree packages (if needed)
         nixpkgs.config.allowUnfree = true;
@@ -78,32 +79,33 @@ Host vps
                 source = builtins.toFile "keep" "";
             };
         };
+
         # Packages that should be installed to the user profile
         home.packages = with pkgs; [
-            git
-            btop
-            fzf
-            ripgrep
-            networkmanager
-            wireguard-tools
+            age
             brave
-            qutebrowser
-            zathura
-            xss-lock
-            i3lock
+            brightnessctl
+            btop
             dunst
             feh
-            rofi
-            xdotool
-            brightnessctl
+            fzf
+            git
             gopass
+            i3lock
             i3status
-            vlc
-            signal-desktop
-            telegram-desktop
             libreoffice
-            age
+            networkmanager
+            qutebrowser
+            ripgrep
+            rofi
+            signal-desktop
             sops
+            telegram-desktop
+            vlc
+            wireguard-tools
+            xdotool
+            xss-lock
+            zathura
         ];
 
         # Terminal configuration - WezTerm (since you have it installed)
@@ -184,12 +186,12 @@ return config'';
                         format_degraded = "COMMIT MORE TAX FRAUD: %free";
                     };
                 };
-                "load" = {
-                    position = 6;
-                    settings = {
-                        format = "%5min";
-                    };
-                };
+                # "load" = {
+                #     position = 6;
+                #     settings = {
+                #         format = "%5min";
+                #     };
+                # };
                 "tztime local" = {
                     position = 7;
                     settings = {
@@ -202,11 +204,40 @@ return config'';
         programs = {
             direnv = {
                 enable = true;
-                enableBashIntegration = true; # see note on other shells below
+                enableZshIntegration = true; # see note on other shells below
                 nix-direnv.enable = true;
             };
 
-            bash.enable = true; # see note on other shells below
+            zsh = {
+                enable = true; # see note on other shells below
+                plugins = [
+                    {
+                        name = "powerlevel10k";
+                        src = pkgs.zsh-powerlevel10k;
+                        file = "share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
+                    }
+                ];
+                syntaxHighlighting.enable = true;
+                enableCompletion = true;
+                autocd = false;
+                autosuggestion.enable = true;
+                oh-my-zsh = {
+                    enable = true;
+                    plugins = [
+                        "git"
+                        "direnv"
+                    ];
+                };
+                initExtra = ''
+                    # Enable Powerlevel10k instant prompt
+                    if [[ -r "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
+                      source "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh"
+                    fi
+
+                    # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh
+                    [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+                '';
+            };
         };
 
         # Configure Git

@@ -101,12 +101,12 @@
         description = "vir";
         extraGroups = [ "networkmanager" "wheel" ];
         packages = with pkgs; [
-            neovim
             brave
-            wezterm
-            signal-desktop
             git
+            neovim
+            curl
         ];
+        shell = pkgs.zsh;
     };
     users.groups.vir = {};
 
@@ -140,6 +140,7 @@
         # pinentryPackage = pkgs.pinentry-tty;
         enableSSHSupport = true;
     };
+    programs.zsh.enable = true;
 
     # List services that you want to enable:
 

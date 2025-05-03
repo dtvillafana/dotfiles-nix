@@ -340,7 +340,7 @@ config.set('content.javascript.enabled', True, 'qute://*/*')
 
             quickmarks = {};
         };
-  
+
 
         # Configure i3 with your custom config
         xsession.windowManager = {

@@ -95,6 +95,8 @@ Host vps
             i3status
             libreoffice
             networkmanager
+            nix-index
+            pwgen-secure
             ripgrep
             rofi
             signal-desktop

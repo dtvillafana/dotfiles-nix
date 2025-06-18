@@ -93,6 +93,8 @@ Host vps
             gopass
             i3lock
             i3status
+            jq
+            lazygit
             libreoffice
             networkmanager
             nix-index
@@ -255,6 +257,7 @@ return config'';
                 core.sshCommand = "${pkgs.openssh}/bin/ssh";
                 credential."https://github.com".helper = "store --file=${config.users.users.vir.home}/.git-credentials-github";
                 credential."https://gitlab.com".helper = "store --file=${config.users.users.vir.home}/.git-credentials-gitlab";
+                credential."https://bitbucket.org".helper = "store --file=${config.users.users.vir.home}/.git-credentials-bitbucket";
             };
         };
 

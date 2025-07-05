@@ -88,7 +88,6 @@ Host vps
             btop
             dunst
             feh
-            feh
             fzf
             git
             gopass

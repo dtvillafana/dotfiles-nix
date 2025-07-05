@@ -88,6 +88,7 @@ Host vps
             btop
             dunst
             feh
+            feh
             fzf
             git
             gopass
@@ -101,12 +102,14 @@ Host vps
             pwgen-secure
             ripgrep
             rofi
+            scrot
             signal-desktop
             sops
             telegram-desktop
             vlc
             wireguard-tools
             xdotool
+            xournalpp
             xss-lock
             zathura
         ];

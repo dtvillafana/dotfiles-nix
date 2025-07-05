@@ -26,6 +26,11 @@ let
             url = "vps:~/git-repos/dotfiles";
             path = "$HOME/git-repos/stow-dotfiles";
         }
+        {
+            name = "i-got-a-buddy-web";
+            url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/i-got-a-buddy-web";
+            path = "$HOME/git-repos/i-got-a-buddy-web";
+        }
     ];
 
     # Function to create a clone action for a Git forge repo

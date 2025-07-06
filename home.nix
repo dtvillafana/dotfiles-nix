@@ -117,6 +117,7 @@ Host vps
             xournalpp
             xss-lock
             zathura
+            zenity
         ];
 
         # Terminal configuration - WezTerm (since you have it installed)
@@ -298,6 +299,11 @@ config.set('content.javascript.enabled', True, 'chrome-devtools://*')
 config.set('content.javascript.enabled', True, 'devtools://*')
 config.set('content.javascript.enabled', True, 'chrome://*/*')
 config.set('content.javascript.enabled', True, 'qute://*/*')
+
+c.fileselect.handler = 'external'
+c.fileselect.single_file.command = ['${pkgs.zenity}/bin/zenity', '--file-selection']
+c.fileselect.folder.command = ['${pkgs.zenity}/bin/zenity', '--file-selection', '--directory']
+c.fileselect.multiple_files.command = ['sh', '-c', '${pkgs.zenity}/bin/zenity --file-selection --multiple | tr "|" "\\n"']
             '';
 
             aliases = {

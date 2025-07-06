@@ -99,6 +99,7 @@ Host vps
             i3lock
             i3status
             jq
+            kolourpaint
             lazygit
             libreoffice
             networkmanager
@@ -397,6 +398,7 @@ config.set('content.javascript.enabled', True, 'qute://*/*')
                         { criteria = { class = "DB Browser for SQLite"; }; command = "move to workspace $DB"; }
                         { criteria = { class = "Microsoft Teams - Preview"; }; command = "move to workspace $comms"; }
                         { criteria = { class = "Virt-manager"; }; command = "move to workspace $VMs"; }
+                        { criteria = { class = "kolourpaint"; }; command = "move to workspace $docs"; }
                     ];
 
                     floating.modifier = "Mod4";
@@ -486,6 +488,7 @@ config.set('content.javascript.enabled', True, 'qute://*/*')
                         "${mod}+plus" = "exec --no-startup-id brightnessctl set +5% && notify-send -t 300 \"`brightnessctl | grep -E '[0-9]{2}%' `\"";
                         "${mod}+p" = "exec xinput --disable \"$(xinput | awk -F = '/TouchPad/{print $2}' | cut -b 1-2)\"";
                         "${mod}+Shift+p" = "exec xinput --enable \"$(xinput | awk -F = '/TouchPad/{print $2}' | cut -b 1-2)\"";
+                        "${mod}+Shift+s" = "exec --no-startup-id sh -c 'env DISPLAY=$DISPLAY ${pkgs.scrot}/bin/scrot -s /tmp/screenshot.png && env DISPLAY=$DISPLAY ${pkgs.xclip}/bin/xclip -selection clipboard -t image/png < /tmp/screenshot.png && rm /tmp/screenshot.png'";
                         "${mod}+h" = "focus left";
                         "${mod}+j" = "focus down";
                         "${mod}+k" = "focus up";

@@ -33,7 +33,7 @@ let
         }
         {
             name = "i-got-a-buddy-mobile";
-            url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/i-got-a-buddy-web";
+            url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/i-got-a-buddy-mobile";
             path = "$HOME/git-repos/i-got-a-buddy-mobile";
         }
     ];

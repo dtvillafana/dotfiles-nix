@@ -31,6 +31,11 @@ let
             url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/i-got-a-buddy-web";
             path = "$HOME/git-repos/i-got-a-buddy-web";
         }
+        {
+            name = "i-got-a-buddy-mobile";
+            url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/i-got-a-buddy-web";
+            path = "$HOME/git-repos/i-got-a-buddy-mobile";
+        }
     ];
 
     # Function to create a clone action for a Git forge repo
@@ -88,6 +93,7 @@ Host vps
         # Packages that should be installed to the user profile
         home.packages = with pkgs; [
             age
+            blueman
             brave
             brightnessctl
             btop

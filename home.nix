@@ -123,6 +123,7 @@ Host vps
             xournalpp
             xss-lock
             zathura
+            zbar
             zenity
         ];
 

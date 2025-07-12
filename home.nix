@@ -36,6 +36,11 @@ let
             url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/i-got-a-buddy-mobile";
             path = "$HOME/git-repos/i-got-a-buddy-mobile";
         }
+        {
+            name = "org-notifier";
+            url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/org-notifier";
+            path = "$HOME/git-repos/org-notifier";
+        }
     ];
 
     # Function to create a clone action for a Git forge repo
@@ -97,6 +102,7 @@ Host vps
             brave
             brightnessctl
             btop
+            bc
             dunst
             feh
             fzf

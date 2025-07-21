@@ -41,6 +41,11 @@ let
             url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/org-notifier";
             path = "$HOME/git-repos/org-notifier";
         }
+        {
+            name = "liber-usualis";
+            url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/mkbertrand/liber-usualis";
+            path = "$HOME/git-repos/liber-usualis";
+        }
     ];
 
     # Function to create a clone action for a Git forge repo

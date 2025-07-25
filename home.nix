@@ -116,7 +116,7 @@ Host vps
             i3lock
             i3status
             jq
-            kolourpaint
+            kdePackages.kolourpaint
             lazygit
             libreoffice
             networkmanager
@@ -262,7 +262,7 @@ return config'';
                     q = "exit";
                     lg = "lazygit";
                 };
-                initExtra = ''
+                initContent = ''
                     # Enable Powerlevel10k instant prompt
                     if [[ -r "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
                       source "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh"

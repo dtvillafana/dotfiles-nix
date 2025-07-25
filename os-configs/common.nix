@@ -77,7 +77,7 @@
     services.printing.enable = true;
 
     # Enable sound with pipewire.
-    hardware.pulseaudio.enable = false;
+    services.pulseaudio.enable = false;
     security.rtkit.enable = true;
     services.pipewire = {
         enable = true;
@@ -113,7 +113,14 @@
     security.sudo.wheelNeedsPassword = false;
 
     # Allow unfree packages
-    nixpkgs.config.allowUnfree = true;
+    nixpkgs.config = {
+        allowUnfree = true;
+        permittedInsecurePackages = [
+            "broadcom-sta-6.30.223.271-57-6.12.39"
+            "broadcom-sta-6.30.223.271-57-6.6.94"
+        ];
+    };
+
     nix.settings.experimental-features = ["nix-command" "flakes"];
 
     # List packages installed in system profile. To search, run:

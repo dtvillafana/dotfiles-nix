@@ -3,10 +3,12 @@
     # Define the inputs (dependencies) for this flake
     inputs = {
         determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/0.1";
-        nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.2411.0";
+        # Use Determinate's weekly nixpkgs which tracks nixos-unstable
+        # nixpkgs.url = "https://flakehub.com/f/DeterminateSystems/nixpkgs-weekly/0.1";
+        nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.2505.0";
         # Use the matching release branch of home-manager for your nixpkgs version
         home-manager = {
-            url = "github:nix-community/home-manager/release-24.11";
+            url = "github:nix-community/home-manager/release-25.05";
             # This ensures home-manager uses the same nixpkgs as your system
             inputs.nixpkgs.follows = "nixpkgs";
         };

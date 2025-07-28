@@ -5,6 +5,8 @@
   ...
 }:
 let
+  # Node-specific flags
+  enable_git_repo_cloning = if (nodename == "hpenvynix") then true else false;
   external_git_repos = [
     {
       name = "nixvim";
@@ -66,7 +68,12 @@ let
     '';
   };
 
-  external_git_actions = builtins.listToAttrs (map make_git_forge_repo_action external_git_repos);
+  # Conditionally create the git actions
+  external_git_actions =
+    if enable_git_repo_cloning then
+      builtins.listToAttrs (map make_git_forge_repo_action external_git_repos)
+    else
+      { };
 in
 {
   home-manager.useGlobalPkgs = true;

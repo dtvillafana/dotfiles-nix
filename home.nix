@@ -2,6 +2,7 @@
   config,
   pkgs,
   home-manager,
+  nodename,
   ...
 }:
 let

@@ -7,7 +7,7 @@
 }:
 let
   # Node-specific flags
-  enable_git_repo_cloning = if (nodename == "hpenvynix") then true else false;
+  enable_git_repo_cloning = if (nodename == "hpenvynix" || nodename == "thinkpad") then true else false;
   external_git_repos = [
     {
       name = "nixvim";

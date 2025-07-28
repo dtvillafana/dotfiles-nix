@@ -18,3 +18,5 @@ gopass clone vps:~/git-repos/pass
 gpgconf --kill gpg-agent
 gpg-agent --daemon
 ```
+
+first time setup may require setting vir password from root account with passwd

@@ -31,6 +31,7 @@
     let
       nodes = [
         "hpenvynix"
+        "thinkpad"
         "rogdesktop"
       ];
       configuration = (

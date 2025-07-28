@@ -124,10 +124,6 @@
   # Allow unfree packages
   nixpkgs.config = {
     allowUnfree = true;
-    permittedInsecurePackages = [
-      "broadcom-sta-6.30.223.271-57-6.12.39"
-      "broadcom-sta-6.30.223.271-57-6.6.94"
-    ];
   };
 
   nix.settings.experimental-features = [

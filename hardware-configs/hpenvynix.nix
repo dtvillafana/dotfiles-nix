@@ -24,6 +24,16 @@
   boot.loader.efi.canTouchEfiVariables = true;
   hardware.enableAllFirmware = true;
 
+  # Allow unfree packages
+  nixpkgs.config = {
+    allowUnfree = true;
+    permittedInsecurePackages = [
+      "broadcom-sta-6.30.223.271-57-6.12.39"
+      "broadcom-sta-6.30.223.271-57-6.6.94"
+      "broadcom-sta-6.30.223.271-57-6.12.40"
+    ];
+  };
+
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/e93d97ee-6ac4-4e72-a50c-82d9d6bb850a";
     fsType = "ext4";

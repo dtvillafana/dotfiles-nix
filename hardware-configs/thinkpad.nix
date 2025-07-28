@@ -25,7 +25,7 @@
   boot.loader.systemd-boot.enable = false; # Disable systemd-boot
   boot.loader.grub = {
     enable = true;
-    device = "/dev/nvme0n1p1";
+    device = "/dev/nvme0n1";
   };
   boot.loader.efi.canTouchEfiVariables = false; # Disable for legacy BIOS
 

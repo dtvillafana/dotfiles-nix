@@ -18,11 +18,16 @@
     "sr_mod"
     "sdhci_pci"
   ];
-  boot.initrd.kernelModules = [];
-  boot.kernelModules = [];
-  boot.extraModulePackages = [];
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [ ];
+  boot.extraModulePackages = [ ];
   hardware.enableAllFirmware = true;
+  boot.loader.systemd-boot.enable = false; # Disable systemd-boot
+  boot.loader.grub = {
+    enable = true;
+    device = "/dev/nvme0n1p1";
+  };
+  boot.loader.efi.canTouchEfiVariables = false; # Disable for legacy BIOS
 
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/4e2d05a9-b123-4456-bc61-8ec2bd7b9f62";

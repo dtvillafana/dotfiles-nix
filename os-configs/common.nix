@@ -68,8 +68,6 @@
         i3status
         i3lock
         i3blocks
-        # enable wifi drivers
-        linuxKernel.packages.linux_6_6_hardened.broadcom_sta
       ];
     };
 

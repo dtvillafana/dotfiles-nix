@@ -60,6 +60,11 @@ let
       url = "vps:~/git-repos/finances";
       path = "$HOME/git-repos/finances";
     }
+    {
+      name = "dotfiles-nix";
+      url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/dotfiles-nix";
+      path = "$HOME/git-repos/dotfiles-nix";
+    }
   ];
 
   # Function to create a clone action for a Git forge repo

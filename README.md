@@ -19,4 +19,6 @@ gpgconf --kill gpg-agent
 gpg-agent --daemon
 ```
 
-first time setup may require setting vir password from root account with passwd
+# First time setup notes
+1. first time setup may require setting vir password from root account with passwd
+2. you also might have to ssh into predefined ssh hosts to add them to known hosts

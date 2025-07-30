@@ -7,7 +7,8 @@
 }:
 let
   # Node-specific flags
-  enable_git_repo_cloning = if (nodename == "hpenvynix" || nodename == "thinkpad") then true else false;
+  enable_git_repo_cloning =
+    if (nodename == "hpenvynix" || nodename == "thinkpad") then true else false;
   external_git_repos = [
     {
       name = "nixvim";
@@ -53,6 +54,11 @@ let
       name = "liber-usualis";
       url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/mkbertrand/liber-usualis";
       path = "$HOME/git-repos/liber-usualis";
+    }
+    {
+      name = "finances";
+      url = "vps:~/git-repos/finances";
+      path = "$HOME/git-repos/finances";
     }
   ];
 

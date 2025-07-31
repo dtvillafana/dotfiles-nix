@@ -11,7 +11,7 @@ replace nodename with your nodes name
 ```bash
 sudo nixos-rebuild switch --flake github:dtvillafana/dotfiles-nix#nodename
 # or if cloned locally
-sudo nixos-rebuild switch --flake "path:/home/vir/dotfiles-nix#nodename"
+sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#nodename"
 
 gopass clone vps:~/git-repos/pass
 # if gpg needs to be restarted after switch

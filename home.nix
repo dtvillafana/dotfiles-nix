@@ -26,6 +26,11 @@ let
       path = "$HOME/git-repos/orgfiles";
     }
     {
+      name = "spectrum-orgfiles";
+      url = "https://dvillafanaiv:$(cat ${config.sops.secrets.git_gitlab.path})@gitlab.com/spectrum-it-solutions/orgfiles";
+      path = "$HOME/git-repos/spectrum-orgfiles";
+    }
+    {
       name = "homelab-nixos-generators";
       url = "https://dvillafanaiv:$(cat ${config.sops.secrets.git_gitlab.path})@gitlab.com/spectrum-it-solutions/nixos-generators.git";
       path = "$HOME/git-repos/homelab-nixos-generators";
@@ -128,12 +133,14 @@ in
       # Packages that should be installed to the user profile
       home.packages = with pkgs; [
         age
+        arandr
+        bc
         blueman
         brave
         brightnessctl
         btop
-        bc
         dunst
+        fd
         feh
         fzf
         git
@@ -161,6 +168,7 @@ in
         zathura
         zbar
         zenity
+        zip
       ];
 
       # Terminal configuration - WezTerm (since you have it installed)

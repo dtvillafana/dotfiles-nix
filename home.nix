@@ -70,6 +70,11 @@ let
       url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/dotfiles-nix";
       path = "$HOME/git-repos/dotfiles-nix";
     }
+    {
+      name = "cand-data-interface-api-service";
+      url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/spectrum-it-solutions/cand-data-interface-api-service";
+      path = "$HOME/git-repos/cand-data-interface-api-service";
+    }
   ];
 
   # Function to create a clone action for a Git forge repo

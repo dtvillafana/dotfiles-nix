@@ -452,100 +452,37 @@ in
                 statusCommand = "i3status";
               }
             ];
-
-            window.commands = [
-              {
-                criteria = {
-                  class = "qutebrowser";
-                  instance = "qutebrowser";
-                };
-                command = "move to workspace $web";
-              }
-              {
-                criteria = {
-                  class = "Brave-browser";
-                };
-                command = "move to workspace $web";
-              }
-              {
-                criteria = {
-                  class = "brave-browser";
-                };
-                command = "move to workspace $web";
-              }
-              {
-                criteria = {
-                  class = "org.wezfurlong.wezterm";
-                };
-                command = "move to workspace $terms";
-              }
-              {
-                criteria = {
-                  class = "wezterm";
-                };
-                command = "move to workspace $terms";
-              }
-              {
-                criteria = {
-                  class = "vlc";
-                };
-                command = "move to workspace $media";
-              }
-              {
-                criteria = {
-                  class = "Signal";
-                };
-                command = "move to workspace $comms";
-              }
-              {
-                criteria = {
-                  class = "TelegramDesktop";
-                };
-                command = "move to workspace $comms";
-              }
-              {
-                criteria = {
-                  class = "Zathura";
-                };
-                command = "move to workspace $docs";
-              }
-              {
-                criteria = {
-                  class = "libreoffice";
-                };
-                command = "move to workspace $docs";
-              }
-              {
-                criteria = {
-                  class = "sqlitebrowser";
-                };
-                command = "move to workspace $DB";
-              }
-              {
-                criteria = {
-                  class = "DB Browser for SQLite";
-                };
-                command = "move to workspace $DB";
-              }
-              {
-                criteria = {
-                  class = "Microsoft Teams - Preview";
-                };
-                command = "move to workspace $comms";
-              }
-              {
-                criteria = {
-                  class = "Virt-manager";
-                };
-                command = "move to workspace $VMs";
-              }
-              {
-                criteria = {
-                  class = "kolourpaint";
-                };
-                command = "move to workspace $docs";
-              }
-            ];
+            assigns = {
+              "$web" = [
+                { class = "qutebrowser"; }
+                { class = "Brave-browser"; }
+                { class = "brave-browser"; }
+              ];
+              "$terms" = [
+                { class = "org.wezfurlong.wezterm"; }
+                { class = "wezterm"; }
+              ];
+              "$media" = [
+                { class = "vlc"; }
+              ];
+              "$comms" = [
+                { class = "Signal"; }
+                { class = "TelegramDesktop"; }
+                { class = "Microsoft Teams - Preview"; }
+              ];
+              "$docs" = [
+                { class = "Zathura"; }
+                { class = "libreoffice"; }
+                { class = "kolourpaint"; }
+              ];
+              "$DB" = [
+                { class = "sqlitebrowser"; }
+                { class = "DB Browser for SQLite"; }
+              ];
+              "$VMs" = [
+                { class = "Virt-manager"; }
+              ];
+            };
 
             floating.modifier = "Mod4";
             focus.mouseWarping = false;

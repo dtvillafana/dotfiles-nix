@@ -482,6 +482,10 @@ in
               "$VMs" = [
                 { class = "Virt-manager"; }
               ];
+              "$misc" = [
+
+                { class = "pavucontrol"; }
+              ];
             };
 
             floating.modifier = "Mod4";

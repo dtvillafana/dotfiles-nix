@@ -98,7 +98,7 @@ let
       { };
 in
 {
-  home-manager.useGlobalPkgs = true;
+  home-manager.useGlobalPkgs = false;
   home-manager.useUserPackages = true;
   home-manager.backupFileExtension = "hm-bak";
   home-manager.users.vir =
@@ -483,8 +483,8 @@ in
                 { class = "Virt-manager"; }
               ];
               "$misc" = [
-
                 { class = "pavucontrol"; }
+                { class = ".arandr-wrapped"; }
               ];
             };
 

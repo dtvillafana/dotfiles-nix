@@ -133,6 +133,16 @@ in
         ".local/share/gopass/stores/.keep" = {
           source = builtins.toFile "keep" "";
         };
+        # for podman/docker import
+        ".config/containers/policy.json".text = ''
+          {
+              "default": [
+                  {
+                      "type": "insecureAcceptAnything"
+                  }
+              ]
+          }
+        '';
       };
 
       # Packages that should be installed to the user profile

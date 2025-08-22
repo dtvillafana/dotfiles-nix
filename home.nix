@@ -27,7 +27,7 @@ let
     }
     {
       name = "spectrum-orgfiles";
-      url = "https://dvillafanaiv:$(cat ${config.sops.secrets.git_gitlab.path})@gitlab.com/spectrum-it-solutions/orgfiles";
+      url = "https://dvillafanaiv:$(cat ${config.sops.secrets.git_gitlab.path})@gitlab.com/spectrum-it-solutions/orgfiles.git";
       path = "$HOME/git-repos/spectrum-orgfiles";
     }
     {

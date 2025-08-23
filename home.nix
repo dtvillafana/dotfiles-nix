@@ -307,6 +307,7 @@ in
             ];
           };
           shellAliases = {
+            nv = "nix run $HOME/git-repos/nixvim";
             q = "exit";
             lg = "lazygit";
           };

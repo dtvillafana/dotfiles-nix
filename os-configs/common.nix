@@ -164,6 +164,8 @@
   services.openssh.enable = true;
   # programs.ssh.askPassword = "${pkgs.pinentry-tty}/bin/pinentry";
 
+  hardware.bluetooth.enable = true;
+
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];

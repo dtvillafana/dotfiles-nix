@@ -158,6 +158,7 @@ in
         fd
         feh
         fzf
+        ghostty
         git
         gopass
         i3lock
@@ -186,23 +187,15 @@ in
         zip
       ];
 
-      # Terminal configuration - WezTerm (since you have it installed)
-      programs.wezterm = {
-        enable = true;
-        extraConfig = ''
-          local wezterm = require 'wezterm'
-          -- This will hold the configuration.
-          local config = wezterm.config_builder()
-          config.use_fancy_tab_bar = false
-          config.show_tabs_in_tab_bar = false
-          config.show_new_tab_button_in_tab_bar = false
-          return config'';
-        # Add custom configuration if needed
-      };
+      home.file.".config/ghostty/config".text = ''
+        window-decoration = none
+        gtk-titlebar = false
+        theme = catppuccin-frappe
+      '';
 
       programs.rofi = {
         enable = true;
-        terminal = "wezterm";
+        terminal = "ghostty";
         theme = "Arc-Dark";
         font = "DejaVu Sans Mono 11";
         extraConfig = {
@@ -445,7 +438,7 @@ in
           enable = true;
           config = {
             modifier = "Mod4"; # Windows/Super key
-            terminal = "wezterm"; # Your terminal of choice
+            terminal = "ghostty"; # Your terminal of choice
             fonts = {
               names = [ "DejaVu Sans Mono" ];
               style = "Normal";
@@ -472,6 +465,8 @@ in
               "$terms" = [
                 { class = "org.wezfurlong.wezterm"; }
                 { class = "wezterm"; }
+                { class = "ghostty"; }
+                { class = "com.mitchellh.ghostty"; }
               ];
               "$media" = [
                 { class = "vlc"; }
@@ -485,6 +480,10 @@ in
                 { class = "Zathura"; }
                 { class = "libreoffice"; }
                 { class = "kolourpaint"; }
+                { class = "soffice"; }
+                { class = "Soffice"; }
+                { class = "libreoffice"; }
+                { class = "libreoffice-impress"; }
               ];
               "$DB" = [
                 { class = "sqlitebrowser"; }
@@ -579,7 +578,7 @@ in
                 termsbk = "Background Processes";
               in
               {
-                "${mod}+Return" = "exec wezterm";
+                "${mod}+Return" = "exec ghostty";
                 "${mod}+Shift+t" = "exec i3-sensible-terminal";
                 "${mod}+Shift+q" = "kill";
                 "${mod}+d" = "exec rofi -show drun";

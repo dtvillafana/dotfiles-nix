@@ -75,6 +75,11 @@ let
       url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/spectrum-it-solutions/cand-data-interface-api-service";
       path = "$HOME/git-repos/cand-data-interface-api-service";
     }
+    {
+      name = "csc-106";
+      url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/csc-106";
+      path = "$HOME/git-repos/csc-106";
+    }
   ];
 
   # Function to create a clone action for a Git forge repo
@@ -431,14 +436,14 @@ in
         quickmarks = { };
       };
 
-      # Configure i3 with your custom config
+      # Mostly just i3 config here
       xsession.windowManager = {
         command = "exec i3";
         i3 = {
           enable = true;
           config = {
             modifier = "Mod4"; # Windows/Super key
-            terminal = "ghostty"; # Your terminal of choice
+            terminal = "ghostty";
             fonts = {
               names = [ "DejaVu Sans Mono" ];
               style = "Normal";

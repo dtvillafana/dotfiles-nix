@@ -196,6 +196,7 @@ in
         window-decoration = none
         gtk-titlebar = false
         theme = catppuccin-frappe
+        keybind = ctrl+enter=unbind
       '';
 
       programs.rofi = {

@@ -3,6 +3,9 @@
   pkgs,
   home-manager,
   nodename,
+  nixvim,
+  system,
+  lib,
   ...
 }:
 let
@@ -34,11 +37,6 @@ let
       name = "homelab-nixos-generators";
       url = "https://dvillafanaiv:$(cat ${config.sops.secrets.git_gitlab.path})@gitlab.com/spectrum-it-solutions/nixos-generators.git";
       path = "$HOME/git-repos/homelab-nixos-generators";
-    }
-    {
-      name = "stow-dotfiles";
-      url = "vps:~/git-repos/dotfiles";
-      path = "$HOME/git-repos/stow-dotfiles";
     }
     {
       name = "i-got-a-buddy-web";
@@ -88,9 +86,13 @@ let
     value = home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       if [ ! -d "${repo.path}" ]; then
           export GIT_SSH="${pkgs.openssh}/bin/ssh"
-        ${pkgs.git}/bin/git clone ${repo.url} ${repo.path}
+          if git ls-remote "${repo.url}" &> /dev/null; then
+              ${pkgs.git}/bin/git clone "${repo.url}" "${repo.path}"
+          else
+              echo "Network unreachable or repo inaccessible. Skipping clone."
+          fi
       else
-          cd ${repo.path} && ${pkgs.git}/bin/git pull
+          cd "${repo.path}" && ${pkgs.git}/bin/git pull
       fi
     '';
   };
@@ -150,6 +152,20 @@ in
         '';
       };
 
+      programs = {
+        ghostty = {
+          enable = true;
+          settings = {
+            window-decoration = "none";
+            gtk-titlebar = false;
+            theme = "catppuccin-frappe";
+            keybind = [
+              "ctrl+enter=unbind"
+            ];
+          };
+        };
+      };
+
       # Packages that should be installed to the user profile
       home.packages = with pkgs; [
         age
@@ -163,7 +179,6 @@ in
         fd
         feh
         fzf
-        ghostty
         git
         gopass
         i3lock
@@ -191,13 +206,6 @@ in
         zenity
         zip
       ];
-
-      home.file.".config/ghostty/config".text = ''
-        window-decoration = none
-        gtk-titlebar = false
-        theme = catppuccin-frappe
-        keybind = ctrl+enter=unbind
-      '';
 
       programs.rofi = {
         enable = true;
@@ -309,6 +317,8 @@ in
             nv = "nix run $HOME/git-repos/nixvim";
             q = "exit";
             lg = "lazygit";
+            nr = ''nix flake update --refresh --flake "github:dtvillafana/nixvim" nixvim && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${nodename}"'';
+            nfr = ''nix flake update --refresh --flake "github:dtvillafana/nixvim" && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${nodename}"'';
           };
           initContent = ''
             # Enable Powerlevel10k instant prompt
@@ -446,7 +456,9 @@ in
             modifier = "Mod4"; # Windows/Super key
             terminal = "ghostty";
             fonts = {
-              names = [ "DejaVu Sans Mono" ];
+              names = [
+                "DejaVu Sans Mono"
+              ];
               style = "Normal";
               size = 11.0;
             };
@@ -584,7 +596,9 @@ in
                 termsbk = "Background Processes";
               in
               {
-                "${mod}+Return" = "exec ghostty";
+                "${mod}+Return" = "exec ${pkgs.neovide}/bin/neovide --neovim-bin ${
+                  lib.getExe nixvim.packages.${system}.default
+                }";
                 "${mod}+Shift+t" = "exec i3-sensible-terminal";
                 "${mod}+Shift+q" = "kill";
                 "${mod}+d" = "exec rofi -show drun";

@@ -12,6 +12,7 @@
       # This ensures home-manager uses the same nixpkgs as your system
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixvim.url = "github:dtvillafana/nixvim";
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -26,9 +27,11 @@
       determinate,
       home-manager,
       sops-nix,
+      nixvim,
       ...
     }:
     let
+      system = "x86_64-linux";
       nodes = [
         "hpenvynix"
         "thinkpad"
@@ -39,7 +42,7 @@
         # Used for bundling a nixos configuration for the node to be used for autoUpgrades after deployment.
         nodename:
         nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
+          system = system;
           modules = [
             determinate.nixosModules.default
             home-manager.nixosModules.home-manager
@@ -57,6 +60,8 @@
             home-manager = home-manager;
             sops = sops-nix.nixosModules.sops;
             nixpkgs = nixpkgs;
+            nixvim = nixvim;
+            system = system;
           };
         }
       );

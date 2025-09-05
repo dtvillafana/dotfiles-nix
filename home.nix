@@ -86,10 +86,10 @@ let
     value = home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       if [ ! -d "${repo.path}" ]; then
           export GIT_SSH="${pkgs.openssh}/bin/ssh"
-          if git ls-remote "${repo.url}" &> /dev/null; then
+          if ping -c 1 github.com &> /dev/null; then
               ${pkgs.git}/bin/git clone "${repo.url}" "${repo.path}"
           else
-              echo "Network unreachable or repo inaccessible. Skipping clone."
+              echo "Network unreachable. Skipping clone."
           fi
       else
           cd "${repo.path}" && ${pkgs.git}/bin/git pull

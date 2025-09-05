@@ -596,9 +596,13 @@ in
                 termsbk = "Background Processes";
               in
               {
-                "${mod}+Return" = "exec ${pkgs.neovide}/bin/neovide --neovim-bin ${
-                  lib.getExe nixvim.packages.${system}.default
-                }";
+                # Set neovide as default "terminal emulator"
+                # "${mod}+Return" = "exec ${pkgs.neovide}/bin/neovide --neovim-bin ${
+                #   lib.getExe nixvim.packages.${system}.default
+                # }";
+
+                # Set Ghostty as default terminal emulator
+                "${mod}+Return" = "exec ${pkgs.ghostty}/bin/ghostty";
                 "${mod}+Shift+t" = "exec i3-sensible-terminal";
                 "${mod}+Shift+q" = "kill";
                 "${mod}+d" = "exec rofi -show drun";

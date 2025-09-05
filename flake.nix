@@ -1,6 +1,5 @@
 {
   description = "NixOS configurations for David";
-  # Define the inputs (dependencies) for this flake
   inputs = {
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/0.1";
     # Use Determinate's weekly nixpkgs which tracks nixos-unstable
@@ -9,7 +8,7 @@
     # Use the matching release branch of home-manager for your nixpkgs version
     home-manager = {
       url = "github:nix-community/home-manager/release-25.05";
-      # This ensures home-manager uses the same nixpkgs as your system
+      # This ensures home-manager uses the same nixpkgs as my system
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixvim.url = "github:dtvillafana/nixvim";

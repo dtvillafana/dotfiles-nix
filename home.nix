@@ -317,8 +317,8 @@ in
             nv = "nix run $HOME/git-repos/nixvim";
             q = "exit";
             lg = "lazygit";
-            nr = ''nix flake update --refresh --flake "github:dtvillafana/nixvim" nixvim && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${nodename}"'';
-            nfr = ''nix flake update --refresh --flake "github:dtvillafana/nixvim" && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${nodename}"'';
+            nr = ''nix flake update --refresh --flake "github:dtvillafana/dotfiles-nix" nixvim && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${nodename}"'';
+            nfr = ''nix flake update --refresh --flake "github:dtvillafana/dotfiles-nix" && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${nodename}"'';
           };
           initContent = ''
             # Enable Powerlevel10k instant prompt

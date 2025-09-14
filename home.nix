@@ -74,6 +74,11 @@ let
       path = "$HOME/git-repos/cand-data-interface-api-service";
     }
     {
+      name = "cand-data-interface-sql";
+      url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/spectrum-it-solutions/cand-data-interface-sql";
+      path = "$HOME/git-repos/cand-data-interface-sql";
+    }
+    {
       name = "csc-106";
       url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/csc-106";
       path = "$HOME/git-repos/csc-106";

@@ -83,6 +83,11 @@ let
       url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/csc-106";
       path = "$HOME/git-repos/csc-106";
     }
+    {
+      name = "CSC-106-practice";
+      url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/CSC-106-practice";
+      path = "$HOME/git-repos/CSC-106-practice";
+    }
   ];
 
   # Function to create a clone action for a Git forge repo
@@ -351,6 +356,30 @@ in
             "store --file=${config.users.users.vir.home}/.git-credentials-gitlab";
           credential."https://bitbucket.org".helper =
             "store --file=${config.users.users.vir.home}/.git-credentials-bitbucket";
+        };
+      };
+
+      programs.autorandr = {
+        enable = true;
+        profiles = {
+          "home" = {
+            fingerprint = {
+              eDP-1 = "00ffffffffffff0030e4900500000000001b010495221378eaa1c59459578f27205054000000010101010101010101010101010101012e3680a070381f403020350058c21000001ab62c80f4703816403020350058c21000001a000000fe004c4720446973706c61790a2020000000fe004c503135365746362d53504b360041";
+              HDMI-1 = "00ffffffffffff0022f06130010101011117010380321d782e2755a3544f9e27115054a10800d1c081c081809500a9c0b30001010101023a801871382d40582c4500f0241100001e000000fd00324c185e11000a202020202020000000fc00485020453232310a2020202020000000ff00434e4b3331373043465a0a20200084";
+            };
+            config = {
+              eDP-1.enable = true;
+              HDMI-1.enable = true;
+              HDMI-1.primary = true;
+              DP-1.enable = false;
+              DP-2.enable = false;
+              HDMI-2.enable = false;
+              HDMI-1.mode = "1920x1080";
+              HDMI-1.position = "0x0";
+              eDP-1.mode = "1920x1080";
+              eDP-1.position = "1920x493";
+            };
+          };
         };
       };
 

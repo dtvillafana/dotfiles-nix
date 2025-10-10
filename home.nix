@@ -85,7 +85,7 @@ let
     }
     {
       name = "CSC-106-practice";
-      url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/CSC-106-practice";
+      url = "https://github.com/dtvillafana/CSC-106-practice";
       path = "$HOME/git-repos/CSC-106-practice";
     }
   ];
@@ -324,11 +324,12 @@ in
             ];
           };
           shellAliases = {
-            nv = "nix run $HOME/git-repos/nixvim";
+            nv = lib.getExe nixvim.packages.${system}.default;
+            nvd = "nix run $HOME/git-repos/nixvim";
             q = "exit";
             lg = "lazygit";
             nr = ''nix flake update --flake "path:/home/vir/git-repos/dotfiles-nix" nixvim && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${nodename}"'';
-            nfr = ''nix flake update --flake "path:/home/vir/git-repos/dotfiles-nix" && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${nodename}"'';
+            nrf = ''nix flake update --flake "path:/home/vir/git-repos/dotfiles-nix" && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${nodename}" --refresh'';
           };
           initContent = ''
             # Enable Powerlevel10k instant prompt

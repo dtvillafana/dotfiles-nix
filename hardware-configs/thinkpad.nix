@@ -25,6 +25,7 @@
   boot.loader.grub = {
     enable = true;
     device = "/dev/nvme0n1";
+    configurationLimit = 10; # Keep only 10 boot entries
   };
   boot.loader.efi.canTouchEfiVariables = false; # Disable for legacy BIOS
 

@@ -200,6 +200,7 @@ in
         networkmanager
         nix-index
         pwgen-secure
+        python313FreeThreading
         ripgrep
         rofi
         scrot

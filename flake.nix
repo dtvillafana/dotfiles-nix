@@ -57,7 +57,6 @@
             nodename = nodename;
             modulesPath = "${nixpkgs}/nixos/modules";
             home-manager = home-manager;
-            sops = sops-nix.nixosModules.sops;
             nixpkgs = nixpkgs;
             nixvim = nixvim;
             system = system;

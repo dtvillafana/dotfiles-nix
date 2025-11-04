@@ -1,5 +1,4 @@
 {
-  nixpkgs,
   config,
   pkgs,
   nodename,
@@ -19,6 +18,9 @@
         owner = config.users.users.vir.name;
       };
       "git_vps" = {
+        owner = config.users.users.vir.name;
+      };
+      "ssh_nix_key" = {
         owner = config.users.users.vir.name;
       };
     };

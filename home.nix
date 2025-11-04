@@ -141,12 +141,19 @@ in
       home.activation = external_git_actions;
 
       home.file = {
+        ".ssh/id_ecdsa.pub".text =
+          ''ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAG8NzNAYDdt66g3YlH9/JpemTq87v5auOVQMJ128U78Kwyc9Dq8vYELxpglHWg4ILwmNp8mgAC9tDnmNI24PY1RgQG7Mq2cIciPPf8B8ebR3v0nMi5KHRR5cCf7FXpPqbPMAuqzz748gnCkpGypdquz2Psywxe02b/jwLDNrhoKORmJiA== vir@nixos'';
         ".ssh/config".text = ''
           Host vps
               HostName 104.207.135.195
               IdentityFile ${config.sops.secrets.git_vps.path}
               User root
-              port 4455'';
+              port 4455
+          Host org
+              HostName 172.234.200.63
+              IdentityFile ${config.sops.secrets.ssh_nix_key.path}
+              User vir
+              port 22'';
         ".local/share/gopass/stores/.keep" = {
           source = builtins.toFile "keep" "";
         };

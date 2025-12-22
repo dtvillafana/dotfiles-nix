@@ -153,6 +153,7 @@
     gnupg
     file
     xdotool
+    unzip
   ];
 
   programs.nix-ld.enable = true;

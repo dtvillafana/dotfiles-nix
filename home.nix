@@ -661,6 +661,8 @@ in
                   "exec --no-startup-id sh -c 'env DISPLAY=$DISPLAY ${pkgs.scrot}/bin/scrot -s /tmp/screenshot.png && env DISPLAY=$DISPLAY ${pkgs.xclip}/bin/xclip -selection clipboard -t image/png < /tmp/screenshot.png && rm /tmp/screenshot.png'";
                 "${mod}+h" = "focus left";
                 "${mod}+j" = "focus down";
+                "${mod}+shift+a" =
+                  "exec --no-startup-id sh -c 'setxkbmap -query | grep -q swapcaps && setxkbmap -option || setxkbmap -option ctrl:swapcaps'";
                 "${mod}+k" = "focus up";
                 "${mod}+l" = "focus right";
                 "${mod}+Left" = "focus left";

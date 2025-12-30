@@ -196,6 +196,7 @@ in
         fd
         feh
         fzf
+        gemini-cli
         git
         gopass
         i3lock

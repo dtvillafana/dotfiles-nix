@@ -102,7 +102,7 @@ let
               echo "Network unreachable. Skipping clone."
           fi
       else
-          cd "${repo.path}" && ${pkgs.git}/bin/git pull
+          cd "${repo.path}" && ${pkgs.git}/bin/git pull || true
       fi
     '';
   };

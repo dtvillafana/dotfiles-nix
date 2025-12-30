@@ -111,6 +111,8 @@
     extraGroups = [
       "networkmanager"
       "wheel"
+      "dialout"
+      "tty"
     ];
     packages = with pkgs; [
       brave

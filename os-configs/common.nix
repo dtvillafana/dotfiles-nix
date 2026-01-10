@@ -2,6 +2,7 @@
   config,
   pkgs,
   nodename,
+  claude-code,
   ...
 }:
 {
@@ -25,6 +26,8 @@
       };
     };
   };
+
+  nixpkgs.overlays = [ claude-code.overlays.default ];
 
   networking.hostName = nodename; # Define your hostname.
 

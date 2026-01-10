@@ -11,6 +11,7 @@
       # This ensures home-manager uses the same nixpkgs as my system
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    claude-code.url = "github:sadjow/claude-code-nix";
     nixvim.url = "github:dtvillafana/nixvim";
     sops-nix = {
       url = "github:Mic92/sops-nix";
@@ -27,6 +28,7 @@
       home-manager,
       sops-nix,
       nixvim,
+      claude-code,
       ...
     }:
     let
@@ -60,6 +62,7 @@
             nixpkgs = nixpkgs;
             nixvim = nixvim;
             system = system;
+            claude-code = claude-code;
           };
         }
       );

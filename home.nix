@@ -192,6 +192,7 @@ in
         brave
         brightnessctl
         btop
+        claude-code
         dunst
         fd
         feh

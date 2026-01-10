@@ -6,6 +6,8 @@
   nixvim,
   system,
   lib,
+  opencode-tui,
+  codex-cli,
   ...
 }:
 let
@@ -193,6 +195,7 @@ in
         brightnessctl
         btop
         claude-code
+        codex-cli.packages.${system}.default
         dunst
         fd
         feh
@@ -208,6 +211,7 @@ in
         libreoffice
         networkmanager
         nix-index
+        opencode-tui.packages.${system}.default
         pwgen-secure
         python313FreeThreading
         ripgrep

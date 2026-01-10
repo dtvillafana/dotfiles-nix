@@ -12,6 +12,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     claude-code.url = "github:sadjow/claude-code-nix";
+    opencode-tui.url = "github:aodhanhayter/opencode-flake";
+    codex-cli.url = "github:sadjow/codex-cli-nix";
     nixvim.url = "github:dtvillafana/nixvim";
     sops-nix = {
       url = "github:Mic92/sops-nix";
@@ -29,6 +31,8 @@
       sops-nix,
       nixvim,
       claude-code,
+      codex-cli,
+      opencode-tui,
       ...
     }:
     let
@@ -63,6 +67,8 @@
             nixvim = nixvim;
             system = system;
             claude-code = claude-code;
+            codex-cli = codex-cli;
+            opencode-tui = opencode-tui;
           };
         }
       );

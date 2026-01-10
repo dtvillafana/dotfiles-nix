@@ -8,6 +8,7 @@
   lib,
   opencode-tui,
   codex-cli,
+  claude-code,
   ...
 }:
 let
@@ -120,6 +121,14 @@ in
   home-manager.useGlobalPkgs = false;
   home-manager.useUserPackages = true;
   home-manager.backupFileExtension = "hm-bak";
+  home-manager.extraSpecialArgs = {
+    claude-code = claude-code;
+  };
+  home-manager.sharedModules = [
+    {
+      nixpkgs.overlays = [ claude-code.overlays.default ];
+    }
+  ];
   home-manager.users.vir =
     { pkgs, ... }:
     {
@@ -194,7 +203,7 @@ in
         brave
         brightnessctl
         btop
-        claude-code
+        claude-code-bun
         codex-cli.packages.${system}.default
         dunst
         fd

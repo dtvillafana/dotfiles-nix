@@ -11,7 +11,9 @@
       # This ensures home-manager uses the same nixpkgs as my system
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    claude-code.url = "github:sadjow/claude-code-nix";
+    claude-code = {
+      url = "github:sadjow/claude-code-nix";
+    };
     opencode-tui.url = "github:aodhanhayter/opencode-flake";
     codex-cli.url = "github:sadjow/codex-cli-nix";
     nixvim.url = "github:dtvillafana/nixvim";

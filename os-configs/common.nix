@@ -27,8 +27,6 @@
     };
   };
 
-  nixpkgs.overlays = [ claude-code.overlays.default ];
-
   networking.hostName = nodename; # Define your hostname.
 
   services.resolved.enable = true;

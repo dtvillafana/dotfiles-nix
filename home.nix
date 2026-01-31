@@ -102,7 +102,7 @@ let
     value = home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       if [ ! -d "${repo.path}" ]; then
           export GIT_SSH="${pkgs.openssh}/bin/ssh"
-          if ping -c 1 github.com &> /dev/null; then
+          if ${pkgs.iputils}/bin/ping -c 1 github.com &> /dev/null; then
               ${pkgs.git}/bin/git clone "${repo.url}" "${repo.path}"
           else
               echo "Network unreachable. Skipping clone."

@@ -206,7 +206,7 @@ in
         brave
         brightnessctl
         btop
-        claude-code-bun
+        claude-code
         codex-cli.packages.${system}.default
         dunst
         fd

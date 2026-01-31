@@ -14,7 +14,7 @@
 let
   # Node-specific flags
   enable_git_repo_cloning =
-    if (nodename == "hpenvynix" || nodename == "thinkpad") then true else false;
+    if (nodename == "hpenvynix" || nodename == "thinkpad" || nodename == "rogdesktop") then true else false;
   external_git_repos = [
     {
       name = "nixvim";

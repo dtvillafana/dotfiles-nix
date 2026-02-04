@@ -1,10 +1,19 @@
-{ ... }:
 {
+  home-manager,
+  pkgs,
+  lib,
+  ...
+}:
+{
+  home-manager.users.vir =
+    { pkgs, lib, ... }:
+    {
 
-  services.xserver.displayManager.sessionCommands = ''
-    xset -dpms
-    xset s off
-    xset s noblank
-  '';
+      xsession.initExtra = ''
+          xset -dpms
+          xset s off
+          xset s noblank
+        '';
 
+    };
 }

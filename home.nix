@@ -119,6 +119,10 @@ let
       builtins.listToAttrs (map make_git_forge_repo_action external_git_repos)
     else
       { };
+
+  braveWrapper = pkgs.writeShellScriptBin "brave" ''
+    exec ${pkgs.brave}/bin/brave --password-store=basic "$@"
+  '';
 in
 {
   home-manager.useGlobalPkgs = false;
@@ -138,7 +142,12 @@ in
       # Home Manager needs a bit of information about you and the paths it should manage
       home.username = "vir";
       home.homeDirectory = "/home/vir";
-
+      home.sessionPath = [
+        "$HOME/.nix-profile/bin"
+        "/etc/profiles/per-user/vir/bin"
+        "/run/wrappers/bin"
+        "/run/current-system/sw/bin"
+      ];
 
       #         home.file.".gnupg/gpg-agent.conf".text = ''
       # enable-ssh-support
@@ -196,13 +205,41 @@ in
         };
       };
 
+      xdg.desktopEntries = {
+        brave-browser = {
+          name = "Brave Browser";
+          genericName = "Web Browser";
+          exec = "brave %U";
+          icon = "brave-browser";
+          terminal = false;
+          categories = [
+            "Network"
+            "WebBrowser"
+          ];
+          mimeType = [
+            "text/html"
+            "text/xml"
+            "application/xhtml+xml"
+            "application/xml"
+            "application/rss+xml"
+            "application/rdf+xml"
+            "image/gif"
+            "image/jpeg"
+            "image/png"
+            "x-scheme-handler/http"
+            "x-scheme-handler/https"
+            "x-scheme-handler/ftp"
+          ];
+        };
+      };
+
       # Packages that should be installed to the user profile
       home.packages = with pkgs; [
         age
         arandr
         bc
         blueman
-        brave
+        braveWrapper
         brightnessctl
         btop
         pkgs.claude-code
@@ -217,7 +254,6 @@ in
         i3lock
         i3status
         jq
-        kdePackages.kolourpaint
         lazygit
         libreoffice
         networkmanager
@@ -383,6 +419,7 @@ in
           credential."https://bitbucket.org".helper =
             "store --file=${config.users.users.vir.home}/.git-credentials-bitbucket";
         };
+        lfs.enable = true;
       };
 
       services.autorandr.enable = true;
@@ -529,6 +566,9 @@ in
       # Mostly just i3 config here
       xsession = {
         enable = true;
+        initExtra = ''
+          rm -f ~/.cache/rofi3.druncache ~/.cache/rofi3.runcache
+        '';
         scriptPath = ".xinitrc";
         windowManager = {
           i3 = {

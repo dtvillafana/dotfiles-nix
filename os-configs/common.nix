@@ -116,7 +116,6 @@
       "tty"
     ];
     packages = with pkgs; [
-      brave
       git
       neovim
       curl

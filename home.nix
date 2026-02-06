@@ -162,20 +162,30 @@ in
 
       home.activation = external_git_actions;
 
+      programs.ssh = {
+        enable = true;
+        matchBlocks = {
+          "vps" = home-manager.lib.hm.dag.entryAnywhere {
+            hostname = "104.207.135.195";
+            identityFile = "${config.sops.secrets.git_vps.path}";
+            user = "root";
+            port = 4455;
+          };
+          "org" = home-manager.lib.hm.dag.entryAfter [ "vps" ] {
+            hostname = "172.234.200.63";
+            identityFile = "${config.sops.secrets.ssh_nix_key.path}";
+            user = "vir";
+            port = 22;
+          };
+          "*" = home-manager.lib.hm.dag.entryAfter [ "org" ] {
+            identityFile = "${config.sops.secrets.ssh_nix_key.path}";
+          };
+        };
+      };
+
       home.file = {
         ".ssh/id_ecdsa.pub".text =
           ''ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAG8NzNAYDdt66g3YlH9/JpemTq87v5auOVQMJ128U78Kwyc9Dq8vYELxpglHWg4ILwmNp8mgAC9tDnmNI24PY1RgQG7Mq2cIciPPf8B8ebR3v0nMi5KHRR5cCf7FXpPqbPMAuqzz748gnCkpGypdquz2Psywxe02b/jwLDNrhoKORmJiA== vir@nixos'';
-        ".ssh/config".text = ''
-          Host vps
-              HostName 104.207.135.195
-              IdentityFile ${config.sops.secrets.git_vps.path}
-              User root
-              port 4455
-          Host org
-              HostName 172.234.200.63
-              IdentityFile ${config.sops.secrets.ssh_nix_key.path}
-              User vir
-              port 22'';
         ".local/share/gopass/stores/.keep" = {
           source = builtins.toFile "keep" "";
         };
@@ -408,9 +418,11 @@ in
       # Configure Git
       programs.git = {
         enable = true;
-        userName = "David Villafaña"; # Replace with your name
-        userEmail = "dvillafanaiv@proton.me"; # Replace with your email
-        extraConfig = {
+        user = {
+          name = "David Villafaña"; # Replace with your name
+          email = "dvillafanaiv@proton.me"; # Replace with your email
+        };
+        settings = {
           core.sshCommand = "${pkgs.openssh}/bin/ssh";
           credential."https://github.com".helper =
             "store --file=${config.users.users.vir.home}/.git-credentials-github";
@@ -840,6 +852,6 @@ in
       # configuration is compatible with. This helps avoid breakage
       # when a new Home Manager release introduces backwards
       # incompatible changes.
-      home.stateVersion = "24.05";
+      home.stateVersion = "25.11";
     };
 }

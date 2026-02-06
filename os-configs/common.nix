@@ -159,7 +159,6 @@
   ];
 
   programs.nix-ld.enable = true;
-  programs.nix-ld.package = pkgs.nix-ld-rs;
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.

@@ -207,7 +207,6 @@ in
           settings = {
             window-decoration = "none";
             gtk-titlebar = false;
-            theme = "catppuccin-frappe";
             keybind = [
               "ctrl+enter=unbind"
             ];
@@ -418,11 +417,11 @@ in
       # Configure Git
       programs.git = {
         enable = true;
-        user = {
-          name = "David Villafaña"; # Replace with your name
-          email = "dvillafanaiv@proton.me"; # Replace with your email
-        };
         settings = {
+          user = {
+            name = "David Villafaña"; # Replace with your name
+            email = "dvillafanaiv@proton.me"; # Replace with your email
+          };
           core.sshCommand = "${pkgs.openssh}/bin/ssh";
           credential."https://github.com".helper =
             "store --file=${config.users.users.vir.home}/.git-credentials-github";

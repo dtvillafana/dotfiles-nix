@@ -164,6 +164,7 @@ in
 
       programs.ssh = {
         enable = true;
+        enableDefaultConfig = false;
         matchBlocks = {
           "vps" = home-manager.lib.hm.dag.entryAnywhere {
             hostname = "104.207.135.195";
@@ -246,6 +247,7 @@ in
       home.packages = with pkgs; [
         age
         arandr
+        audacity
         bc
         blueman
         braveWrapper

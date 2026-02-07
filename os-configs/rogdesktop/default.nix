@@ -11,6 +11,7 @@
   users.users.vir.extraGroups = [
     "adbusers"
   ];
+  users.groups.adbusers = {};
 
   hardware.nvidia = {
     modesetting.enable = true;

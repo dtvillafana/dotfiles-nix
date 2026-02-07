@@ -63,7 +63,6 @@
             # additional arguments to pass to modules
             self = self;
             nodename = nodename;
-            modulesPath = "${nixpkgs}/nixos/modules";
             home-manager = home-manager;
             nixpkgs = nixpkgs;
             nixvim = nixvim;

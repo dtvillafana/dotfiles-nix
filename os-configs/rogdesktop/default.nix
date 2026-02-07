@@ -7,6 +7,11 @@
 {
   services.xserver.videoDrivers = [ "nvidia" ];
 
+  programs.adb.enable = true;
+  users.users.vir.extraGroups = [
+    "adbusers"
+  ];
+
   hardware.nvidia = {
     modesetting.enable = true;
     open = false;
@@ -19,10 +24,10 @@
     {
 
       xsession.initExtra = ''
-          xset -dpms
-          xset s off
-          xset s noblank
-        '';
+        xset -dpms
+        xset s off
+        xset s noblank
+      '';
 
     };
 }

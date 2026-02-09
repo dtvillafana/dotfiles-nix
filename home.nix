@@ -184,6 +184,24 @@ in
         };
       };
 
+      programs.tmux = {
+        enable = true;
+        extraConfig = ''
+          set -g set-clipboard on
+          set -g status off
+          set -g default-terminal "screen-256color"
+          set -ga terminal-overrides ",*256col*:Tc"
+          set -sg escape-time 0
+          set -g allow-passthrough on
+          unbind s
+          bind C-s display-popup -E -w 80% -h 80% "\
+              tmux list-sessions -F '#{?session_attached,,#{session_name}}' |\
+              sed '/^$/d' |\
+              fzf --reverse --header jump-to-session --preview 'tmux capture-pane -pt {}' |\
+              xargs tmux switch-client -t"
+        '';
+      };
+
       home.file = {
         ".ssh/id_ecdsa.pub".text =
           ''ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAG8NzNAYDdt66g3YlH9/JpemTq87v5auOVQMJ128U78Kwyc9Dq8vYELxpglHWg4ILwmNp8mgAC9tDnmNI24PY1RgQG7Mq2cIciPPf8B8ebR3v0nMi5KHRR5cCf7FXpPqbPMAuqzz748gnCkpGypdquz2Psywxe02b/jwLDNrhoKORmJiA== vir@nixos'';

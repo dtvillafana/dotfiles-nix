@@ -439,8 +439,8 @@ in
         enable = true;
         settings = {
           user = {
-            name = "David Villafaña"; # Replace with your name
-            email = "dvillafanaiv@proton.me"; # Replace with your email
+            name = "dtvillafana"; # Replace with your name
+            email = "82293276+dtvillafana@users.noreply.github.com"; # Replace with your email
           };
           core.sshCommand = "${pkgs.openssh}/bin/ssh";
           credential."https://github.com".helper =

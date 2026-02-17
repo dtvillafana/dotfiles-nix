@@ -120,9 +120,6 @@ let
     else
       { };
 
-  braveWrapper = pkgs.writeShellScriptBin "brave" ''
-    exec ${pkgs.brave}/bin/brave --password-store=basic "$@"
-  '';
 in
 {
   home-manager.useGlobalPkgs = false;
@@ -159,6 +156,15 @@ in
 
       # Let Home Manager install and manage itself
       programs.home-manager.enable = true;
+
+      programs.chromium = {
+        enable = true;
+        package = pkgs.brave;
+        commandLineArgs = [ "--password-store=basic" ];
+        extensions = [
+          { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; } # vimium - currently not working
+        ];
+      };
 
       home.activation = external_git_actions;
 
@@ -233,33 +239,6 @@ in
         };
       };
 
-      xdg.desktopEntries = {
-        brave-browser = {
-          name = "Brave Browser";
-          genericName = "Web Browser";
-          exec = "brave %U";
-          icon = "brave-browser";
-          terminal = false;
-          categories = [
-            "Network"
-            "WebBrowser"
-          ];
-          mimeType = [
-            "text/html"
-            "text/xml"
-            "application/xhtml+xml"
-            "application/xml"
-            "application/rss+xml"
-            "application/rdf+xml"
-            "image/gif"
-            "image/jpeg"
-            "image/png"
-            "x-scheme-handler/http"
-            "x-scheme-handler/https"
-            "x-scheme-handler/ftp"
-          ];
-        };
-      };
 
       # Packages that should be installed to the user profile
       home.packages = with pkgs; [
@@ -268,7 +247,6 @@ in
         audacity
         bc
         blueman
-        braveWrapper
         brightnessctl
         btop
         pkgs.claude-code

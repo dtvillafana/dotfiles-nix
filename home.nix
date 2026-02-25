@@ -192,6 +192,7 @@ in
 
       programs.tmux = {
         enable = true;
+        # shift-up and shift-down to scroll in the fzf previewer
         extraConfig = ''
           set -g set-clipboard on
           set -g status off
@@ -201,9 +202,10 @@ in
           set -g allow-passthrough on
           unbind s
           bind C-s display-popup -E -w 80% -h 80% "\
-              tmux list-sessions -F '#{?session_attached,,#{session_name}}' |\
-              sed '/^$/d' |\
-              fzf --reverse --header jump-to-session --preview 'tmux capture-pane -pt {}' |\
+              tmux list-sessions -F '#{session_attached} #{session_name}' |\
+              sort |\
+              awk '{print \$2}' |\
+              fzf --reverse --header jump-to-session --preview 'tmux capture-pane -pt {}' --bind 'focus:refresh-preview,ctrl-r:refresh-preview' |\
               xargs tmux switch-client -t"
         '';
       };

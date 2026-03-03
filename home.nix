@@ -50,11 +50,6 @@ let
       path = "$HOME/git-repos/i-got-a-buddy-web";
     }
     {
-      name = "i-got-a-buddy-mobile";
-      url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/i-got-a-buddy-mobile";
-      path = "$HOME/git-repos/i-got-a-buddy-mobile";
-    }
-    {
       name = "org-notifier";
       url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/org-notifier";
       path = "$HOME/git-repos/org-notifier";

@@ -25,6 +25,11 @@ let
       path = "$HOME/git-repos/nixvim";
     }
     {
+      name = "nixvim-for-pr";
+      url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/nixvim-for-pr";
+      path = "$HOME/git-repos/nixvim-for-pr";
+    }
+    {
       name = "nostr-playground";
       url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/nostr-playground";
       path = "$HOME/git-repos/nostr-playground";
@@ -235,7 +240,6 @@ in
           };
         };
       };
-
 
       # Packages that should be installed to the user profile
       home.packages = with pkgs; [

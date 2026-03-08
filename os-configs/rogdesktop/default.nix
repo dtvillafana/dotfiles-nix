@@ -7,11 +7,10 @@
 {
   services.xserver.videoDrivers = [ "nvidia" ];
 
-  programs.adb.enable = true;
   users.users.vir.extraGroups = [
     "adbusers"
   ];
-  users.groups.adbusers = {};
+  users.groups.adbusers = { };
 
   hardware.nvidia = {
     modesetting.enable = true;
@@ -21,14 +20,15 @@
   hardware.graphics.enable = true;
 
   home-manager.users.vir =
-    { pkgs, lib, ... }:
+    { pkgs, ... }:
     {
-
+      home.packages = with pkgs; [
+        android-tools
+      ];
       xsession.initExtra = ''
         xset -dpms
         xset s off
         xset s noblank
       '';
-
     };
 }

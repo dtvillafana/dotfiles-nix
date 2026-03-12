@@ -139,6 +139,51 @@ in
       # Home Manager needs a bit of information about you and the paths it should manage
       home.username = "vir";
       home.homeDirectory = "/home/vir";
+
+      home.packages = with pkgs; [
+        age
+        arandr
+        audacity
+        bc
+        blueman
+        brightnessctl
+        btop
+        codex-cli.packages.${system}.default
+        dunst
+        fd
+        feh
+        fzf
+        gemini-cli
+        git
+        gopass
+        i3lock
+        i3status
+        jq
+        krita
+        lazygit
+        libreoffice
+        networkmanager
+        opencode-tui.packages.${system}.default
+        pkgs.claude-code
+        pwgen-secure
+        python314FreeThreading
+        ripgrep
+        rofi
+        scrot
+        signal-desktop
+        sops
+        telegram-desktop
+        vlc
+        wireguard-tools
+        xdotool
+        xournalpp
+        xss-lock
+        zathura
+        zbar
+        zenity
+        zip
+      ];
+
       home.sessionPath = [
         "$HOME/.nix-profile/bin"
         "/etc/profiles/per-user/vir/bin"
@@ -212,7 +257,7 @@ in
 
       home.file = {
         ".ssh/id_ecdsa.pub".text =
-          ''ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAG8NzNAYDdt66g3YlH9/JpemTq87v5auOVQMJ128U78Kwyc9Dq8vYELxpglHWg4ILwmNp8mgAC9tDnmNI24PY1RgQG7Mq2cIciPPf8B8ebR3v0nMi5KHRR5cCf7FXpPqbPMAuqzz748gnCkpGypdquz2Psywxe02b/jwLDNrhoKORmJiA== vir@nixos'';
+          "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAG8NzNAYDdt66g3YlH9/JpemTq87v5auOVQMJ128U78Kwyc9Dq8vYELxpglHWg4ILwmNp8mgAC9tDnmNI24PY1RgQG7Mq2cIciPPf8B8ebR3v0nMi5KHRR5cCf7FXpPqbPMAuqzz748gnCkpGypdquz2Psywxe02b/jwLDNrhoKORmJiA== vir@nixos";
         ".local/share/gopass/stores/.keep" = {
           source = builtins.toFile "keep" "";
         };
@@ -240,51 +285,6 @@ in
           };
         };
       };
-
-      # Packages that should be installed to the user profile
-      home.packages = with pkgs; [
-        age
-        arandr
-        audacity
-        bc
-        blueman
-        brightnessctl
-        btop
-        pkgs.claude-code
-        codex-cli.packages.${system}.default
-        dunst
-        fd
-        feh
-        fzf
-        gemini-cli
-        git
-        gopass
-        i3lock
-        i3status
-        jq
-        lazygit
-        libreoffice
-        networkmanager
-        nix-index
-        opencode-tui.packages.${system}.default
-        pwgen-secure
-        python313FreeThreading
-        ripgrep
-        rofi
-        scrot
-        signal-desktop
-        sops
-        telegram-desktop
-        vlc
-        wireguard-tools
-        xdotool
-        xournalpp
-        xss-lock
-        zathura
-        zbar
-        zenity
-        zip
-      ];
 
       programs.rofi = {
         enable = true;
@@ -370,6 +370,11 @@ in
           enable = true;
           enableZshIntegration = true; # see note on other shells below
           nix-direnv.enable = true;
+        };
+
+        nix-index = {
+          enable = true;
+          enableZshIntegration = true;
         };
 
         zsh = {

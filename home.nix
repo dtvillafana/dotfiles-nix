@@ -243,6 +243,7 @@ in
           set -g status off
           set -g default-terminal "screen-256color"
           set -ga terminal-overrides ",*256col*:Tc"
+          set -ga update-environment "KITTY_WINDOW_ID KITTY_LISTEN_ON"
           set -sg escape-time 0
           set -g allow-passthrough on
           unbind s

@@ -172,6 +172,7 @@ in
         scrot
         signal-desktop
         sops
+        sshfs
         telegram-desktop
         vlc
         wireguard-tools
@@ -251,7 +252,7 @@ in
               tmux list-sessions -F '#{session_attached} #{session_name}' |\
               sort |\
               awk '{print \$2}' |\
-              fzf --reverse --header jump-to-session --preview 'tmux capture-pane -pt {}' --bind 'focus:refresh-preview,ctrl-r:refresh-preview' |\
+              fzf --reverse --header jump-to-session --preview 'tmux capture-pane -pt {}' --bind 'focus:refresh-preview,ctrl-r:refresh-preview,ctrl-d:execute(tmux kill-session -t {})+abort' |\
               xargs tmux switch-client -t"
         '';
       };

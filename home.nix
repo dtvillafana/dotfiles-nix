@@ -148,6 +148,7 @@ in
         blueman
         brightnessctl
         btop
+        bubblewrap
         codex-cli.packages.${system}.default
         dunst
         fd

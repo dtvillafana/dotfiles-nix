@@ -181,7 +181,6 @@ in
         xdotool
         xournalpp
         xss-lock
-        zathura
         zbar
         zenity
         zip
@@ -204,6 +203,13 @@ in
 
       # Let Home Manager install and manage itself
       programs.home-manager.enable = true;
+
+      programs.zathura = {
+        enable = true;
+        options = {
+          selection-clipboard = "clipboard";
+        };
+      };
 
       programs.chromium = {
         enable = true;

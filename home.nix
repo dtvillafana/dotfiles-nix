@@ -169,6 +169,7 @@ in
         pwgen-secure
         python314FreeThreading
         ripgrep
+        ripgrep-all
         rofi
         scrot
         signal-desktop

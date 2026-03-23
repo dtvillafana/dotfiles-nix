@@ -90,6 +90,11 @@ let
       path = "$HOME/git-repos/csc-106";
     }
     {
+      name = "charachorder-config";
+      url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/charachorder-config";
+      path = "$HOME/git-repos/charachorder-config";
+    }
+    {
       name = "CSC-106-practice";
       url = "https://github.com/dtvillafana/CSC-106-practice";
       path = "$HOME/git-repos/CSC-106-practice";

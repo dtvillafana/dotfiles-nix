@@ -176,6 +176,7 @@
             ripgrep
             ripgrep-all
             rofi
+            scli
             scrot
             signal-desktop
             sops

@@ -1,10 +1,10 @@
-{ self, inputs, ... }:
+{ ... }:
 {
   flake.nixosModules.launcher =
     { ... }:
     {
       home-manager.users.vir =
-        { pkgs, ... }:
+        { ... }:
         {
           programs.rofi = {
             enable = true;

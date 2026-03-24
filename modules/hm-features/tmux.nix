@@ -1,10 +1,10 @@
-{ self, inputs, ... }:
+{ ... }:
 {
   flake.nixosModules.tmux =
     { ... }:
     {
       home-manager.users.vir =
-        { pkgs, ... }:
+        { ... }:
         {
           programs.tmux = {
             enable = true;

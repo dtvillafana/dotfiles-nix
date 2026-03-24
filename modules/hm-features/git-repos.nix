@@ -1,25 +1,15 @@
 {
-  self,
-  inputs,
   ...
 }:
 {
   flake.nixosModules.git-repos =
     {
-      self,
-      inputs,
-      nodename,
       config,
       home-manager,
       pkgs,
       ...
     }:
     let
-      enable_git_repo_cloning =
-        if (nodename == "hpenvynix" || nodename == "thinkpad" || nodename == "rogdesktop") then
-          true
-        else
-          false;
       external_git_repos = [
         {
           name = "nixvim";
@@ -119,11 +109,7 @@
         '';
       };
 
-      external_git_actions =
-        if enable_git_repo_cloning then
-          builtins.listToAttrs (map make_git_forge_repo_action external_git_repos)
-        else
-          { };
+      external_git_actions = builtins.listToAttrs (map make_git_forge_repo_action external_git_repos);
 
     in
     {

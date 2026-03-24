@@ -1,10 +1,10 @@
-{ self, inputs, ... }:
+{ ... }:
 {
   flake.nixosModules.monitors =
     { ... }:
     {
       home-manager.users.vir =
-        { pkgs, ... }:
+        { ... }:
         {
           services.autorandr.enable = true;
           programs.autorandr = {

@@ -1,8 +1,7 @@
-{ self, inputs, ... }:
+{ ... }:
 {
   flake.nixosModules.xsession =
     {
-      pkgs,
       lib,
       nixvim,
       system,

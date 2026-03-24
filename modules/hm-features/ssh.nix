@@ -1,10 +1,10 @@
-{ self, inputs, ... }:
+{ ... }:
 {
   flake.nixosModules.ssh =
     { home-manager, config, ... }:
     {
       home-manager.users.vir =
-        { pkgs, ... }:
+        { ... }:
         {
           programs.ssh = {
             enable = true;

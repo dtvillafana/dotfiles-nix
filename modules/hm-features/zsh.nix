@@ -1,8 +1,7 @@
-{ self, inputs, ... }:
+{ ... }:
 {
   flake.nixosModules.zsh =
     {
-      pkgs,
       lib,
       nixvim,
       system,

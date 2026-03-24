@@ -7,7 +7,6 @@
       inputs.sops-nix.nixosModules.sops
       self.nixosModules.common
       self.nixosModules.virHome
-      self.nixosModules.tmux
       self.nixosModules.rogdesktopHardware
       self.nixosModules.rogdesktopConfig
     ];

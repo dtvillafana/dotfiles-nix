@@ -126,8 +126,9 @@
     in
     {
       imports = [
-        self.nixosModules.zsh
+        self.nixosModules.tmux
         self.nixosModules.xsession
+        self.nixosModules.zsh
       ];
 
       home-manager.useGlobalPkgs = false;
@@ -169,6 +170,7 @@
             lazygit
             libreoffice
             networkmanager
+            nixfmt-tree
             opencode-tui.packages.${system}.default
             pkgs.claude-code
             pwgen-secure

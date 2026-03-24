@@ -1,14 +1,13 @@
 {
   description = "NixOS configurations for David";
   inputs = {
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    import-tree.url = "github:vic/import-tree";
+    wrapper-modules.url = "github:BirdeeHub/nix-wrapper-modules";
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/0.1";
-    # Use Determinate's weekly nixpkgs which tracks nixos-unstable
-    # nixpkgs.url = "https://flakehub.com/f/DeterminateSystems/nixpkgs-weekly/0.1";
-    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1.0";
-    # Use the matching release branch of home-manager for your nixpkgs version
+    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1.*";
     home-manager = {
       url = "github:nix-community/home-manager";
-      # This ensures home-manager uses the same nixpkgs as my system
       inputs.nixpkgs.follows = "nixpkgs";
     };
     claude-code = {
@@ -23,64 +22,5 @@
     };
   };
 
-  # Define the outputs generated from those inputs
-  outputs =
-    {
-      self,
-      nixpkgs,
-      determinate,
-      home-manager,
-      sops-nix,
-      nixvim,
-      claude-code,
-      codex-cli,
-      opencode-tui,
-      ...
-    }:
-    let
-      system = "x86_64-linux";
-      nodes = [
-        "hpenvynix"
-        "thinkpad"
-        "rogdesktop"
-      ];
-      configuration = (
-        # Function that templates out a value for the `nixosConfigurations` attrset.
-        # Used for bundling a nixos configuration for the node to be used for autoUpgrades after deployment.
-        nodename:
-        nixpkgs.lib.nixosSystem {
-          system = system;
-          modules = [
-            determinate.nixosModules.default
-            home-manager.nixosModules.home-manager
-            sops-nix.nixosModules.sops
-            ./os-configs/common.nix
-            ./os-configs/${nodename}
-            ./hardware-configs/${nodename}.nix
-            ./home.nix
-          ];
-          specialArgs = {
-            # additional arguments to pass to modules
-            self = self;
-            nodename = nodename;
-            home-manager = home-manager;
-            nixpkgs = nixpkgs;
-            nixvim = nixvim;
-            system = system;
-            claude-code = claude-code;
-            codex-cli = codex-cli;
-            opencode-tui = opencode-tui;
-          };
-        }
-      );
-    in
-    {
-      # This evaluates to: {"hpenvynix" = nixpkgs.lib.nixosSystem {...}; ... }
-      nixosConfigurations = builtins.listToAttrs (
-        map (nodename: {
-          "name" = "${nodename}";
-          "value" = configuration nodename;
-        }) nodes # List of nodes to generate images for
-      );
-    };
+  outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
 }

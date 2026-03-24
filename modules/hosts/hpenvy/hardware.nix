@@ -1,0 +1,67 @@
+{ self, inputs, ... }:
+{
+  flake.nixosModules.hpenvyHardware =
+    {
+      config,
+      lib,
+      modulesPath,
+      ...
+    }:
+    {
+      imports = [
+        (modulesPath + "/installer/scan/not-detected.nix")
+      ];
+
+      boot.initrd.availableKernelModules = [
+        "xhci_pci"
+        "ahci"
+        "usb_storage"
+        "sd_mod"
+        "sr_mod"
+      ];
+      boot.initrd.kernelModules = [ "wl" ];
+      boot.kernelModules = [ "kvm-intel" ];
+      boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
+      boot.loader.systemd-boot.enable = true;
+      boot.loader.efi.canTouchEfiVariables = true;
+      hardware.enableAllFirmware = true;
+
+      nixpkgs.config = {
+        allowUnfree = true;
+        permittedInsecurePackages = [
+          "broadcom-sta-6.30.223.271-57-6.12.39"
+          "broadcom-sta-6.30.223.271-57-6.12.40"
+          "broadcom-sta-6.30.223.271-57-6.12.41"
+          "broadcom-sta-6.30.223.271-57-6.12.42"
+          "broadcom-sta-6.30.223.271-57-6.6.94"
+          "broadcom-sta-6.30.223.271-59-6.12.59"
+          "broadcom-sta-6.30.223.271-59-6.12.69"
+          "broadcom-sta-6.30.223.271-59-6.12.70"
+          "broadcom-sta-6.30.223.271-59-6.6.115"
+        ];
+      };
+
+      fileSystems."/" = {
+        device = "/dev/disk/by-uuid/e93d97ee-6ac4-4e72-a50c-82d9d6bb850a";
+        fsType = "ext4";
+      };
+
+      fileSystems."/boot" = {
+        device = "/dev/disk/by-uuid/DD9D-4B83";
+        fsType = "vfat";
+        options = [
+          "fmask=0077"
+          "dmask=0077"
+        ];
+      };
+
+      swapDevices = [
+        { device = "/dev/disk/by-uuid/17d9666d-46ff-4f3a-9f28-59f01f53a152"; }
+      ];
+
+      networking.useDHCP = lib.mkDefault true;
+
+      nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+      hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+    };
+}

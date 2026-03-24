@@ -1,7 +1,7 @@
-{ self, inputs, ... }:
+{ self, ... }:
 {
   flake.nixosModules.rogdesktopConfig =
-    { pkgs, lib, ... }:
+    { ... }:
     {
       imports = [
         self.nixosModules.rogdesktopHardware

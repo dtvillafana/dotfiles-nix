@@ -1,15 +1,12 @@
-{ self, inputs, ... }:
+{ self, ... }:
 {
   flake.nixosModules.virHome =
     {
-      config,
-      pkgs,
-      home-manager,
-      nodename,
       system,
       opencode-tui,
       codex-cli,
       claude-code,
+      pkgs,
       ...
     }:
     {
@@ -38,6 +35,23 @@
           nixpkgs.overlays = [ claude-code.overlays.default ];
         }
       ];
+      users.users.vir = {
+        isNormalUser = true;
+        description = "vir";
+        extraGroups = [
+          "networkmanager"
+          "wheel"
+          "dialout"
+          "tty"
+        ];
+        packages = with pkgs; [
+          git
+          neovim
+          curl
+        ];
+        shell = pkgs.zsh;
+      };
+      users.groups.vir = { };
       home-manager.users.vir =
         { pkgs, ... }:
         {

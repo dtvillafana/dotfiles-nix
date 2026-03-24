@@ -1,4 +1,4 @@
-{ self, inputs, ... }:
+{ self, ... }:
 {
   flake.nixosModules.common =
     {
@@ -51,30 +51,6 @@
         LC_TIME = "en_US.UTF-8";
       };
 
-      services.xserver = {
-        enable = true;
-
-        displayManager.startx.enable = true;
-
-        desktopManager.xterm.enable = false;
-
-        windowManager.i3 = {
-          enable = true;
-          extraPackages = with pkgs; [
-            dmenu
-            dunst
-            i3status
-            i3lock
-            i3blocks
-          ];
-        };
-
-        xkb = {
-          layout = "us";
-          options = "ctrl:swapcaps";
-        };
-      };
-
       services.printing.enable = true;
 
       services.pulseaudio.enable = false;
@@ -86,24 +62,6 @@
         pulse.enable = true;
       };
 
-      users.users.vir = {
-        isNormalUser = true;
-        description = "vir";
-        extraGroups = [
-          "networkmanager"
-          "wheel"
-          "dialout"
-          "tty"
-        ];
-        packages = with pkgs; [
-          git
-          neovim
-          curl
-        ];
-        shell = pkgs.zsh;
-      };
-      users.groups.vir = { };
-
       security.sudo.wheelNeedsPassword = false;
 
       nixpkgs.config = {
@@ -113,6 +71,8 @@
       nix.settings.experimental-features = [
         "nix-command"
         "flakes"
+        "wasm-builtin"
+        "parallel-eval"
       ];
 
       nix.gc = {
@@ -143,7 +103,6 @@
       programs.zsh.enable = true;
 
       services.openssh.enable = true;
-
       hardware.bluetooth.enable = true;
 
       system.stateVersion = "24.11";

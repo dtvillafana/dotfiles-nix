@@ -1,10 +1,9 @@
-{ self, inputs, ... }:
+{ ... }:
 {
   flake.nixosModules.rogdesktopHardware =
     {
       config,
       lib,
-      pkgs,
       modulesPath,
       ...
     }:

@@ -6,9 +6,9 @@
       inputs.home-manager.nixosModules.home-manager
       inputs.sops-nix.nixosModules.sops
       self.nixosModules.common
-      self.nixosModules.virHome
-      self.nixosModules.rogdesktopHardware
       self.nixosModules.rogdesktopConfig
+      self.nixosModules.rogdesktopHardware
+      self.nixosModules.virHome
     ];
     specialArgs = {
       inherit (inputs)

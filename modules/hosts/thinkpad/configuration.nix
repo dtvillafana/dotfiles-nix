@@ -1,7 +1,7 @@
-{ self, inputs, ... }:
+{ ... }:
 {
   flake.nixosModules.thinkpadConfig =
-    { pkgs, ... }:
+    { ... }:
     {
       home-manager.users.vir =
         { pkgs, ... }:

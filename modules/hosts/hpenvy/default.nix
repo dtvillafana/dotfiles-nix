@@ -6,11 +6,11 @@
       inputs.home-manager.nixosModules.home-manager
       inputs.sops-nix.nixosModules.sops
       self.nixosModules.common
-      self.nixosModules.virHome
-      self.nixosModules.tmux
-      self.nixosModules.hpenvyHardware
-      self.nixosModules.hpenvyConfig
       self.nixosModules.guestHome
+      self.nixosModules.hpenvyConfig
+      self.nixosModules.hpenvyHardware
+      self.nixosModules.tmux
+      self.nixosModules.virHome
     ];
     specialArgs = {
       inherit (inputs)

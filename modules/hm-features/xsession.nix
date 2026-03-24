@@ -281,6 +281,63 @@
               };
             };
           };
+          programs.i3status = {
+            enable = true;
+            general = {
+              output_format = "i3bar";
+              colors = true;
+              interval = 5;
+            };
+            modules = {
+              "ethernet eth0" = {
+                position = 1;
+                settings = {
+                  format_up = "E: %ip (%speed)";
+                  format_down = "E: down";
+                };
+              };
+              "wireless wlan0" = {
+                position = 2;
+                settings = {
+                  format_up = "W: (%quality at %essid, %bitrate) %ip";
+                  format_down = "W: down";
+                };
+              };
+              "disk /" = {
+                position = 3;
+                settings = {
+                  format = "%free";
+                };
+              };
+              "battery 0" = {
+                position = 4;
+                settings = {
+                  format = "%status %percentage %remaining %emptytime";
+                  format_down = "";
+                  status_chr = "⚡";
+                  status_bat = "🔋";
+                  status_unk = "";
+                  status_full = "";
+                  path = "/sys/class/power_supply/BAT%d/uevent";
+                  low_threshold = 10;
+                };
+              };
+              "memory" = {
+                position = 5;
+                settings = {
+                  format = "Tax Fraud Docs: %used";
+                  threshold_degraded = "10%";
+                  format_degraded = "COMMIT MORE TAX FRAUD: %free";
+                };
+              };
+              "tztime local" = {
+                position = 7;
+                settings = {
+                  format = "%Y-%m-%d %H:%M:%S";
+                };
+              };
+            };
+          };
         };
     };
 }

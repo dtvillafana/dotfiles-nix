@@ -12,7 +12,13 @@
       self.nixosModules.thinkpadConfig
     ];
     specialArgs = {
-      inherit (inputs) home-manager nixvim claude-code codex-cli opencode-tui;
+      inherit (inputs)
+        home-manager
+        nixvim
+        claude-code
+        codex-cli
+        opencode-tui
+        ;
       nodename = "thinkpad";
       system = "x86_64-linux";
     };

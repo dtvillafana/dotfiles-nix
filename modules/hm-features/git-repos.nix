@@ -22,9 +22,9 @@
           path = "$HOME/git-repos/nixvim-for-pr";
         }
         {
-          name = "nostr-playground";
-          url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/nostr-playground";
-          path = "$HOME/git-repos/nostr-playground";
+          name = "orgmode";
+          url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/orgmode";
+          path = "$HOME/git-repos/orgmode";
         }
         {
           name = "orgfiles";

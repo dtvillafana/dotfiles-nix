@@ -12,6 +12,11 @@
     let
       external_git_repos = [
         {
+          name = "resumes";
+          url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/resumes";
+          path = "$HOME/git-repos/resumes";
+        }
+        {
           name = "nixvim";
           url = "https://dtvillafana:$(cat ${config.sops.secrets.git_github.path})@github.com/dtvillafana/nixvim";
           path = "$HOME/git-repos/nixvim";
@@ -115,7 +120,6 @@
     {
       home-manager.users.vir =
         {
-          self,
           ...
         }:
         {

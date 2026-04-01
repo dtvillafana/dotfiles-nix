@@ -95,6 +95,7 @@
       ];
 
       programs.nix-ld.enable = true;
+      programs.i3lock.enable = true;
 
       programs.gnupg.agent = {
         enable = true;

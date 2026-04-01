@@ -74,7 +74,6 @@
             gemini-cli
             git
             gopass
-            i3lock
             jq
             krita
             lazygit

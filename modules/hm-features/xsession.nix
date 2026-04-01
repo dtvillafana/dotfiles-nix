@@ -2,6 +2,7 @@
 {
   flake.nixosModules.xsession =
     {
+      config,
       lib,
       nixvim,
       system,
@@ -115,7 +116,7 @@
                       "$mod+r" = "mode default";
                     };
                     "$mode_system" = {
-                      "l" = "exec --no-startup-id i3lock -c 000000, mode default";
+                      "l" = "exec --no-startup-id ${lib.getExe config.programs.i3lock.package} -c 000000, mode default";
                       "e" = "exec --no-startup-id i3-msg exit, mode default";
                       "Ctrl+s" = "exec --no-startup-id $i3lockwall && sudo suspend, mode default";
                       "h" = "exec --no-startup-id $i3lockwall && sudo hibernate, mode default";
@@ -262,7 +263,9 @@
                     };
 
                   startup = [
-                    { command = "--no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork"; }
+                    {
+                      command = "--no-startup-id xss-lock --transfer-sleep-lock -- ${lib.getExe config.programs.i3lock.package} --nofork";
+                    }
                     { command = "--no-startup-id nm-applet"; }
                     { command = "dunst &"; }
                     { command = "--no-startup-id feh --no-fehbg --bg-fill '~/pictures/wallpaper.jpg'"; }

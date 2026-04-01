@@ -247,6 +247,7 @@
                       "${mod}+Shift+0" = "move container to workspace ${termsbk}";
                       "${mod}+Shift+c" = "reload";
                       "${mod}+Shift+r" = "restart";
+                      "${mod}+Ctrl+r" = ''exec --no-startup-id i3-input -F 'title_format "%s"' -P 'New title: ' '';
                       "${mod}+Shift+e" =
                         "exec i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'";
                       "${mod}+r" = "mode resize";

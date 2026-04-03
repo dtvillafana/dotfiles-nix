@@ -1,7 +1,7 @@
 { self, ... }:
 {
   flake.nixosModules.rogdesktopConfig =
-    { ... }:
+    { config, ... }:
     {
       imports = [
         self.nixosModules.rogdesktopHardware
@@ -15,6 +15,7 @@
       users.groups.adbusers = { };
 
       hardware.nvidia = {
+        package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
         modesetting.enable = true;
         open = false;
       };

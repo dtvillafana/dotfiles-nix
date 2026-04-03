@@ -21,6 +21,9 @@
           options = "ctrl:swapcaps";
         };
       };
+
+      console.useXkbConfig = true;
+
       home-manager.users.vir =
         { pkgs, ... }:
         {

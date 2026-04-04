@@ -1,15 +1,8 @@
-{ self, inputs, ... }:
+{ self, ... }:
 {
   flake.nixosModules.guestHome =
     {
       pkgs,
-      lib,
-      nodename,
-      nixvim,
-      system,
-      opencode-tui,
-      codex-cli,
-      claude-code,
       ...
     }:
     {
@@ -31,9 +24,15 @@
       };
       users.groups.guest = { };
 
+      services.desktopManager.plasma6.enable = true;
       home-manager.users.guest =
         { pkgs, ... }:
         {
+          imports = [
+            self.homeModules.browsers
+            self.homeModules.zathura
+          ];
+
           home.username = "guest";
           home.homeDirectory = "/home/guest";
           home.sessionPath = [
@@ -46,33 +45,6 @@
           nixpkgs.config.allowUnfree = true;
 
           programs.home-manager.enable = true;
-
-          programs.chromium = {
-            enable = true;
-            package = pkgs.brave;
-            commandLineArgs = [ "--password-store=basic" ];
-            extensions = [
-              { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; }
-            ];
-          };
-
-          programs.tmux = {
-            enable = true;
-            extraConfig = ''
-              set -g set-clipboard on
-              set -g status off
-              set -g default-terminal "screen-256color"
-              set -ga terminal-overrides ",*256col*:Tc"
-              set -sg escape-time 0
-              set -g allow-passthrough on
-              unbind s
-              bind C-s display-popup -E -w 80% -h 80% "\
-                  tmux list-sessions -F '#{?session_attached,,#{session_name}}' |\
-                  sed '/^$/d' |\
-                  fzf --reverse --header jump-to-session --preview 'tmux capture-pane -pt {}' |\
-                  xargs tmux switch-client -t"
-            '';
-          };
 
           programs.ghostty = {
             enable = true;
@@ -93,8 +65,6 @@
             blueman
             brightnessctl
             btop
-            pkgs.claude-code
-            codex-cli.packages.${system}.default
             fd
             fzf
             gemini-cli
@@ -105,7 +75,6 @@
             libreoffice
             networkmanager
             nix-index
-            opencode-tui.packages.${system}.default
             pwgen-secure
             python313FreeThreading
             ripgrep
@@ -130,47 +99,6 @@
 
           programs.zsh = {
             enable = true;
-            plugins = [
-              {
-                name = "powerlevel10k";
-                src = pkgs.zsh-powerlevel10k;
-                file = "share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
-              }
-            ];
-            syntaxHighlighting.enable = true;
-            enableCompletion = true;
-            autocd = false;
-            autosuggestion.enable = true;
-            oh-my-zsh = {
-              enable = true;
-              plugins = [
-                "git"
-                "direnv"
-              ];
-            };
-            shellAliases = {
-              nv = lib.getExe nixvim.packages.${system}.default;
-              nvd = "nix run $HOME/git-repos/nixvim";
-              q = "exit";
-              lg = "lazygit";
-              nr = ''nix flake update --flake "path:/home/guest/git-repos/dotfiles-nix" nixvim && sudo nixos-rebuild switch --flake "path:/home/guest/git-repos/dotfiles-nix#${nodename}"'';
-              nrf = ''nix flake update --flake "path:/home/guest/git-repos/dotfiles-nix" && sudo nixos-rebuild switch --flake "path:/home/guest/git-repos/dotfiles-nix#${nodename}" --refresh'';
-            };
-            profileExtra = ''
-              if [[ -z $DISPLAY && $TTY == /dev/tty[0-9] ]]; then
-                exec startx
-              fi
-            '';
-            initContent = ''
-              # Enable Powerlevel10k instant prompt
-              if [[ -r "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
-                source "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh"
-              fi
-
-              # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh
-              [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-              export EDITOR="nvim";
-            '';
           };
 
           services.autorandr.enable = true;
@@ -213,85 +141,6 @@
                 };
               };
             };
-          };
-
-          programs.qutebrowser = {
-            enable = true;
-            loadAutoconfig = false;
-            keyBindings = {
-              normal = {
-                P = "hint links run :open -p {hint-url}";
-                d = null;
-                D = null;
-              };
-            };
-            extraConfig = ''
-              # Per-domain content settings
-              config.set('content.cookies.accept', 'all', 'chrome-devtools://*')
-              config.set('content.cookies.accept', 'all', 'devtools://*')
-
-              config.set('content.headers.user_agent', 'Mozilla/5.0 ({os_info}) AppleWebKit/{webkit_version} (KHTML, like Gecko) {upstream_browser_key}/{upstream_browser_version} Safari/{webkit_version}', 'https://web.whatsapp.com/')
-              config.set('content.headers.user_agent', 'Mozilla/5.0 ({os_info}; rv:90.0) Gecko/20100101 Firefox/90.0', 'https://accounts.google.com/*')
-              config.set('content.headers.user_agent', 'Mozilla/5.0 ({os_info}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99 Safari/537.36', 'https://*.slack.com/*')
-
-              config.set('content.images', True, 'chrome-devtools://*')
-              config.set('content.images', True, 'devtools://*')
-
-              config.set('content.javascript.enabled', True, 'chrome-devtools://*')
-              config.set('content.javascript.enabled', True, 'devtools://*')
-              config.set('content.javascript.enabled', True, 'chrome://*/*')
-              config.set('content.javascript.enabled', True, 'qute://*/*')
-
-              c.fileselect.handler = 'external'
-              c.fileselect.single_file.command = ['${pkgs.zenity}/bin/zenity', '--file-selection']
-              c.fileselect.folder.command = ['${pkgs.zenity}/bin/zenity', '--file-selection', '--directory']
-              c.fileselect.multiple_files.command = ['sh', '-c', '${pkgs.zenity}/bin/zenity --file-selection --multiple | tr "|" "\\n"']
-            '';
-            aliases = {
-              w = "session-save";
-              q = "close";
-              qa = "quit";
-              wq = "quit --save";
-              wqa = "quit --save";
-              Wq = "quit --save";
-              WQ = "quit --save";
-              wQ = "quit --save";
-            };
-            settings = {
-              content = {
-                autoplay = false;
-                images = true;
-                cookies.accept = "all";
-                javascript.enabled = true;
-                headers.accept_language = "";
-                headers.user_agent = "Mozilla/5.0 ({os_info}) AppleWebKit/{webkit_version} (KHTML, like Gecko) {upstream_browser_key}/{upstream_browser_version} Safari/{webkit_version}";
-              };
-              tabs = {
-                last_close = "close";
-                position = "bottom";
-                show = "switching";
-                show_switching_delay = 2000;
-              };
-              url = {
-                default_page = "https://search.brave.com";
-                incdec_segments = [
-                  "path"
-                  "query"
-                ];
-                start_pages = "https://search.brave.com";
-              };
-              colors = {
-                webpage.preferred_color_scheme = "dark";
-                hints = {
-                  fg = "chartreuse";
-                  bg = "qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(255, 0, 0, 0.8), stop:1 rgba(255, 0, 0, 0.8))";
-                };
-              };
-            };
-            searchEngines = {
-              DEFAULT = "https://search.brave.com/search?q={}&source=web";
-            };
-            quickmarks = { };
           };
 
           xsession = {

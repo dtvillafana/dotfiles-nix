@@ -6,29 +6,20 @@
       opencode-tui,
       codex-cli,
       claude-code,
+      nixvim,
       pkgs,
       ...
     }:
     {
       imports = [
-        self.nixosModules.browsers
-        self.nixosModules.git
-        self.nixosModules.git-repos
-        self.nixosModules.launcher
-        self.nixosModules.monitors
-        self.nixosModules.ssh
-        self.nixosModules.terminal
-        self.nixosModules.tmux
-        self.nixosModules.xsession
-        self.nixosModules.zathura
-        self.nixosModules.zsh
+        self.nixosModules.xorg
       ];
 
       home-manager.useGlobalPkgs = false;
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "hm-bak";
       home-manager.extraSpecialArgs = {
-        claude-code = claude-code;
+        inherit claude-code nixvim system;
       };
       home-manager.sharedModules = [
         {
@@ -55,6 +46,20 @@
       home-manager.users.vir =
         { pkgs, ... }:
         {
+          imports = [
+            self.homeModules.i3
+            self.homeModules.browsers
+            self.homeModules.zathura
+            self.homeModules.ssh
+            self.homeModules.terminal
+            self.homeModules.monitors
+            self.homeModules.launcher
+            self.homeModules.git-repos
+            self.homeModules.git
+            self.homeModules.tmux
+            self.homeModules.zsh
+          ];
+
           home.username = "vir";
           home.homeDirectory = "/home/vir";
 

@@ -1,25 +1,21 @@
 { ... }:
 {
-  flake.nixosModules.launcher =
+  flake.homeModules.launcher =
     { ... }:
     {
-      home-manager.users.vir =
-        { ... }:
-        {
-          programs.rofi = {
-            enable = true;
-            terminal = "ghostty";
-            theme = "Arc-Dark";
-            font = "DejaVu Sans Mono 11";
-            extraConfig = {
-              modi = "run,drun";
-              icon-theme = "Papirus";
-              show-icons = true;
-              drun-display-format = "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";
-              disable-history = false;
-              hide-scrollbar = true;
-            };
-          };
+      programs.rofi = {
+        enable = true;
+        terminal = "ghostty";
+        theme = "Arc-Dark";
+        font = "DejaVu Sans Mono 11";
+        extraConfig = {
+          modi = "run,drun";
+          icon-theme = "Papirus";
+          show-icons = true;
+          drun-display-format = "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";
+          disable-history = false;
+          hide-scrollbar = true;
         };
+      };
     };
 }

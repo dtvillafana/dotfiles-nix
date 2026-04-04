@@ -1,17 +1,13 @@
 { ... }:
 {
-  flake.nixosModules.zathura =
+  flake.homeModules.zathura =
     { ... }:
     {
-      home-manager.users.vir =
-        { ... }:
-        {
-          programs.zathura = {
-            enable = true;
-            options = {
-              selection-clipboard = "clipboard";
-            };
-          };
+      programs.zathura = {
+        enable = true;
+        options = {
+          selection-clipboard = "clipboard";
         };
+      };
     };
 }

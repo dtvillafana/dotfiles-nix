@@ -10,7 +10,7 @@
     {
 
       sops = {
-        defaultSopsFile = "${self}/secrets/secrets.json";
+        defaultSopsFile = self + /secrets/secrets.json;
         defaultSopsFormat = "json";
         age.keyFile = "/home/vir/.config/sops/age/keys.txt";
         secrets = {
@@ -95,7 +95,6 @@
       ];
 
       programs.nix-ld.enable = true;
-      programs.i3lock.enable = true;
 
       programs.gnupg.agent = {
         enable = true;

@@ -8,7 +8,6 @@
       self.nixosModules.common
       self.nixosModules.thinkpadConfig
       self.nixosModules.thinkpadHardware
-      self.nixosModules.tmux
       self.nixosModules.virHome
     ];
     specialArgs = {

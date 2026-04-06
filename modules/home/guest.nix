@@ -1,10 +1,7 @@
 { self, ... }:
 {
   flake.nixosModules.guestHome =
-    {
-      pkgs,
-      ...
-    }:
+    { pkgs, ... }:
     {
       users.users.guest = {
         isNormalUser = true;

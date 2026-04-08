@@ -1,4 +1,4 @@
-{ self, ... }:
+{ self, inputs, ... }:
 {
   flake.nixosModules.virHome =
     {
@@ -47,6 +47,7 @@
         { pkgs, ... }:
         {
           imports = [
+            inputs.nix-index-database.homeModules.nix-index
             self.homeModules.i3
             self.homeModules.browsers
             self.homeModules.zathura

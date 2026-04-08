@@ -1,4 +1,4 @@
-{ self, ... }:
+{ self, inputs, ... }:
 {
   flake.nixosModules.guestHome =
     { pkgs, ... }:
@@ -26,6 +26,7 @@
         { pkgs, ... }:
         {
           imports = [
+            inputs.nix-index-database.homeModules.nix-index
             self.homeModules.browsers
             self.homeModules.zathura
           ];
@@ -71,7 +72,6 @@
             lazygit
             libreoffice
             networkmanager
-            nix-index
             pwgen-secure
             python313FreeThreading
             ripgrep

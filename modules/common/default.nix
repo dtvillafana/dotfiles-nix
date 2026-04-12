@@ -34,6 +34,10 @@
       services.resolved.enable = true;
 
       networking.networkmanager.enable = true;
+      networking.firewall.allowedTCPPorts = [
+        4095
+        4096
+      ];
 
       time.timeZone = "America/North_Dakota/New_Salem";
 

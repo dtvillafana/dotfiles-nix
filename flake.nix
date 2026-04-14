@@ -17,7 +17,7 @@
     claude-code = {
       url = "github:sadjow/claude-code-nix";
     };
-    opencode-tui.url = "github:aodhanhayter/opencode-flake";
+    opencode-tui.url = "github:anomalyco/opencode";
     codex-cli.url = "github:sadjow/codex-cli-nix";
     nixvim.url = "github:dtvillafana/nixvim";
     sops-nix = {

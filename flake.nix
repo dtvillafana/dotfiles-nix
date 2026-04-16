@@ -14,11 +14,7 @@
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    claude-code = {
-      url = "github:sadjow/claude-code-nix";
-    };
-    opencode-tui.url = "github:anomalyco/opencode";
-    codex-cli.url = "github:sadjow/codex-cli-nix";
+    llm-agents.url = "github:numtide/llm-agents.nix";
     nixvim.url = "github:dtvillafana/nixvim";
     sops-nix = {
       url = "github:Mic92/sops-nix";

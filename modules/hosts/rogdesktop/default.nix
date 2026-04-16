@@ -15,9 +15,7 @@
       inherit (inputs)
         home-manager
         nixvim
-        claude-code
-        codex-cli
-        opencode-tui
+        llm-agents
         ;
       nodename = "rogdesktop";
       system = "x86_64-linux";

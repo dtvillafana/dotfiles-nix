@@ -18,7 +18,7 @@
               tmux list-sessions -F '#{session_attached} #{session_name}' |\
               sort |\
               awk '{print \$2}' |\
-              fzf --reverse --header jump-to-session --preview 'tmux capture-pane -pt {}' --bind 'focus:refresh-preview,ctrl-r:refresh-preview,ctrl-d:execute(tmux kill-session -t {})+abort' |\
+              fzf --reverse --header jump-to-session --preview 'tmux capture-pane -p -t {} -S -200' --preview-window 'down,60%,wrap,follow' --bind 'focus:refresh-preview,ctrl-r:refresh-preview,ctrl-d:execute(tmux kill-session -t {})+abort' |\
               xargs tmux switch-client -t"
         '';
       };

@@ -3,9 +3,7 @@
   flake.nixosModules.virHome =
     {
       system,
-      opencode-tui,
-      codex-cli,
-      claude-code,
+      llm-agents,
       nixvim,
       pkgs,
       ...
@@ -19,13 +17,8 @@
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "hm-bak";
       home-manager.extraSpecialArgs = {
-        inherit claude-code nixvim system;
+        inherit llm-agents nixvim system;
       };
-      home-manager.sharedModules = [
-        {
-          nixpkgs.overlays = [ claude-code.overlays.default ];
-        }
-      ];
       users.users.vir = {
         isNormalUser = true;
         description = "vir";
@@ -72,7 +65,6 @@
             blueman
             brightnessctl
             btop
-            codex-cli.packages.${system}.default
             dunst
             fd
             feh
@@ -84,10 +76,11 @@
             krita
             lazygit
             libreoffice
+            llm-agents.packages.${system}.claude-code
+            llm-agents.packages.${system}.codex
+            llm-agents.packages.${system}.opencode
             networkmanager
             nixfmt-tree
-            opencode-tui.packages.${system}.default
-            pkgs.claude-code
             pwgen-secure
             python314FreeThreading
             ripgrep

@@ -77,7 +77,6 @@
             lazygit
             libreoffice
             llm-agents.packages.${system}.claude-code
-            llm-agents.packages.${system}.codex
             llm-agents.packages.${system}.opencode
             networkmanager
             nixfmt-tree

@@ -31,17 +31,17 @@
         }
         {
           name = "orgfiles";
-          url = "https://dvillafanaiv:$(cat ${osConfig.sops.secrets.git_gitlab.path})@gitlab.com/personal2673713/org.git";
+          url = "https://dvillafanaiv:$(cat ${osConfig.sops.secrets.git_gitlab_pat.path})@gitlab.com/personal2673713/org.git";
           path = "$HOME/git-repos/orgfiles";
         }
         {
           name = "spectrum-orgfiles";
-          url = "https://dvillafanaiv:$(cat ${osConfig.sops.secrets.git_gitlab.path})@gitlab.com/spectrum-it-solutions/orgfiles.git";
+          url = "https://dvillafanaiv:$(cat ${osConfig.sops.secrets.git_gitlab_pat.path})@gitlab.com/spectrum-it-solutions/orgfiles.git";
           path = "$HOME/git-repos/spectrum-orgfiles";
         }
         {
           name = "homelab-nixos-generators";
-          url = "https://dvillafanaiv:$(cat ${osConfig.sops.secrets.git_gitlab.path})@gitlab.com/spectrum-it-solutions/nixos-generators.git";
+          url = "https://dvillafanaiv:$(cat ${osConfig.sops.secrets.git_gitlab_pat.path})@gitlab.com/spectrum-it-solutions/nixos-generators.git";
           path = "$HOME/git-repos/homelab-nixos-generators";
         }
         {

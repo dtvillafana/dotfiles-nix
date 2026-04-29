@@ -20,6 +20,9 @@
           "git_gitlab" = {
             owner = config.users.users.vir.name;
           };
+          "git_gitlab_pat" = {
+            owner = config.users.users.vir.name;
+          };
           "git_vps" = {
             owner = config.users.users.vir.name;
           };

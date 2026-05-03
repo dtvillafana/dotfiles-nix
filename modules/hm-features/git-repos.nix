@@ -45,6 +45,11 @@
           path = "$HOME/git-repos/homelab-nixos-generators";
         }
         {
+          name = "chaseballots";
+          url = "https://dvillafanaiv:$(cat ${osConfig.sops.secrets.git_gitlab_pat.path})@gitlab.com/spectrum-it-solutions/chaseballots.git";
+          path = "$HOME/git-repos/chaseballots";
+        }
+        {
           name = "i-got-a-buddy-web";
           url = "https://dtvillafana:$(cat ${osConfig.sops.secrets.git_github.path})@github.com/dtvillafana/i-got-a-buddy-web";
           path = "$HOME/git-repos/i-got-a-buddy-web";

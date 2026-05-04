@@ -10,6 +10,12 @@
       ...
     }:
     {
+      nixpkgs.config.allowUnfreePredicate =
+        pkg:
+        builtins.elem (lib.getName pkg) [
+          "scope.nvim"
+        ];
+
       programs = {
         direnv = {
           enable = true;

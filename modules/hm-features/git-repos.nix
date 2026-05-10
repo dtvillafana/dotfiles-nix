@@ -99,6 +99,11 @@
           url = "https://github.com/dtvillafana/CSC-106-practice";
           path = "$HOME/git-repos/CSC-106-practice";
         }
+        {
+          name = "django-supabase-storage";
+          url = "https://dtvillafana:$(cat ${osConfig.sops.secrets.git_github.path})@github.com/dtvillafana/django-supabase-storage";
+          path = "$HOME/git-repos/django-supabase-storage";
+        }
       ];
 
       make_git_forge_repo_action = repo: {

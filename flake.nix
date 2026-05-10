@@ -4,6 +4,7 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
     wrapper-modules.url = "github:BirdeeHub/nix-wrapper-modules";
+    treefmt-nix.url = "github:numtide/treefmt-nix";
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/0.1";
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1.*";
     home-manager = {
@@ -31,8 +32,18 @@
     inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
+        inputs.treefmt-nix.flakeModule
         inputs.home-manager.flakeModules.home-manager
         (inputs.import-tree ./modules)
       ];
+
+      perSystem =
+        { ... }:
+        {
+          treefmt = {
+            projectRootFile = "flake.nix";
+            programs.nixfmt.enable = true;
+          };
+        };
     };
 }

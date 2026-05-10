@@ -168,9 +168,9 @@
                   "${mod}+Shift+q" = "kill";
                   "${mod}+d" = "exec rofi -show drun";
                   "${mod}+g" =
-                    "exec gopass ls --flat | rofi -dmenu | xargs --no-run-if-empty gopass show -o | xdotool type --clearmodifiers --file -";
+                    "exec gopass ls --flat | rofi -dmenu -matching fuzzy -i -sort | xargs --no-run-if-empty gopass show -o | xdotool type --clearmodifiers --file -";
                   "${mod}+u" =
-                    "exec gopass ls --flat | rofi -dmenu | awk -F\"/\" \"NF{print \\$NF}\" | xdotool type --clearmodifiers --file -";
+                    "exec gopass ls --flat | rofi -dmenu -matching fuzzy -i -sort | awk -F\"/\" \"NF{print \\$NF}\" | xdotool type --clearmodifiers --file -";
                   "${mod}+minus" =
                     "exec --no-startup-id brightnessctl set 5%- && notify-send -t 300 \"`brightnessctl | grep -E '[0-9]{2}%' `\"";
                   "${mod}+plus" =

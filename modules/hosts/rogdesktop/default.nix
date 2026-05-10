@@ -10,6 +10,7 @@
       self.nixosModules.rogdesktopHardware
       self.nixosModules.virHome
       self.nixosModules.guestHome
+      self.nixosModules.experiment
     ];
     specialArgs = {
       inherit (inputs)

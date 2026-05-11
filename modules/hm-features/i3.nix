@@ -171,6 +171,8 @@
                     "exec gopass ls --flat | rofi -dmenu -matching fuzzy -i -sort | xargs --no-run-if-empty gopass show -o | xdotool type --clearmodifiers --file -";
                   "${mod}+u" =
                     "exec gopass ls --flat | rofi -dmenu -matching fuzzy -i -sort | awk -F\"/\" \"NF{print \\$NF}\" | xdotool type --clearmodifiers --file -";
+                  "${mod}+o" =
+                    "exec gopass ls --flat | rofi -dmenu -matching fuzzy -i -sort | xargs --no-run-if-empty gopass otp -o | xdotool type --clearmodifiers --file -";
                   "${mod}+minus" =
                     "exec --no-startup-id brightnessctl set 5%- && notify-send -t 300 \"`brightnessctl | grep -E '[0-9]{2}%' `\"";
                   "${mod}+plus" =

@@ -78,6 +78,11 @@
             libreoffice
             llm-agents.packages.${system}.claude-code
             llm-agents.packages.${system}.opencode
+            llm-agents.packages.${system}.openclaw
+            llm-agents.packages.${system}.hermes-agent
+            llm-agents.packages.${system}.agent-deck
+            llm-agents.packages.${system}.handy
+            llm-agents.packages.${system}.workmux
             networkmanager
             nixfmt-tree
             pwgen-secure

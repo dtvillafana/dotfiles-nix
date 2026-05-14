@@ -85,7 +85,7 @@
             networkmanager
             nixfmt-tree
             pwgen-secure
-            python314FreeThreading
+            python313
             ripgrep
             ripgrep-all
             rofi

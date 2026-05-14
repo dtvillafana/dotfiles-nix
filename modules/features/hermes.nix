@@ -6,11 +6,12 @@
       services.hermes-agent = {
         enable = true;
         addToSystemPackages = true;
+        extraPackages = config.home-manager.users.vir.home.packages;
         extraDependencyGroups = [
           "messaging"
         ];
         extraPythonPackages = [
-          pkgs.python312Packages.python-telegram-bot
+          pkgs.python313Packages.python-telegram-bot
         ];
         settings.model = {
           provider = "custom";

@@ -5,14 +5,14 @@
     {
       services.ollama = {
         enable = true;
-        acceleration = "cuda";
+        package = pkgs.ollama-cuda;
         loadModels = [
           "qwen3.5:9b"
         ];
       };
 
       environment.systemPackages = with pkgs; [
-        ollama
+        ollama-cuda
       ];
     };
 }

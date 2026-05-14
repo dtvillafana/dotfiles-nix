@@ -11,6 +11,7 @@
       self.nixosModules.virHome
       self.nixosModules.guestHome
       self.nixosModules.experiment
+      self.nixosModules.ollama
     ];
     specialArgs = {
       inherit (inputs)

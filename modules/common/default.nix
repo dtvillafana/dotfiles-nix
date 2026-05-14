@@ -29,6 +29,11 @@
           "ssh_nix_key" = {
             owner = config.users.users.vir.name;
           };
+          "hermes-env" = {
+            sopsFile = self + /secrets/hermes.yaml;
+            format = "yaml";
+            owner = "hermes";
+          };
         };
       };
 

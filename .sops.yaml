@@ -7,3 +7,7 @@ creation_rules:
     key_groups:
       - age:
         - *primary
+  - path_regex: secrets/hermes.(yaml|json)$
+    key_groups:
+      - age:
+        - *primary

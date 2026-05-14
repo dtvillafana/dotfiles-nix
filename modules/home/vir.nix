@@ -79,7 +79,6 @@
             llm-agents.packages.${system}.claude-code
             llm-agents.packages.${system}.opencode
             llm-agents.packages.${system}.openclaw
-            llm-agents.packages.${system}.hermes-agent
             llm-agents.packages.${system}.agent-deck
             llm-agents.packages.${system}.handy
             llm-agents.packages.${system}.workmux
@@ -93,6 +92,7 @@
             scli
             scrot
             signal-desktop
+            signal-cli
             sops
             sshfs
             telegram-desktop
@@ -112,6 +112,10 @@
             "/run/wrappers/bin"
             "/run/current-system/sw/bin"
           ];
+
+          home.sessionVariables = {
+            HERMES_HOME = "/var/lib/hermes/.hermes";
+          };
 
           nixpkgs.config.allowUnfree = true;
 

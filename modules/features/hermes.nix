@@ -6,6 +6,10 @@
       services.hermes-agent = {
         enable = true;
         addToSystemPackages = true;
+        user = "vir";
+        group = "vir";
+        createUser = false;
+        workingDirectory = "/home/vir/git-repos";
         extraPackages = config.home-manager.users.vir.home.packages;
         extraDependencyGroups = [
           "messaging"
@@ -27,6 +31,11 @@
         settings.memory = {
           memory_enabled = true;
           user_profile_enabled = true;
+        };
+        settings.terminal = {
+          cwd = "/home/vir/git-repos";
+          backend = "local";
+          timeout = 180;
         };
         environmentFiles = [
           config.sops.secrets."hermes-env".path

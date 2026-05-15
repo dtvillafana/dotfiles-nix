@@ -32,7 +32,8 @@
           "hermes-env" = {
             sopsFile = self + /secrets/hermes.yaml;
             format = "yaml";
-            owner = "hermes";
+            owner = "vir";
+            group = "vir";
           };
         };
       };

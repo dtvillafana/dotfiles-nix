@@ -9,7 +9,6 @@
       self.nixosModules.guestHome
       self.nixosModules.hpenvyConfig
       self.nixosModules.hpenvyHardware
-      self.nixosModules.tmux
       self.nixosModules.virHome
     ];
     specialArgs = {

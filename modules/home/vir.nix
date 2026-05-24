@@ -65,6 +65,7 @@
             blueman
             brightnessctl
             btop
+            nvtopPackages.full
             dunst
             fd
             feh

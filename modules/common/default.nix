@@ -88,10 +88,11 @@
           "wasm-builtin"
           "parallel-eval"
         ];
-        max-jobs = 10;
-        cores = 1;
+        max-jobs = "auto";
         auto-optimise-store = true;
         http-connections = 50;
+        connect-timeout = 5;
+        fallback = true;
         builders-use-substitutes = true;
         extra-substituters = [ "https://cache.numtide.com" ];
         extra-trusted-public-keys = [

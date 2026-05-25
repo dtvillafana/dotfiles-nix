@@ -6,21 +6,21 @@
       programs.ssh = {
         enable = true;
         enableDefaultConfig = false;
-        matchBlocks = {
+        settings = {
           "vps" = lib.hm.dag.entryAnywhere {
-            hostname = "104.207.135.195";
-            identityFile = "${osConfig.sops.secrets.git_vps.path}";
-            user = "root";
-            port = 4455;
+            Hostname = "104.207.135.195";
+            IdentityFile = "${osConfig.sops.secrets.git_vps.path}";
+            User = "root";
+            Port = 4455;
           };
           "org" = lib.hm.dag.entryAfter [ "vps" ] {
-            hostname = "172.234.200.63";
-            identityFile = "${osConfig.sops.secrets.ssh_nix_key.path}";
-            user = "vir";
-            port = 22;
+            Hostname = "172.234.200.63";
+            IdentityFile = "${osConfig.sops.secrets.ssh_nix_key.path}";
+            User = "vir";
+            Port = 22;
           };
           "*" = lib.hm.dag.entryAfter [ "org" ] {
-            identityFile = "${osConfig.sops.secrets.ssh_nix_key.path}";
+            IdentityFile = "${osConfig.sops.secrets.ssh_nix_key.path}";
           };
         };
       };

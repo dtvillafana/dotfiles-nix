@@ -65,7 +65,6 @@
             blueman
             brightnessctl
             btop
-            nvtopPackages.full
             dunst
             fd
             feh
@@ -73,18 +72,20 @@
             gemini-cli
             git
             gopass
+            heroic
             jq
             krita
             lazygit
             libreoffice
-            llm-agents.packages.${system}.claude-code
-            llm-agents.packages.${system}.opencode
-            llm-agents.packages.${system}.openclaw
             llm-agents.packages.${system}.agent-deck
+            llm-agents.packages.${system}.claude-code
             llm-agents.packages.${system}.handy
+            llm-agents.packages.${system}.openclaw
+            llm-agents.packages.${system}.opencode
             llm-agents.packages.${system}.workmux
             networkmanager
             nixfmt-tree
+            nvtopPackages.full
             pwgen-secure
             python313
             ripgrep
@@ -92,8 +93,8 @@
             rofi
             scli
             scrot
-            signal-desktop
             signal-cli
+            signal-desktop
             sops
             sshfs
             telegram-desktop

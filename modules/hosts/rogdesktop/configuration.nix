@@ -22,6 +22,8 @@
 
       hardware.graphics.enable = true;
 
+      programs.steam.enable = true;
+
       home-manager.users.vir =
         { pkgs, ... }:
         {

@@ -84,8 +84,12 @@
             llm-agents.packages.${system}.opencode
             llm-agents.packages.${system}.workmux
             networkmanager
+            networkmanagerapplet
+            networkmanager-fortisslvpn
             nixfmt-tree
             nvtopPackages.full
+            openfortivpn
+            openfortivpn-webview
             pwgen-secure
             python313
             ripgrep
@@ -106,6 +110,36 @@
             zbar
             zenity
             zip
+            (pkgs.writeShellScriptBin "forti-sso-connect" ''
+              set -euo pipefail
+
+              if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+                echo "Usage: forti-sso-connect <gateway[:port]> [username]"
+                echo "Example: forti-sso-connect vpn.company.com:443 alice"
+                exit 1
+              fi
+
+              gateway="$1"
+              username="''${2:-}"
+
+              if [ -n "$username" ]; then
+                user_arg=("-u" "$username")
+              else
+                user_arg=()
+              fi
+
+              echo "Opening browser for SSO login..."
+              echo "URL: https://$gateway"
+              openfortivpn-webview "https://$gateway"
+
+              cookie="$(zenity --password --title="Fortinet SSO" --text="Paste SVPNCOOKIE from webview output")"
+              if [ -z "$cookie" ]; then
+                echo "No cookie provided. Aborting."
+                exit 1
+              fi
+
+              printf '%s\n' "$cookie" | openfortivpn "$gateway" "''${user_arg[@]}" --cookie-on-stdin
+            '')
           ];
 
           home.sessionPath = [

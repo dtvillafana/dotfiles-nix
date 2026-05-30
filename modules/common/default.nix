@@ -43,6 +43,9 @@
       services.resolved.enable = true;
 
       networking.networkmanager.enable = true;
+      networking.networkmanager.plugins = with pkgs; [
+        networkmanager-fortisslvpn
+      ];
       networking.firewall.allowedTCPPorts = [
         4095
         4096

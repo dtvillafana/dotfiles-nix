@@ -50,6 +50,11 @@
           path = "$HOME/git-repos/chaseballots";
         }
         {
+          name = "ca-gotv";
+          url = "https://dvillafanaiv:$(cat ${osConfig.sops.secrets.git_gitlab_pat.path})@gitlab.com/spectrum-it-solutions/ca-gotv.git";
+          path = "$HOME/git-repos/ca-gotv";
+        }
+        {
           name = "i-got-a-buddy-web";
           url = "https://dtvillafana:$(cat ${osConfig.sops.secrets.git_github.path})@github.com/dtvillafana/i-got-a-buddy-web";
           path = "$HOME/git-repos/i-got-a-buddy-web";

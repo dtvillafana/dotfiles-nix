@@ -69,6 +69,14 @@
 
       services.printing.enable = true;
 
+      documentation.nixos.enable = false;
+      home-manager.sharedModules = [
+        {
+          manual.manpages.enable = false;
+          manual.json.enable = false;
+        }
+      ];
+
       services.pulseaudio.enable = false;
       security.rtkit.enable = true;
       services.pipewire = {

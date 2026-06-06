@@ -57,6 +57,7 @@
                 ];
                 "$comms" = [
                   { class = "Signal"; }
+                  { class = "signal"; }
                   { class = "TelegramDesktop"; }
                   { class = "Microsoft Teams - Preview"; }
                 ];

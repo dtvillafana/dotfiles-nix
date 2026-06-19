@@ -53,8 +53,8 @@
             lg = "lazygit";
             nr = ''nix flake update --flake "path:/home/vir/git-repos/dotfiles-nix" nixvim && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${osConfig.networking.hostName}"'';
             nrf = ''nix flake update --flake "path:/home/vir/git-repos/dotfiles-nix" && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${osConfig.networking.hostName}" --refresh'';
-            nrc = ''nix flake update --flake "path:/home/vir/git-repos/dotfiles-nix" nixvim && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${osConfig.networking.hostName}" --refresh && nix-collect-garbage -d && nix store optimise && nix-index'';
-            nrfc = ''nix flake update --flake "path:/home/vir/git-repos/dotfiles-nix" && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${osConfig.networking.hostName}" --refresh && nix-collect-garbage -d && nix store optimise && nix-index'';
+            nrc = ''nix flake update --flake "path:/home/vir/git-repos/dotfiles-nix" nixvim nix-index-database && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${osConfig.networking.hostName}" --refresh && nix-collect-garbage -d && nix store optimise'';
+            nrfc = ''nix flake update --flake "path:/home/vir/git-repos/dotfiles-nix" && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${osConfig.networking.hostName}" --refresh && nix-collect-garbage -d && nix store optimise'';
           };
           initContent = ''
             # Enable Powerlevel10k instant prompt

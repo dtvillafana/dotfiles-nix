@@ -114,20 +114,13 @@
             (pkgs.writeShellScriptBin "forti-sso-connect" ''
               set -euo pipefail
 
-              if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
-                echo "Usage: forti-sso-connect <gateway[:port]> [username]"
-                echo "Example: forti-sso-connect vpn.company.com:443 alice"
+              if [ "$#" -ne 0 ]; then
+                echo "Usage: forti-sso-connect"
                 exit 1
               fi
 
-              gateway="$1"
-              username="''${2:-}"
-
-              if [ -n "$username" ]; then
-                user_arg=("-u" "$username")
-              else
-                user_arg=()
-              fi
+              gateway="ra.capcu.org:4433"
+              config="/etc/openfortivpn/capcu.conf"
 
               echo "Opening browser for SSO login..."
               echo "URL: https://$gateway"
@@ -137,7 +130,44 @@
                 exit 1
               fi
 
-              printf '%s\n' "$cookie" | openfortivpn "$gateway" "''${user_arg[@]}" --cookie-on-stdin
+              state_dir="''${XDG_STATE_HOME:-$HOME/.local/state}/forti-sso-connect"
+              mkdir -p "$state_dir"
+              log="$state_dir/capcu.log"
+              cookie_file="$(mktemp "''${TMPDIR:-/tmp}/forti-sso-cookie.XXXXXX")"
+              chmod 600 "$cookie_file"
+              trap 'rm -f "$cookie_file"' EXIT
+
+              printf '%s\n' "$cookie" >"$cookie_file"
+              : >"$log"
+
+              (
+                sudo openfortivpn -c "$config" --persistent=30 --cookie-on-stdin <"$cookie_file" >"$log" 2>&1
+                rm -f "$cookie_file"
+              ) &
+              vpn_pid="$!"
+              trap - EXIT
+
+              echo "Starting VPN in background..."
+              echo "Log: $log"
+
+              attempt=0
+              while [ "$attempt" -lt 60 ]; do
+                if grep -q 'Tunnel is up and running' "$log"; then
+                  echo "VPN connected. Background PID: $vpn_pid"
+                  exit 0
+                fi
+
+                if ! kill -0 "$vpn_pid" 2>/dev/null; then
+                  echo "VPN process exited before connecting. Log: $log"
+                  exit 1
+                fi
+
+                attempt="$((attempt + 1))"
+                sleep 1
+              done
+
+              echo "Timed out waiting for VPN connection. Process is still running as PID $vpn_pid. Log: $log"
+              exit 1
             '')
           ];
 

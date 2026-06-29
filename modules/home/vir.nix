@@ -86,6 +86,7 @@
             networkmanager
             networkmanagerapplet
             networkmanager-fortisslvpn
+            nix-fast-build
             nixfmt-tree
             nvtopPackages.full
             openfortivpn
@@ -130,11 +131,9 @@
 
               echo "Opening browser for SSO login..."
               echo "URL: https://$gateway"
-              openfortivpn-webview "https://$gateway"
-
-              cookie="$(zenity --password --title="Fortinet SSO" --text="Paste SVPNCOOKIE from webview output")"
+              cookie="$(openfortivpn-webview "$gateway" | grep '^SVPNCOOKIE=' | sed 's/^SVPNCOOKIE=//')"
               if [ -z "$cookie" ]; then
-                echo "No cookie provided. Aborting."
+                echo "No cookie found in webview output. Aborting."
                 exit 1
               fi
 

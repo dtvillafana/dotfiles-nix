@@ -9,9 +9,8 @@
 
       services.xserver.videoDrivers = [ "nvidia" ];
 
-      users.users.vir.extraGroups = [
-        "adbusers"
-      ];
+      users.users.vir.extraGroups = [ "adbusers" ];
+      users.users.capcu.extraGroups = [ "adbusers" ];
       users.groups.adbusers = { };
 
       hardware.nvidia = {
@@ -24,17 +23,27 @@
 
       programs.steam.enable = true;
 
-      home-manager.users.vir =
-        { pkgs, ... }:
-        {
-          home.packages = with pkgs; [
-            android-tools
-          ];
-          xsession.initExtra = ''
-            xset -dpms
-            xset s off
-            xset s noblank
-          '';
-        };
+      home-manager.users = builtins.listToAttrs (
+        map
+          (username: {
+            name = username;
+            value =
+              { pkgs, ... }:
+              {
+                home.packages = with pkgs; [
+                  android-tools
+                ];
+                xsession.initExtra = ''
+                  xset -dpms
+                  xset s off
+                  xset s noblank
+                '';
+              };
+          })
+          [
+            "vir"
+            "capcu"
+          ]
+      );
     };
 }

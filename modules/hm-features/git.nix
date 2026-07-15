@@ -1,7 +1,7 @@
 { ... }:
 {
   flake.homeModules.git =
-    { osConfig, pkgs, ... }:
+    { config, pkgs, ... }:
     {
       programs.git = {
         enable = true;
@@ -12,11 +12,11 @@
           };
           core.sshCommand = "${pkgs.openssh}/bin/ssh";
           credential."https://github.com".helper =
-            "store --file=${osConfig.users.users.vir.home}/.git-credentials-github";
+            "store --file=${config.home.homeDirectory}/.git-credentials-github";
           credential."https://gitlab.com".helper =
-            "store --file=${osConfig.users.users.vir.home}/.git-credentials-gitlab";
+            "store --file=${config.home.homeDirectory}/.git-credentials-gitlab";
           credential."https://codeberg.org".helper =
-            "store --file=${osConfig.users.users.vir.home}/.git-credentials-codeberg";
+            "store --file=${config.home.homeDirectory}/.git-credentials-codeberg";
         };
         lfs.enable = true;
       };

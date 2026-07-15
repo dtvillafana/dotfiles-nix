@@ -10,6 +10,7 @@
       self.nixosModules.hpenvyConfig
       self.nixosModules.hpenvyHardware
       self.nixosModules.virHome
+      self.nixosModules.capcuHome
     ];
     specialArgs = {
       inherit (inputs)

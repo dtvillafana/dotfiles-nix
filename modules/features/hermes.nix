@@ -10,7 +10,6 @@
     }:
     {
       services.hermes-agent = {
-        package = llm-agents.packages.${system}.hermes-agent;
         enable = true;
         addToSystemPackages = true;
         user = "vir";

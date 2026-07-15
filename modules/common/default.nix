@@ -43,62 +43,10 @@
       services.resolved.enable = true;
 
       networking.networkmanager.enable = true;
-      networking.networkmanager.plugins = with pkgs; [
-        networkmanager-fortisslvpn
-      ];
       networking.firewall.allowedTCPPorts = [
         4095
         4096
       ];
-
-      environment.etc = {
-        "openfortivpn/capcu.conf".text = ''
-          host = ra.capcu.org
-          port = 4433
-          trusted-cert = 4e582e8dacfa3ddf26c5c9aed13d65d8c931a7184da1155f72e00b6b068052f8
-
-          set-routes = 1
-          set-dns = 0
-          pppd-use-peerdns = 0
-          pppd-ipparam = capcu
-        '';
-
-        "ppp/ip-up" = {
-          mode = "0755";
-          text = ''
-            #!${pkgs.runtimeShell}
-            set -eu
-
-            interface="$1"
-            ipparam="''${6:-}"
-
-            if [ "$ipparam" != "capcu" ]; then
-              exit 0
-            fi
-
-            /run/current-system/sw/bin/resolvectl dns "$interface" 172.20.102.25 172.20.102.26
-            /run/current-system/sw/bin/resolvectl domain "$interface" '~capcu.org'
-            /run/current-system/sw/bin/resolvectl default-route "$interface" false
-          '';
-        };
-
-        "ppp/ip-down" = {
-          mode = "0755";
-          text = ''
-            #!${pkgs.runtimeShell}
-            set -eu
-
-            interface="$1"
-            ipparam="''${6:-}"
-
-            if [ "$ipparam" != "capcu" ]; then
-              exit 0
-            fi
-
-            /run/current-system/sw/bin/resolvectl revert "$interface" || true
-          '';
-        };
-      };
 
       time.timeZone = "America/North_Dakota/New_Salem";
 

@@ -9,6 +9,7 @@
       self.nixosModules.thinkpadConfig
       self.nixosModules.thinkpadHardware
       self.nixosModules.virHome
+      self.nixosModules.capcuHome
     ];
     specialArgs = {
       inherit (inputs)

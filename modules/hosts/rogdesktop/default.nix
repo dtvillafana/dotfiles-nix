@@ -10,6 +10,7 @@
       self.nixosModules.rogdesktopConfig
       self.nixosModules.rogdesktopHardware
       self.nixosModules.virHome
+      self.nixosModules.capcuHome
       self.nixosModules.guestHome
       self.nixosModules.experiment
       self.nixosModules.ollama

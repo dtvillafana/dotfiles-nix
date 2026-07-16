@@ -50,6 +50,7 @@
             self.homeModules.launcher
             self.homeModules.git-repos
             self.homeModules.git
+            self.homeModules.ai
             self.homeModules.tmux
             self.homeModules.zsh
           ];

@@ -93,6 +93,7 @@
             self.homeModules.launcher
             self.homeModules.git-repos
             self.homeModules.git
+            self.homeModules.ai
             self.homeModules.tmux
             self.homeModules.zsh
           ];
@@ -154,16 +155,23 @@
             zbar
             zenity
             zip
-            (pkgs.writeShellScriptBin "forti-sso-connect" ''
+            (pkgs.writeShellScriptBin "forti-sso-toggle" ''
               set -euo pipefail
 
               if [ "$#" -ne 0 ]; then
-                echo "Usage: forti-sso-connect"
+                echo "Usage: forti-sso-toggle"
                 exit 1
               fi
 
               gateway="ra.capcu.org:4433"
               config="$HOME/.config/openfortivpn/capcu.conf"
+
+              if sudo pgrep -f -- "^openfortivpn -c $config" >/dev/null; then
+                echo "Disconnecting VPN..."
+                sudo pkill -TERM -f -- "^openfortivpn -c $config"
+                echo "VPN disconnected."
+                exit 0
+              fi
 
               echo "Opening browser for SSO login..."
               echo "URL: https://$gateway"

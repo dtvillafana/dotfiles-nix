@@ -60,6 +60,7 @@
                   { class = "signal"; }
                   { class = "TelegramDesktop"; }
                   { class = "Microsoft Teams - Preview"; }
+                  { class = "teams-for-linux"; }
                 ];
                 "$docs" = [
                   { class = "Zathura"; }

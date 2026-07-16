@@ -2,6 +2,7 @@
 {
   flake.homeModules.zsh =
     {
+      config,
       lib,
       nixvim,
       system,
@@ -9,6 +10,9 @@
       pkgs,
       ...
     }:
+    let
+      dotfiles = "path:/home/${config.home.username}/git-repos/dotfiles-nix";
+    in
     {
 
       programs = {
@@ -51,10 +55,10 @@
             nvd = "nix run $HOME/git-repos/nixvim";
             q = "exit";
             lg = "lazygit";
-            nr = ''nix flake update --flake "path:/home/vir/git-repos/dotfiles-nix" nixvim && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${osConfig.networking.hostName}"'';
-            nrf = ''nix flake update --flake "path:/home/vir/git-repos/dotfiles-nix" && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${osConfig.networking.hostName}" --refresh'';
-            nrc = ''nix flake update --flake "path:/home/vir/git-repos/dotfiles-nix" nixvim nix-index-database && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${osConfig.networking.hostName}" --refresh && nix-collect-garbage -d && nix store optimise'';
-            nrfc = ''nix flake update --flake "path:/home/vir/git-repos/dotfiles-nix" && sudo nixos-rebuild switch --flake "path:/home/vir/git-repos/dotfiles-nix#${osConfig.networking.hostName}" --refresh && nix-collect-garbage -d && nix store optimise'';
+            nr = ''nix flake update --flake "${dotfiles}" nixvim && sudo nixos-rebuild switch --flake "${dotfiles}#${osConfig.networking.hostName}"'';
+            nrf = ''nix flake update --flake "${dotfiles}" && sudo nixos-rebuild switch --flake "${dotfiles}#${osConfig.networking.hostName}" --refresh'';
+            nrc = ''nix flake update --flake "${dotfiles}" nixvim nix-index-database && sudo nixos-rebuild switch --flake "${dotfiles}#${osConfig.networking.hostName}" --refresh && nix-collect-garbage -d && nix store optimise'';
+            nrfc = ''nix flake update --flake "${dotfiles}" && sudo nixos-rebuild switch --flake "${dotfiles}#${osConfig.networking.hostName}" --refresh && nix-collect-garbage -d && nix store optimise'';
             sync-repos = "sync-repos";
           };
           initContent = ''

@@ -144,6 +144,7 @@
             signal-desktop
             sops
             sshfs
+            teams-for-linux
             telegram-desktop
             vlc
             wireguard-tools

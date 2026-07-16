@@ -3,42 +3,70 @@
   flake.nixosModules.common =
     {
       config,
+      lib,
       pkgs,
       nodename,
       ...
     }:
+    let
+      secretUsers = [
+        "vir"
+        "capcu"
+      ];
+      sharedSecretNames = [
+        "git_github"
+        "git_gitlab"
+        "git_gitlab_pat"
+      ];
+      perUserSecretNames = [
+        "git_vps"
+        "ssh_nix_key"
+      ];
+      sharedSecret = {
+        owner = config.users.users.vir.name;
+        group = "git-secrets";
+        mode = "0440";
+      };
+      sharedSecrets = lib.genAttrs sharedSecretNames (_: sharedSecret);
+      perUserSecrets = lib.listToAttrs (
+        lib.flatten (
+          map (
+            secretName:
+            map (user: {
+              name = "${secretName}_${user}";
+              value = {
+                key = secretName;
+                owner = user;
+                group = user;
+                mode = "0400";
+              };
+            }) secretUsers
+          ) perUserSecretNames
+        )
+      );
+    in
     {
 
       sops = {
         defaultSopsFile = self + /secrets/secrets.json;
         defaultSopsFormat = "json";
         age.keyFile = "/home/vir/.config/sops/age/keys.txt";
-        secrets = {
-          "git_github" = {
-            owner = config.users.users.vir.name;
+        secrets =
+          sharedSecrets
+          // perUserSecrets
+          // {
+            "hermes-env" = {
+              sopsFile = self + /secrets/hermes.yaml;
+              format = "yaml";
+              owner = "vir";
+              group = "vir";
+            };
           };
-          "git_gitlab" = {
-            owner = config.users.users.vir.name;
-          };
-          "git_gitlab_pat" = {
-            owner = config.users.users.vir.name;
-          };
-          "git_vps" = {
-            owner = config.users.users.vir.name;
-          };
-          "ssh_nix_key" = {
-            owner = config.users.users.vir.name;
-          };
-          "hermes-env" = {
-            sopsFile = self + /secrets/hermes.yaml;
-            format = "yaml";
-            owner = "vir";
-            group = "vir";
-          };
-        };
       };
 
       networking.hostName = nodename;
+
+      users.groups.git-secrets.members = secretUsers;
 
       services.resolved.enable = true;
 

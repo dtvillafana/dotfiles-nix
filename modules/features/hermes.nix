@@ -8,6 +8,9 @@
       system,
       ...
     }:
+    let
+      workingDirectory = "/home/vir/git-repos";
+    in
     {
       services.hermes-agent = {
         enable = true;
@@ -15,7 +18,7 @@
         user = "vir";
         group = "vir";
         createUser = false;
-        workingDirectory = "/home/vir/git-repos";
+        inherit workingDirectory;
         extraPackages = config.home-manager.users.vir.home.packages;
         extraDependencyGroups = [
           "messaging"
@@ -39,7 +42,7 @@
           user_profile_enabled = true;
         };
         settings.terminal = {
-          cwd = "/home/vir/git-repos";
+          cwd = workingDirectory;
           backend = "local";
           timeout = 180;
         };

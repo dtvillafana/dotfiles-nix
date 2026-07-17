@@ -2,16 +2,20 @@
 {
   flake.nixosModules.rogdesktopConfig =
     { config, ... }:
+    let
+      xsessionInitExtra = ''
+        xset -dpms
+        xset s off
+        xset s noblank
+      '';
+    in
     {
       imports = [
+        self.nixosModules.androidTools
         self.nixosModules.rogdesktopHardware
       ];
 
       services.xserver.videoDrivers = [ "nvidia" ];
-
-      users.users.vir.extraGroups = [ "adbusers" ];
-      users.users.capcu.extraGroups = [ "adbusers" ];
-      users.groups.adbusers = { };
 
       hardware.nvidia = {
         package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
@@ -27,18 +31,7 @@
         map
           (username: {
             name = username;
-            value =
-              { pkgs, ... }:
-              {
-                home.packages = with pkgs; [
-                  android-tools
-                ];
-                xsession.initExtra = ''
-                  xset -dpms
-                  xset s off
-                  xset s noblank
-                '';
-              };
+            value.xsession.initExtra = xsessionInitExtra;
           })
           [
             "vir"

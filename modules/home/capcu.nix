@@ -320,6 +320,12 @@
         owner = "capcu";
         group = "capcu";
       };
+      mkTemplate = name: content: {
+        inherit content;
+        path = "${home}/.${name}";
+        owner = config.users.users.capcu.name;
+        mode = "0600";
+      };
     in
     {
       sops = {
@@ -332,36 +338,22 @@
         };
 
         templates = {
-          "vault-pass.txt" = {
-            content = "${config.sops.placeholder.ansible_pass}";
-            path = "${home}/.vault-pass.txt";
-            owner = config.users.users.capcu.name;
-            mode = "0600";
-          };
-          "git-credentials-github" = {
-            content = "https://dtvillafana:${config.sops.placeholder.git_github}@github.com\n";
-            path = "${home}/.git-credentials-github";
-            owner = config.users.users.capcu.name;
-            mode = "0600";
-          };
-          "git-credentials-gitlab" = {
-            content = "https://dvillafanaiv:${config.sops.placeholder.git_gitlab_pat}@gitlab.com\n";
-            path = "${home}/.git-credentials-gitlab";
-            owner = config.users.users.capcu.name;
-            mode = "0600";
-          };
-          "git-credentials-gitea" = {
-            content = "https://dvillafana:${config.sops.placeholder.git_gitea}@ccugitea.capcu.org\n";
-            path = "${home}/.git-credentials-gitea";
-            owner = config.users.users.capcu.name;
-            mode = "0600";
-          };
+          "vault-pass.txt" = mkTemplate "vault-pass.txt" "${config.sops.placeholder.ansible_pass}";
+          "git-credentials-github" =
+            mkTemplate "git-credentials-github" "https://dtvillafana:${config.sops.placeholder.git_github}@github.com\n";
+          "git-credentials-gitlab" =
+            mkTemplate "git-credentials-gitlab" "https://dvillafanaiv:${config.sops.placeholder.git_gitlab_pat}@gitlab.com\n";
+          "git-credentials-gitea" =
+            mkTemplate "git-credentials-gitea" "https://dvillafana:${config.sops.placeholder.git_gitea}@ccugitea.capcu.org\n";
         };
       };
     };
 
   flake.homeModules.capcuGit =
     { pkgs, osConfig, ... }:
+    let
+      giteaCredentialHelper = "store --file=${osConfig.sops.templates."git-credentials-gitea".path}";
+    in
     {
       programs.git = {
         enable = true;
@@ -372,15 +364,9 @@
           };
           core.sshCommand = "${pkgs.openssh}/bin/ssh";
           credential = {
-            "http://ccugitea.capcu.org:3000".helper = "store --file=${
-              osConfig.sops.templates."git-credentials-gitea".path
-            }";
-            "http://ccugitea.capcu.org".helper = "store --file=${
-              osConfig.sops.templates."git-credentials-gitea".path
-            }";
-            "https://ccugitea.capcu.org".helper = "store --file=${
-              osConfig.sops.templates."git-credentials-gitea".path
-            }";
+            "http://ccugitea.capcu.org:3000".helper = giteaCredentialHelper;
+            "http://ccugitea.capcu.org".helper = giteaCredentialHelper;
+            "https://ccugitea.capcu.org".helper = giteaCredentialHelper;
             "https://github.com".helper = "store --file=${
               osConfig.sops.templates."git-credentials-github".path
             }";

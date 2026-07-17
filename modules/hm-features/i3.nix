@@ -79,6 +79,9 @@
                 "$VMs" = [
                   { class = "Virt-manager"; }
                 ];
+                "$ssh" = [
+                  { class = "org.remmina.Remmina"; }
+                ];
                 "$misc" = [
                   { class = "pavucontrol"; }
                   { class = ".arandr-wrapped"; }

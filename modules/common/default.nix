@@ -51,10 +51,7 @@
         defaultSopsFile = self + /secrets/secrets.json;
         defaultSopsFormat = "json";
         age.keyFile = "/home/vir/.config/sops/age/keys.txt";
-        age.sshKeyPaths = map (user: "/home/${user}/.ssh/id_ed25519") [
-          "vir"
-          "capcu"
-        ];
+        age.sshKeyPaths = map (user: "/home/${user}/.ssh/id_ed25519") secretUsers;
         secrets =
           sharedSecrets
           // perUserSecrets

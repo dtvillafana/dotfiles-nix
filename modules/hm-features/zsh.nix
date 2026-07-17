@@ -12,6 +12,7 @@
     }:
     let
       dotfiles = "path:/home/${config.home.username}/git-repos/dotfiles-nix";
+      sopsSshKey = "${config.home.homeDirectory}/.ssh/id_ed25519";
     in
     {
 
@@ -42,8 +43,8 @@
           autosuggestion.enable = true;
           sessionVariables = {
             EDITOR = lib.getExe pkgs.neovim;
-            SOPS_AGE_SSH_PRIVATE_KEY_FILE = "${config.home.homeDirectory}/.ssh/id_ed25519";
-            SOPS_AGE_KEY_CMD = "${lib.getExe pkgs.ssh-to-age} -private-key -i ${config.home.homeDirectory}/.ssh/id_ed25519";
+            SOPS_AGE_SSH_PRIVATE_KEY_FILE = sopsSshKey;
+            SOPS_AGE_KEY_CMD = "${lib.getExe pkgs.ssh-to-age} -private-key -i ${sopsSshKey}";
           };
           oh-my-zsh = {
             enable = true;

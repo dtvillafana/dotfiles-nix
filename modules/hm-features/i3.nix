@@ -45,6 +45,7 @@
                   { class = "qutebrowser"; }
                   { class = "Brave-browser"; }
                   { class = "brave-browser"; }
+                  { class = "Chromium-browser"; }
                 ];
                 "$terms" = [
                   { class = "org.wezfurlong.wezterm"; }

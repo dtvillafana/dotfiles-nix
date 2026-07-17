@@ -3,9 +3,8 @@
   flake.homeModules.browsers =
     { pkgs, ... }:
     {
-      programs.chromium = {
+      programs.brave = {
         enable = true;
-        package = pkgs.brave;
         commandLineArgs = [ "--password-store=basic" ];
         extensions = [
           { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; }

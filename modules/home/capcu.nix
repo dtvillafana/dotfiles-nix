@@ -101,6 +101,15 @@
           home.username = "capcu";
           home.homeDirectory = "/home/capcu";
 
+          programs.chromium = {
+            enable = true;
+            commandLineArgs = [ "--password-store=basic" ];
+            extensions = [
+              { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; }
+              { id = "ppnbnpeolgkicgegkbkbjmhlideopiji"; }
+            ];
+          };
+
           home.packages = with pkgs; [
             age
             arandr
@@ -268,18 +277,75 @@
               }
             '';
             ".config/openfortivpn/capcu.conf".text = ''
-              host = ra.capcu.org
-              port = 4433
-              trusted-cert = 4e582e8dacfa3ddf26c5c9aed13d65d8c931a7184da1155f72e00b6b068052f8
+               host = ra.capcu.org
+               port = 4433
+               trusted-cert = 4e582e8dacfa3ddf26c5c9aed13d65d8c931a7184da1155f72e00b6b068052f8
 
               set-routes = 1
               set-dns = 0
-              pppd-use-peerdns = 0
-              pppd-ipparam = capcu
+               pppd-use-peerdns = 0
+               pppd-ipparam = capcu
+            '';
+            ".config/agent-deck/config.toml".text = ''
+              default_tool = "claude"
+              theme = "dark"
+
+              [claude]
+              dangerous_mode = false
+
+              [global_search]
+              enabled = true
+              tier = "auto"
+              recent_days = 90
+
+              [instances]
+              allow_multiple = true
             '';
           };
 
           home.stateVersion = "25.11";
         };
+    };
+
+  flake.homeModules.git-repos =
+    { pkgs, osConfig, ... }:
+    {
+      home.file.".local/bin/sync-work-repos" = {
+        executable = true;
+        text = ''
+          #!/bin/sh
+          GITEA_TOKEN=$(cat ${osConfig.sops.secrets.gitea_token.path})
+          GITEA_URL="https://ccugitea.capcu.org"
+          REPOS_DIR="$HOME/capcu-git-repos"
+
+          mkdir -p "$REPOS_DIR"
+
+          page=1
+          while true; do
+            repos=$(${pkgs.curl}/bin/curl -s -H "Authorization: token $GITEA_TOKEN" \
+              "$GITEA_URL/api/v1/user/repos?page=$page&limit=50" | ${pkgs.jq}/bin/jq -r '[.[] | select(.mirror != true)] | .[].full_name // empty')
+
+            if [ -z "$repos" ]; then
+              break
+            fi
+
+            for repo in $repos; do
+              repo_path="$REPOS_DIR/$repo"
+              if [ ! -d "$repo_path" ]; then
+                echo "Cloning $repo..."
+                mkdir -p "$(dirname "$repo_path")"
+                ${pkgs.git}/bin/git clone "$GITEA_URL/$repo" "$repo_path" || true
+              else
+                echo "Pulling $repo..."
+                (cd "$repo_path" && ${pkgs.git}/bin/git pull) || true
+              fi
+            done
+
+            page=$((page + 1))
+          done
+        '';
+      };
+
+      programs.zsh.shellAliases.sync-work-repos = "$HOME/.local/bin/sync-git-repos";
     };
 }

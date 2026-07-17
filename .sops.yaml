@@ -2,11 +2,19 @@
 
 keys:
   - &primary age1ay3cdpkyunyf73y64ltwsdjf00ual5wjt5j03p8gjyplpqcf5udshvx3a3
+  - &vir-rog age1ca9fp7cv08haln9paaphlknk3tetvmcemta7puc63pzpqtaljq2ssn9z0r
+  - &capcu-rog age1c6akyr7tr2gka8z0aqknem9fezhnccaf09ra3ep0ll7dt6pv0pqq7mvf8d
 creation_rules:
   - path_regex: secrets/secrets.(yaml|json)$
     key_groups:
       - age:
         - *primary
+  - path_regex: secrets/work.(yaml|json)$
+    key_groups:
+      - age:
+        - *primary
+        - *vir-rog
+        - *capcu-rog
   - path_regex: secrets/hermes.(yaml|json)$
     key_groups:
       - age:

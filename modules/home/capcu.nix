@@ -56,7 +56,7 @@
             fi
 
             /run/current-system/sw/bin/resolvectl dns "$interface" 172.20.102.25 172.20.102.26
-            /run/current-system/sw/bin/resolvectl domain "$interface" '~capcu.org'
+            /run/current-system/sw/bin/resolvectl domain "$interface" 'capcu.org'
             /run/current-system/sw/bin/resolvectl default-route "$interface" false
           '';
         };

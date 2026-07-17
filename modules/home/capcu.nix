@@ -11,6 +11,7 @@
     {
       imports = [
         self.nixosModules.xorg
+        self.nixosModules.work_sops
       ];
 
       home-manager.useGlobalPkgs = false;
@@ -92,7 +93,7 @@
             self.homeModules.monitors
             self.homeModules.launcher
             self.homeModules.git-repos
-            self.homeModules.git
+            self.homeModules.capcuGit
             self.homeModules.ai
             self.homeModules.tmux
             self.homeModules.zsh
@@ -137,8 +138,8 @@
             llm-agents.packages.${system}.opencode
             llm-agents.packages.${system}.workmux
             networkmanager
-            networkmanagerapplet
             networkmanager-fortisslvpn
+            networkmanagerapplet
             nixfmt-tree
             nvtopPackages.full
             openfortivpn
@@ -157,6 +158,7 @@
             teams-for-linux
             telegram-desktop
             vlc
+            webex
             wireguard-tools
             xdotool
             xournalpp
@@ -307,6 +309,94 @@
         };
     };
 
+  flake.nixosModules.work_sops =
+    { config, ... }:
+    {
+      sops = {
+        # This attrset merges with the shared secrets declared by common.
+        secrets = {
+          gitea_token = {
+            sopsFile = self + /secrets/work.json;
+            format = "json";
+            owner = "capcu";
+            group = "capcu";
+          };
+          ansible_pass = {
+            sopsFile = self + /secrets/work.json;
+            format = "json";
+            owner = "capcu";
+            group = "capcu";
+          };
+          git_gitea = {
+            sopsFile = self + /secrets/work.json;
+            format = "json";
+            owner = "capcu";
+            group = "capcu";
+          };
+          capcu_master_key = {
+            sopsFile = self + /secrets/work.json;
+            format = "json";
+            owner = "capcu";
+            group = "capcu";
+          };
+        };
+
+        templates = {
+          "vault-pass.txt" = {
+            content = "${config.sops.placeholder.ansible_pass}";
+            path = "/home/capcu/.vault-pass.txt";
+            owner = config.users.users.capcu.name;
+            mode = "0600";
+          };
+          "git-credentials-github" = {
+            content = "https://dtvillafana:${config.sops.placeholder.git_github}@github.com\n";
+            path = "/home/capcu/.git-credentials-github";
+            owner = config.users.users.capcu.name;
+            mode = "0600";
+          };
+          "git-credentials-gitlab" = {
+            content = "https://dvillafanaiv:${config.sops.placeholder.git_gitlab_pat}@gitlab.com\n";
+            path = "/home/capcu/.git-credentials-gitlab";
+            owner = config.users.users.capcu.name;
+            mode = "0600";
+          };
+          "git-credentials-gitea" = {
+            content = "https://dvillafana:${config.sops.placeholder.git_gitea}@ccugitea.capcu.org\n";
+            path = "/home/capcu/.git-credentials-gitea";
+            owner = config.users.users.capcu.name;
+            mode = "0600";
+          };
+        };
+      };
+    };
+
+  flake.homeModules.capcuGit =
+    { pkgs, osConfig, ... }:
+    {
+      programs.git = {
+        enable = true;
+        settings = {
+          user = {
+            name = "David Villafaña";
+            email = "david.villafana@capcu.org";
+          };
+          core.sshCommand = "${pkgs.openssh}/bin/ssh";
+          credential = {
+            "http://ccugitea.capcu.org:3000".helper =
+              "store --file=${osConfig.users.users.capcu.home}/.git-credentials-gitea";
+            "http://ccugitea.capcu.org".helper =
+              "store --file=${osConfig.users.users.capcu.home}/.git-credentials-gitea";
+            "https://ccugitea.capcu.org".helper =
+              "store --file=${osConfig.users.users.capcu.home}/.git-credentials-gitea";
+            "https://github.com".helper =
+              "store --file=${osConfig.users.users.capcu.home}/.git-credentials-github";
+            "https://gitlab.com".helper =
+              "store --file=${osConfig.users.users.capcu.home}/.git-credentials-gitlab";
+          };
+        };
+      };
+    };
+
   flake.homeModules.git-repos =
     { pkgs, osConfig, ... }:
     {
@@ -346,6 +436,6 @@
         '';
       };
 
-      programs.zsh.shellAliases.sync-work-repos = "$HOME/.local/bin/sync-git-repos";
+      programs.zsh.shellAliases.sync-work-repos = "$HOME/.local/bin/sync-work-repos";
     };
 }

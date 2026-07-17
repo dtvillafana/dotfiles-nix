@@ -28,6 +28,10 @@
           - Use the functional paradigm, dataclasses, pure functions, minimize mutable state and shadowing variables, etc. but no unnecessary functions that just pass their parameters to another function.
           - Use as many modern python type hints as possible
           - Keep functions focused and handle expected errors explicitly.
+
+          ## Commands
+
+          - when you try a command and the program is not available, then try again using `nix shell` to get the desired program before trying something else.
         '';
       };
 }

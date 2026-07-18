@@ -4,12 +4,14 @@ keys:
   - &primary age1ay3cdpkyunyf73y64ltwsdjf00ual5wjt5j03p8gjyplpqcf5udshvx3a3
   - &vir-rog age1ca9fp7cv08haln9paaphlknk3tetvmcemta7puc63pzpqtaljq2ssn9z0r
   - &capcu-rog age1c6akyr7tr2gka8z0aqknem9fezhnccaf09ra3ep0ll7dt6pv0pqq7mvf8d
+  - &vir-thinkpad age1e64sd430vmlcwke07a2g040842tuugykuxxkyyfxkrxma59x7f2sq263xz
 creation_rules:
   - path_regex: secrets/secrets.(yaml|json)$
     key_groups:
       - age:
         - *primary
         - *vir-rog
+        - *vir-thinkpad
   - path_regex: secrets/work.(yaml|json)$
     key_groups:
       - age:
@@ -19,3 +21,4 @@ creation_rules:
       - age:
         - *primary
         - *vir-rog
+        - *vir-thinkpad

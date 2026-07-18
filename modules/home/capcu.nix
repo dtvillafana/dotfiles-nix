@@ -2,13 +2,46 @@
 {
   flake.nixosModules.capcuHome =
     {
+      config,
       system,
       llm-agents,
       nixvim,
       pkgs,
       ...
     }:
+    let
+      cifsMount = device: {
+        inherit device;
+        fsType = "cifs";
+        options = [
+          "credentials=${config.sops.secrets.windows-share-capcu.path}"
+          "uid=capcu"
+          "gid=capcu"
+          "file_mode=0600"
+          "dir_mode=0700"
+          "vers=3.0"
+          "_netdev"
+          "nofail"
+          "x-systemd.automount"
+          "x-systemd.idle-timeout=10min"
+        ];
+      };
+    in
     {
+      boot.supportedFilesystems = [ "cifs" ];
+
+      systemd.tmpfiles.rules = [
+        "d /home/capcu/mounts/n 0700 capcu capcu -"
+        "d /home/capcu/mounts/t 0700 capcu capcu -"
+        "d /home/capcu/mounts/u 0700 capcu capcu -"
+      ];
+
+      fileSystems = {
+        "/home/capcu/mounts/n" = cifsMount "//ccufs1.capcu.org/Data";
+        "/home/capcu/mounts/t" = cifsMount "//ccufs2.capcu.org/Data";
+        "/home/capcu/mounts/u" = cifsMount "//ccufs3.capcu.org/Data";
+      };
+
       imports = [
         self.nixosModules.xorg
         self.nixosModules.work_sops
@@ -335,6 +368,13 @@
           ansible_pass = mkWorkSecret "ansible_pass";
           git_gitea = mkWorkSecret "git_gitea";
           capcu_master_key = mkWorkSecret "capcu_master_key";
+          windows-share-capcu = {
+            sopsFile = self + /secrets/work.json;
+            format = "json";
+            owner = "root";
+            group = "root";
+            mode = "0400";
+          };
         };
 
         templates = {

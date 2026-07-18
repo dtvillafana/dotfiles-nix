@@ -3,7 +3,6 @@
   flake.nixosModules.hermes =
     {
       config,
-      pkgs,
       llm-agents,
       system,
       ...
@@ -14,18 +13,13 @@
     {
       services.hermes-agent = {
         enable = true;
+        package = llm-agents.packages.${system}.hermes-agent;
         addToSystemPackages = true;
         user = "vir";
         group = "vir";
         createUser = false;
         inherit workingDirectory;
         extraPackages = config.home-manager.users.vir.home.packages;
-        extraDependencyGroups = [
-          "messaging"
-        ];
-        extraPythonPackages = [
-          pkgs.python313Packages.python-telegram-bot
-        ];
         settings.model = {
           provider = "custom";
           base_url = "http://127.0.0.1:11434/v1";

@@ -76,9 +76,7 @@
             pwgen-secure
             python313FreeThreading
             ripgrep
-            signal-desktop
             sops
-            telegram-desktop
             vlc
             wireguard-tools
             xdotool

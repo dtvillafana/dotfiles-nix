@@ -185,12 +185,9 @@
             rofi
             scli
             scrot
-            signal-cli
-            signal-desktop
             sops
             sshfs
             teams-for-linux
-            telegram-desktop
             vlc
             webex
             wireguard-tools

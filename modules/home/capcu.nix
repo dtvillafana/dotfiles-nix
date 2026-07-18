@@ -159,7 +159,6 @@
             gemini-cli
             git
             gopass
-            heroic
             jq
             krita
             lazygit

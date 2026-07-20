@@ -115,8 +115,8 @@
                   "Escape" = "mode default";
                 };
                 "$mode_i3bar" = {
-                  "$mod+h" = "exec i3-msg bar mode hide";
-                  "$mod+Shift+h" = "exec i3-msg bar mode dock";
+                  "h" = "exec i3-msg bar mode hide";
+                  "Shift+h" = "exec i3-msg bar mode dock";
                   "Escape" = "mode default";
                 };
                 "$mouseMover" = {
@@ -151,7 +151,7 @@
                   mod = "Mod4";
                   mode_system = "System (l) lock, (e) logout, (s) shutdown, (r) reboot";
                   mouseMover = "Mouse movement : quit(c)|move(hjkl)|move less(shift+hjkl)|click(i)|click&exit(spacebar/enter)|right click(shift+spacebar/I)|scroll(o/p)";
-                  mode_i3bar = "i3bar: hide (mod+h) unhide (mod+shift+h)";
+                  mode_i3bar = "i3bar: hide (h) unhide (shift+h)";
                   mode_workspaces = "(h) move workspace left, (l) move workspace right";
                   refresh_i3status = "killall -SIGUSR1 i3status";
                   terms = "terminals";
@@ -279,7 +279,7 @@
 
               # Define mode variables
               set $mode_system System (l) lock, (e) logout, (s) shutdown, (r) reboot
-              set $mode_i3bar i3bar: hide (mod+h) unhide (mod+shift+h)
+              set $mode_i3bar i3bar: hide (h) unhide (shift+h)
               set $mouseMover Mouse movement : quit(c)|move(hjkl)|move less(shift+hjkl)|click(i)|click&exit(spacebar/enter)|right click(shift+spacebar/I)|scroll(o/p)
               set $mode_workspaces (h) move workspace left, (l) move workspace right
 

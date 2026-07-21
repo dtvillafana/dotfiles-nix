@@ -34,12 +34,14 @@
         "d /home/capcu/mounts/n 0700 capcu capcu -"
         "d /home/capcu/mounts/t 0700 capcu capcu -"
         "d /home/capcu/mounts/u 0700 capcu capcu -"
+        "d /home/capcu/mounts/f 0700 capcu capcu -"
       ];
 
       fileSystems = {
         "/home/capcu/mounts/n" = cifsMount "//ccufs1.capcu.org/Data";
         "/home/capcu/mounts/t" = cifsMount "//ccufs2.capcu.org/Data";
         "/home/capcu/mounts/u" = cifsMount "//ccufs3.capcu.org/Data";
+        "/home/capcu/mounts/f" = cifsMount "//ccuficsapp.capcu.org/FICS";
       };
 
       imports = [

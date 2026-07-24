@@ -144,16 +144,17 @@
       };
 
       environment.systemPackages = with pkgs; [
-        neovim
-        wget
         curl
+        file
         git
+        git-agecrypt
+        gnupg
+        neovim
         pavucontrol
         pinentry-tty
-        gnupg
-        file
-        xdotool
         unzip
+        wget
+        xdotool
       ];
 
       programs.nix-ld.enable = true;

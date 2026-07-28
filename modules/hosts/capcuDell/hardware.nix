@@ -1,6 +1,6 @@
 { ... }:
 {
-  flake.nixosModules.capcuDellBootstrapHardware =
+  flake.nixosModules.capcuDellHardware =
     {
       lib,
       modulesPath,

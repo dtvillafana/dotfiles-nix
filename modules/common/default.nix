@@ -21,8 +21,6 @@
         defaultSopsFormat = "json";
       }
       // lib.optionalAttrs (profileUsers != [ ]) {
-        # Prefer vir's existing key for dual-profile systems.
-        age.keyFile = "/home/${builtins.head profileUsers}/.config/sops/age/keys.txt";
         age.sshKeyPaths = map (user: "/home/${user}/.ssh/id_ed25519") profileUsers;
       };
 

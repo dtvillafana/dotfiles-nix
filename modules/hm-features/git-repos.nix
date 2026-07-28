@@ -2,14 +2,15 @@
 {
   flake.homeModules.git-repos =
     {
+      config,
       osConfig,
       lib,
       pkgs,
       ...
     }:
     let
-      githubSecret = osConfig.sops.secrets.git_github.path;
-      gitlabSecret = osConfig.sops.secrets.git_gitlab_pat.path;
+      githubSecret = osConfig.sops.secrets."git_github_${config.home.username}".path;
+      gitlabSecret = osConfig.sops.secrets."git_gitlab_pat_${config.home.username}".path;
       external_git_repos = [
         {
           name = "resumes";

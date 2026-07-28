@@ -9,65 +9,24 @@
       ...
     }:
     let
-      secretUsers = [
+      profileUsers = lib.filter (user: builtins.hasAttr user config.users.users) [
         "vir"
         "capcu"
       ];
-      sharedSecretNames = [
-        "git_github"
-        "git_gitlab"
-        "git_gitlab_pat"
-      ];
-      perUserSecretNames = [
-        "git_vps"
-        "ssh_nix_key"
-      ];
-      sharedSecret = {
-        owner = config.users.users.vir.name;
-        group = "git-secrets";
-        mode = "0440";
-      };
-      sharedSecrets = lib.genAttrs sharedSecretNames (_: sharedSecret);
-      perUserSecrets = lib.listToAttrs (
-        lib.flatten (
-          map (
-            secretName:
-            map (user: {
-              name = "${secretName}_${user}";
-              value = {
-                key = secretName;
-                owner = user;
-                group = user;
-                mode = "0400";
-              };
-            }) secretUsers
-          ) perUserSecretNames
-        )
-      );
     in
     {
 
       sops = {
         defaultSopsFile = self + /secrets/secrets.json;
         defaultSopsFormat = "json";
-        age.keyFile = "/home/vir/.config/sops/age/keys.txt";
-        age.sshKeyPaths = map (user: "/home/${user}/.ssh/id_ed25519") secretUsers;
-        secrets =
-          sharedSecrets
-          // perUserSecrets
-          // {
-            "hermes-env" = {
-              sopsFile = self + /secrets/hermes.yaml;
-              format = "yaml";
-              owner = "vir";
-              group = "vir";
-            };
-          };
+      }
+      // lib.optionalAttrs (profileUsers != [ ]) {
+        # Prefer vir's existing key for dual-profile systems.
+        age.keyFile = "/home/${builtins.head profileUsers}/.config/sops/age/keys.txt";
+        age.sshKeyPaths = map (user: "/home/${user}/.ssh/id_ed25519") profileUsers;
       };
 
       networking.hostName = nodename;
-
-      users.groups.git-secrets.members = secretUsers;
 
       services.resolved.enable = true;
 

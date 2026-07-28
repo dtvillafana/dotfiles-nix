@@ -26,6 +26,18 @@
           "x-systemd.idle-timeout=10min"
         ];
       };
+      mkSharedSecret = key: {
+        inherit key;
+        owner = "capcu";
+        group = "git-secrets";
+        mode = "0440";
+      };
+      mkPrivateSecret = key: {
+        inherit key;
+        owner = "capcu";
+        group = "capcu";
+        mode = "0400";
+      };
     in
     {
       boot.supportedFilesystems = [ "cifs" ];
@@ -72,6 +84,15 @@
         shell = pkgs.zsh;
       };
       users.groups.capcu = { };
+      users.groups.git-secrets.members = [ "capcu" ];
+
+      sops.secrets = {
+        git_github_capcu = mkSharedSecret "git_github";
+        git_gitlab_capcu = mkSharedSecret "git_gitlab";
+        git_gitlab_pat_capcu = mkSharedSecret "git_gitlab_pat";
+        git_vps_capcu = mkPrivateSecret "git_vps";
+        ssh_nix_key_capcu = mkPrivateSecret "ssh_nix_key";
+      };
 
       networking.networkmanager.plugins = with pkgs; [
         networkmanager-fortisslvpn
@@ -129,6 +150,7 @@
             self.homeModules.launcher
             self.homeModules.git-repos
             self.homeModules.capcuGit
+            self.homeModules.capcuGitRepos
             self.homeModules.ai
             self.homeModules.tmux
             self.homeModules.zsh
@@ -378,9 +400,9 @@
         templates = {
           "vault-pass.txt" = mkTemplate "vault-pass.txt" "${config.sops.placeholder.ansible_pass}";
           "git-credentials-github" =
-            mkTemplate "git-credentials-github" "https://dtvillafana:${config.sops.placeholder.git_github}@github.com\n";
+            mkTemplate "git-credentials-github" "https://dtvillafana:${config.sops.placeholder.git_github_capcu}@github.com\n";
           "git-credentials-gitlab" =
-            mkTemplate "git-credentials-gitlab" "https://dvillafanaiv:${config.sops.placeholder.git_gitlab_pat}@gitlab.com\n";
+            mkTemplate "git-credentials-gitlab" "https://dvillafanaiv:${config.sops.placeholder.git_gitlab_pat_capcu}@gitlab.com\n";
           "git-credentials-gitea" =
             mkTemplate "git-credentials-gitea" "https://dvillafana:${config.sops.placeholder.git_gitea}@ccugitea.capcu.org\n";
         };
@@ -416,7 +438,7 @@
       };
     };
 
-  flake.homeModules.git-repos =
+  flake.homeModules.capcuGitRepos =
     { pkgs, osConfig, ... }:
     {
       home.file.".local/bin/sync-work-repos" = {

@@ -8,6 +8,20 @@
       pkgs,
       ...
     }:
+    let
+      mkSharedSecret = key: {
+        inherit key;
+        owner = "vir";
+        group = "git-secrets";
+        mode = "0440";
+      };
+      mkPrivateSecret = key: {
+        inherit key;
+        owner = "vir";
+        group = "vir";
+        mode = "0400";
+      };
+    in
     {
       imports = [
         self.nixosModules.xorg
@@ -36,6 +50,22 @@
         shell = pkgs.zsh;
       };
       users.groups.vir = { };
+      users.groups.git-secrets.members = [ "vir" ];
+
+      sops.secrets = {
+        git_github_vir = mkSharedSecret "git_github";
+        git_gitlab_vir = mkSharedSecret "git_gitlab";
+        git_gitlab_pat_vir = mkSharedSecret "git_gitlab_pat";
+        git_vps_vir = mkPrivateSecret "git_vps";
+        ssh_nix_key_vir = mkPrivateSecret "ssh_nix_key";
+        "hermes-env" = {
+          sopsFile = self + /secrets/hermes.yaml;
+          format = "yaml";
+          owner = "vir";
+          group = "vir";
+        };
+      };
+
       home-manager.users.vir =
         { pkgs, ... }:
         {

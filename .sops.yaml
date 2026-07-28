@@ -5,6 +5,7 @@ keys:
   - &vir-rog age1ca9fp7cv08haln9paaphlknk3tetvmcemta7puc63pzpqtaljq2ssn9z0r
   - &capcu-rog age1c6akyr7tr2gka8z0aqknem9fezhnccaf09ra3ep0ll7dt6pv0pqq7mvf8d
   - &vir-thinkpad age1e64sd430vmlcwke07a2g040842tuugykuxxkyyfxkrxma59x7f2sq263xz
+  - &capcu-dell age1l4tyfjhyl8fmelzwcv2luz59x927pj5qgs3r70le0ygyagrjs44s4d6ghq
 creation_rules:
   - path_regex: secrets/secrets.(yaml|json)$
     key_groups:
@@ -16,6 +17,7 @@ creation_rules:
     key_groups:
       - age:
         - *capcu-rog
+        - *capcu-dell
   - path_regex: secrets/hermes.(yaml|json)$
     key_groups:
       - age:

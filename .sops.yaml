@@ -13,6 +13,7 @@ creation_rules:
         - *primary
         - *vir-rog
         - *vir-thinkpad
+        - *capcu-dell
   - path_regex: secrets/work.(yaml|json)$
     key_groups:
       - age:

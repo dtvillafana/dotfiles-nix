@@ -6,6 +6,7 @@
       inputs.home-manager.nixosModules.home-manager
       inputs.sops-nix.nixosModules.sops
       self.nixosModules.common
+      self.nixosModules.capcuDellConfig
       self.nixosModules.capcuDellHardware
       self.nixosModules.capcuHome
     ];

@@ -1,5 +1,30 @@
 { ... }:
 {
+  flake.nixosModules.capcuDellConfig =
+    { pkgs, ... }:
+    {
+      programs.virt-manager.enable = true;
+
+      virtualisation.libvirtd = {
+        enable = true;
+        qemu = {
+          package = pkgs.qemu_kvm;
+          swtpm.enable = true;
+        };
+      };
+
+      users.users.capcu.extraGroups = [ "libvirtd" ];
+
+      home-manager.users.capcu.services.autorandr.extraOptions = [
+        "--default"
+        "capcuoffice"
+      ];
+
+      environment.systemPackages = with pkgs; [
+        virtio-win
+      ];
+    };
+
   flake.nixosModules.capcuDellBootstrapConfig =
     { pkgs, ... }:
     {

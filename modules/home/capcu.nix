@@ -86,21 +86,6 @@
       users.groups.capcu = { };
       users.groups.git-secrets.members = [ "capcu" ];
 
-      systemd.services.xpra = {
-        description = "Xpra server for capcu";
-        after = [ "network.target" ];
-        wantedBy = [ "multi-user.target" ];
-        serviceConfig = {
-          User = "capcu";
-          Group = "capcu";
-          WorkingDirectory = "/home/capcu";
-          Environment = "HOME=/home/capcu";
-          ExecStart = "${pkgs.xpra}/bin/xpra start :100 --bind-tcp=0.0.0.0:4095 --daemon=no";
-          Restart = "always";
-          RestartSec = "5s";
-        };
-      };
-
       sops.secrets = {
         git_github_capcu = mkSharedSecret "git_github";
         git_gitlab_capcu = mkSharedSecret "git_gitlab";
@@ -231,7 +216,6 @@
             wireguard-tools
             xdotool
             xournalpp
-            xpra
             xss-lock
             zbar
             zenity
@@ -326,6 +310,21 @@
             };
             Service = {
               ExecStart = "${llm-agents.packages.${system}.handy}/bin/handy --start-hidden";
+              Restart = "on-failure";
+            };
+            Install = {
+              WantedBy = [ "graphical-session.target" ];
+            };
+          };
+
+          systemd.user.services.x0vncserver = {
+            Unit = {
+              Description = "Share the active X11 display over VNC";
+              After = [ "graphical-session.target" ];
+              PartOf = [ "graphical-session.target" ];
+            };
+            Service = {
+              ExecStart = "${pkgs.tigervnc}/bin/x0vncserver -display :0 -localhost yes -SecurityTypes None -fg";
               Restart = "on-failure";
             };
             Install = {

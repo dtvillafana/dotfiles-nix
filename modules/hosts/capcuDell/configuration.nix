@@ -1,8 +1,43 @@
 { ... }:
 {
   flake.nixosModules.capcuDellConfig =
-    { pkgs, ... }:
+    { config, pkgs, ... }:
     {
+      services.xserver.videoDrivers = [ "nvidia" ];
+
+      hardware = {
+        graphics.enable = true;
+        nvidia = {
+          package = config.boot.kernelPackages.nvidiaPackages.production;
+          modesetting.enable = true;
+          open = true;
+          prime = {
+            intelBusId = "PCI:0:2:0";
+            nvidiaBusId = "PCI:2:0:0";
+            offload.enableOffloadCmd = true;
+            reverseSync.enable = true;
+          };
+        };
+      };
+
+      boot = {
+        extraModulePackages = [ config.boot.kernelPackages.evdi ];
+        kernelModules = [ "evdi" ];
+      };
+
+      services.udev.packages = [ pkgs.displaylink ];
+
+      systemd.services.displaylink = {
+        description = "DisplayLink Manager";
+        wantedBy = [ "graphical.target" ];
+        after = [ "display-manager.service" ];
+        serviceConfig = {
+          ExecStart = "${pkgs.displaylink}/bin/DisplayLinkManager";
+          Restart = "on-failure";
+          RestartSec = 5;
+        };
+      };
+
       programs.virt-manager.enable = true;
 
       virtualisation.libvirtd = {
@@ -13,14 +48,31 @@
         };
       };
 
+      systemd.services.libvirt-default-network = {
+        description = "Start libvirt's default network";
+        wantedBy = [ "multi-user.target" ];
+        after = [ "libvirtd.service" ];
+        requires = [ "libvirtd.service" ];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+        };
+        script = ''
+          ${pkgs.libvirt}/bin/virsh --connect qemu:///system net-autostart default
+          ${pkgs.libvirt}/bin/virsh --connect qemu:///system net-start default || true
+        '';
+      };
+
       users.users.capcu.extraGroups = [ "libvirtd" ];
 
       home-manager.users.capcu.services.autorandr.extraOptions = [
         "--default"
         "capcuoffice"
       ];
+      home-manager.users.capcu.xsession.initExtra = config.services.xserver.displayManager.setupCommands;
 
       environment.systemPackages = with pkgs; [
+        displaylink
         virtio-win
       ];
     };

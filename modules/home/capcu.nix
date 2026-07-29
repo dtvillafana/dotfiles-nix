@@ -86,6 +86,21 @@
       users.groups.capcu = { };
       users.groups.git-secrets.members = [ "capcu" ];
 
+      systemd.services.xpra = {
+        description = "Xpra server for capcu";
+        after = [ "network.target" ];
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+          User = "capcu";
+          Group = "capcu";
+          WorkingDirectory = "/home/capcu";
+          Environment = "HOME=/home/capcu";
+          ExecStart = "${pkgs.xpra}/bin/xpra start :100 --bind-tcp=0.0.0.0:4095 --daemon=no";
+          Restart = "always";
+          RestartSec = "5s";
+        };
+      };
+
       sops.secrets = {
         git_github_capcu = mkSharedSecret "git_github";
         git_gitlab_capcu = mkSharedSecret "git_gitlab";

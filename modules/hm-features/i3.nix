@@ -81,6 +81,7 @@
                 ];
                 "$ssh" = [
                   { class = "org.remmina.Remmina"; }
+                  { class = "xpra-gui"; }
                 ];
                 "$misc" = [
                   { class = "pavucontrol"; }

@@ -13,6 +13,12 @@
       gitlabSecret = osConfig.sops.secrets."git_gitlab_pat_${config.home.username}".path;
       external_git_repos = [
         {
+          name = "n8n";
+          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/n8n";
+          path = "$HOME/git-repos/n8n";
+          secret = githubSecret;
+        }
+        {
           name = "resumes";
           url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/resumes";
           path = "$HOME/git-repos/resumes";

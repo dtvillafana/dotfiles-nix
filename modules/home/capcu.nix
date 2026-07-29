@@ -216,6 +216,7 @@
             wireguard-tools
             xdotool
             xournalpp
+            xpra
             xss-lock
             zbar
             zenity

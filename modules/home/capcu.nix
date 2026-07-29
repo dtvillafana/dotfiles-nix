@@ -137,7 +137,7 @@
       };
 
       home-manager.users.capcu =
-        { pkgs, ... }:
+        { pkgs, lib, ... }:
         {
           imports = [
             inputs.nix-index-database.homeModules.nix-index
@@ -184,6 +184,7 @@
             git
             gopass
             jq
+            keepmenu
             krita
             lazygit
             libreoffice
@@ -214,6 +215,7 @@
             vlc
             webex
             wireguard-tools
+            xclip
             xdotool
             xournalpp
             xss-lock
@@ -302,6 +304,9 @@
 
           programs.home-manager.enable = true;
 
+          xsession.windowManager.i3.config.keybindings."Mod4+Shift+g" =
+            "exec ${lib.getExe pkgs.keepmenu} -C -c $HOME/.config/keepmenu/config.ini";
+
           systemd.user.services.handy = {
             Unit = {
               Description = "Handy background service";
@@ -338,6 +343,15 @@
             ".local/share/gopass/stores/.keep" = {
               source = builtins.toFile "keep" "";
             };
+            ".config/keepmenu/config.ini".text = ''
+              [dmenu]
+              dmenu_command = rofi -dmenu -matching fuzzy -i -sort
+
+              [database]
+              database_1 = ~/mounts/t/IT/ITDept.kdbx
+              password_cmd_1 = ${lib.getExe' pkgs.coreutils "cat"} ${config.sops.secrets.keepass.path}
+              type_library = xdotool
+            '';
             ".config/containers/policy.json".text = ''
               {
                   "default": [
@@ -403,6 +417,7 @@
           ansible_pass = mkWorkSecret "ansible_pass";
           git_gitea = mkWorkSecret "git_gitea";
           capcu_master_key = mkWorkSecret "capcu_master_key";
+          keepass = mkWorkSecret "keepass";
           windows-share-capcu = {
             sopsFile = self + /secrets/work.json;
             format = "json";
@@ -454,7 +469,12 @@
     };
 
   flake.homeModules.capcuGitRepos =
-    { pkgs, osConfig, ... }:
+    {
+      pkgs,
+      osConfig,
+      lib,
+      ...
+    }:
     {
       home.file.".local/bin/sync-work-repos" = {
         executable = true;
@@ -492,6 +512,9 @@
         '';
       };
 
-      programs.zsh.shellAliases.sync-work-repos = "$HOME/.local/bin/sync-work-repos";
+      programs.zsh.shellAliases = {
+        sync-work-repos = "$HOME/.local/bin/sync-work-repos";
+        kp = "${lib.getExe pkgs.keepassxc} ~/mounts/t/IT/ITDept.kdbx";
+      };
     };
 }

@@ -1,9 +1,40 @@
 { ... }:
 {
   flake.nixosModules.capcuDellConfig =
-    { config, pkgs, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
     {
       services.xserver.videoDrivers = [ "nvidia" ];
+
+      services.xserver.windowManager.i3.enable = true;
+
+      services.displayManager = {
+        sddm.enable = true;
+        defaultSession = "none+i3";
+      };
+
+      systemd.services.x0vncserver = {
+        description = "Share the SDDM and i3 X11 display over VNC";
+        wantedBy = [ "graphical.target" ];
+        after = [ "display-manager.service" ];
+        script = ''
+          for xauthority in /run/sddm/xauth_*; do
+            if [ -e "$xauthority" ]; then
+              export XAUTHORITY="$xauthority"
+              exec ${pkgs.tigervnc}/bin/x0vncserver -display :0 -localhost yes -rfbport 5901 -SecurityTypes None
+            fi
+          done
+          exit 1
+        '';
+        serviceConfig = {
+          Restart = "always";
+          RestartSec = 2;
+        };
+      };
 
       hardware = {
         graphics.enable = true;
@@ -70,6 +101,7 @@
         "capcuoffice"
       ];
       home-manager.users.capcu.xsession.initExtra = config.services.xserver.displayManager.setupCommands;
+      home-manager.users.capcu.systemd.user.services.x0vncserver.Install.WantedBy = lib.mkForce [ ];
 
       environment.systemPackages = with pkgs; [
         displaylink

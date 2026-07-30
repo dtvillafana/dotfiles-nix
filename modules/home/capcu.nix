@@ -70,6 +70,10 @@
       users.users.capcu = {
         isNormalUser = true;
         description = "capcu";
+        openssh.authorizedKeys.keys = [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEJOgAbezqTwOQZnkad6A+qoqE1wtOjLhHRYY4vYxTyD capcu@rogdesktop"
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEqSKqaPhlOzf9qXtN3du9AORQMhs1+J9IV/+6XNTWyW capcu@capcuDell"
+        ];
         extraGroups = [
           "networkmanager"
           "wheel"

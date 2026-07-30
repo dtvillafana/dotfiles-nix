@@ -329,7 +329,7 @@
               PartOf = [ "graphical-session.target" ];
             };
             Service = {
-              ExecStart = "${pkgs.tigervnc}/bin/x0vncserver -display :0 -localhost yes -SecurityTypes None -fg";
+              ExecStart = "${pkgs.tigervnc}/bin/x0vncserver -display :0 -localhost yes -SecurityTypes None";
               Restart = "on-failure";
             };
             Install = {

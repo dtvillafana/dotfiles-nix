@@ -78,6 +78,7 @@
                 ];
                 "$VMs" = [
                   { class = "Virt-manager"; }
+                  { class = "steam"; }
                 ];
                 "$ssh" = [
                   { class = "org.remmina.Remmina"; }

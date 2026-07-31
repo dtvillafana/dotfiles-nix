@@ -8,6 +8,7 @@
         "capcu"
       ])
       {
+        home.file.".claude/CLAUDE.md".text = "@${config.home.homeDirectory}/.config/opencode/AGENTS.md\n";
         home.file.".config/opencode/AGENTS.md".text = ''
           # General Coding Instructions
 
@@ -16,7 +17,7 @@
 
           ## Nix
 
-          - Use `nixfmt` for Nix formatting. If `nix fmt` is available, use that.
+          - Use `nix fmt` for Nix formatting. If `nix fmt` is unavailable use `nixfmt`.
           - Prefer declarative Nix expressions and existing module options over imperative scripts.
           - Keep expressions simple; factor out bindings only when they improve clarity or avoid repetition.
           - Pin external inputs through the flake lock file. Do not use impure fetches.

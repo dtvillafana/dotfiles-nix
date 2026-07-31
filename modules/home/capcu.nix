@@ -38,6 +38,18 @@
         group = "capcu";
         mode = "0400";
       };
+      m365AttachmentReader = pkgs.buildNpmPackage {
+        pname = "m365-attachment-reader-mcp-local";
+        version = "0.2.0-unstable-2026-07-31";
+        src = pkgs.fetchFromGitHub {
+          owner = "dtvillafana";
+          repo = "Claude-MCP-Read-Email-Attachments";
+          rev = "c4099761070e1fb1927c55cbc6e7631ed4f12f75";
+          hash = "sha256-F5lbAQbsSiYo/eL9kfcd7k29JIgI3VXxkVcsJdlrEvA=";
+        };
+        npmDepsHash = "sha256-bRFxD56mZk3E9psqdqXtGuDN8AG//O4wj2iu7+rbifI=";
+        dontNpmBuild = true;
+      };
     in
     {
       boot.supportedFilesystems = [ "cifs" ];
@@ -340,6 +352,51 @@
               WantedBy = [ "graphical-session.target" ];
             };
           };
+
+          home.activation.configureClaudeMcp = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+            config="$HOME/.claude.json"
+            temporary_config=$(mktemp "$HOME/.claude.json.XXXXXX")
+
+            if [ -e "$config" ]; then
+              ${pkgs.jq}/bin/jq \
+                --arg command "${m365AttachmentReader}/bin/m365-attachment-reader-mcp-local" \
+                --arg clientId "94f0e6f2-1e6e-4227-8db0-6e2c6597eb2f" \
+                --arg dataDir "/home/capcu/.local/state/m365-attachment-reader-mcp-local" \
+                --arg tenantId "284e75a7-9343-4b85-8e22-0b774e0b4298" \
+                '.mcpServers = ((.mcpServers // {}) + {
+                  "m365-attachment-reader-local": {
+                    command: $command,
+                    env: {
+                      M365_AUTO_OPEN_BROWSER: "true",
+                      M365_CLIENT_ID: $clientId,
+                      M365_MCP_DATA_DIR: $dataDir,
+                      M365_TENANT_ID: $tenantId
+                    }
+                  }
+                })' \
+                "$config" >"$temporary_config"
+            else
+              ${pkgs.jq}/bin/jq \
+                --null-input \
+                --arg command "${m365AttachmentReader}/bin/m365-attachment-reader-mcp-local" \
+                --arg clientId "94f0e6f2-1e6e-4227-8db0-6e2c6597eb2f" \
+                --arg dataDir "/home/capcu/.local/state/m365-attachment-reader-mcp-local" \
+                --arg tenantId "284e75a7-9343-4b85-8e22-0b774e0b4298" \
+                '{ mcpServers: {
+                  "m365-attachment-reader-local": {
+                    command: $command,
+                    env: {
+                      M365_AUTO_OPEN_BROWSER: "true",
+                      M365_CLIENT_ID: $clientId,
+                      M365_MCP_DATA_DIR: $dataDir,
+                      M365_TENANT_ID: $tenantId
+                    }
+                  }
+                }}' >"$temporary_config"
+            fi
+
+            mv "$temporary_config" "$config"
+          '';
 
           home.file = {
             ".ssh/id_ecdsa.pub".text =

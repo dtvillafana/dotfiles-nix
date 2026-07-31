@@ -209,22 +209,6 @@
         "type": "github"
       }
     },
-    "fyler": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1784355194,
-        "narHash": "sha256-OSM7IYYGoVA+ft5t5rHo3k/9pqeony8C03gHqBpwfY0=",
-        "owner": "FylerOrg",
-        "repo": "fyler.nvim",
-        "rev": "60c75b81f93e5093ecc7a9e6d2aeea35291a5aa0",
-        "type": "github"
-      },
-      "original": {
-        "owner": "FylerOrg",
-        "repo": "fyler.nvim",
-        "type": "github"
-      }
-    },
     "git-hooks-nix": {
       "inputs": {
         "flake-compat": "flake-compat",
@@ -531,7 +515,6 @@
         "flake-parts": [
           "flake-parts"
         ],
-        "fyler": "fyler",
         "llm-agents": [
           "llm-agents"
         ],
@@ -541,11 +524,11 @@
         "nixvim": "nixvim_2"
       },
       "locked": {
-        "lastModified": 1785350918,
-        "narHash": "sha256-vxhVe+g525+IMDb0ab8KhDAXFc1mbbNWafawZrBazq0=",
+        "lastModified": 1785530251,
+        "narHash": "sha256-+XPDgCpPM2fQmVrYSNkBmHEOFaTY0RHU83a/ET94Jac=",
         "owner": "dtvillafana",
         "repo": "nixvim",
-        "rev": "4ec9d085de86e35db6ce685bca3813cd0c765806",
+        "rev": "bd78f8948c7d64510540dc3be236fc7f10948370",
         "type": "github"
       },
       "original": {

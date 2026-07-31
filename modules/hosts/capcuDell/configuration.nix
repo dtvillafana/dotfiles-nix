@@ -52,10 +52,13 @@
       };
 
       boot = {
+        kernelPackages = pkgs.linuxPackages_6_12;
+        crashDump.enable = true;
         extraModulePackages = [ config.boot.kernelPackages.evdi ];
         kernelModules = [ "evdi" ];
       };
 
+      services.fwupd.enable = true;
       services.udev.packages = [ pkgs.displaylink ];
 
       systemd.services.displaylink = {

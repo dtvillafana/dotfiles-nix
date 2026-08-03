@@ -52,7 +52,7 @@
       };
 
       boot = {
-        kernelPackages = pkgs.linuxPackages_6_12;
+        kernelPackages = pkgs.linuxPackages_latest;
         crashDump.enable = true;
         extraModulePackages = [ config.boot.kernelPackages.evdi ];
         kernelModules = [ "evdi" ];

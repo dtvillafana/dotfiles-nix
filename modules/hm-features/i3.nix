@@ -77,7 +77,7 @@
                   { class = "DB Browser for SQLite"; }
                 ];
                 "$VMs" = [
-                  { class = "Virt-manager"; }
+                  { class = ".virt-manager-wrapped"; }
                   { class = "steam"; }
                 ];
                 "$ssh" = [

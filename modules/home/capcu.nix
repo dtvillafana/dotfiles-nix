@@ -227,6 +227,7 @@
             scrot
             sops
             sshfs
+            sshpass
             teams-for-linux
             vlc
             webex

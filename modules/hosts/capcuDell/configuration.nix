@@ -61,6 +61,18 @@
       services.fwupd.enable = true;
       services.udev.packages = [ pkgs.displaylink ];
 
+      systemd.services.e1000e-offload-workaround = {
+        description = "Disable e1000e transmit offloads that can wedge the I219-LM NIC";
+        wantedBy = [ "multi-user.target" ];
+        requires = [ "sys-subsystem-net-devices-enp128s31f6.device" ];
+        after = [ "sys-subsystem-net-devices-enp128s31f6.device" ];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+        };
+        script = "${pkgs.ethtool}/bin/ethtool --offload enp128s31f6 tso off gso off";
+      };
+
       systemd.services.displaylink = {
         description = "DisplayLink Manager";
         wantedBy = [ "graphical.target" ];

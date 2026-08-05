@@ -104,6 +104,7 @@
         neovim
         pavucontrol
         pinentry-tty
+        ssh-to-age
         unzip
         wget
         xdotool

@@ -171,7 +171,10 @@
                     lib.getExe nixvim.packages.${system}.default
                   }";
                   "${mod}+Return" = "exec ${pkgs.ghostty}/bin/ghostty";
-                  "${mod}+Shift+t" = "exec i3-sensible-terminal";
+                  "${mod}+Shift+t" =
+                    "exec --no-startup-id sh -c '${lib.getExe' pkgs.procps "ps"} -e -o comm= | ${lib.getExe' pkgs.coreutils "sort"} -u | rofi -dmenu -matching fuzzy -i -sort | xargs --no-run-if-empty sudo ${lib.getExe' pkgs.procps "pkill"} -x'";
+                  "${mod}+t" =
+                    "exec --no-startup-id sh -c '${lib.getExe' pkgs.procps "ps"} -u \"$USER\" -o comm= | ${lib.getExe' pkgs.coreutils "sort"} -u | rofi -dmenu -matching fuzzy -i -sort | xargs --no-run-if-empty ${lib.getExe' pkgs.procps "pkill"} -x'";
                   "${mod}+Shift+q" = "kill";
                   "${mod}+d" = "exec rofi -show drun";
                   "${mod}+g" =

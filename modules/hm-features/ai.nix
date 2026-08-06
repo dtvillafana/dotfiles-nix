@@ -35,7 +35,11 @@
               accepts up to 2000 and pages through `@odata.nextLink` to satisfy it. Still
               prefer `search_messages` for anything keyword-driven -- this tool has no
               relevance ranking, it's purely newest-first, so it's best for "what came in
-              today/this week" or "give me the last N regardless of content" asks.
+              today/this week" or "give me the last N regardless of content" asks. Each
+              returned message includes `isRead` (boolean) -- for "unread" asks, pull a
+              batch and filter client-side on `isRead === false` yourself; there's no
+              server-side unread filter exposed by this tool. See "If `isRead` is missing"
+              below if the field isn't present on a returned message.
             - `read_email` -- full subject/from/to/cc/date/body text for one message ID.
             - `list_email_attachments` -- attachment metadata (id, name, size) for one
               message ID.
@@ -68,7 +72,9 @@
                and you can scope with `subject:"..."` / `body:"..."` if needed. No
                `$filter`/date-range can be combined with `$search` in this tool as
                written -- if the user wants a specific date cutoff, run the search, then
-               filter the returned `receivedDateTime` values yourself.
+               filter the returned `receivedDateTime` values yourself. Same pattern for
+               "unread since <day>" asks: pull the candidate messages, then filter
+               client-side on both `receivedDateTime` and `isRead === false`.
             4. **"Sent only to me" means the `to` array is exactly
                `["david.villafana@capcu.org"]`** -- nothing else. Watch for false
                positives from:
@@ -157,5 +163,9 @@
 
           - when you try a command and the program is not available, then try again using `nix shell` to get the desired program before trying something else.
         '';
+        home.file.".config/opencode/opencode.json".text = builtins.toJSON {
+          "$schema" = "https://opencode.ai/config.json";
+          plugin = [ "opencode-terminal-bell-notifier@0.2.0" ];
+        };
       };
 }

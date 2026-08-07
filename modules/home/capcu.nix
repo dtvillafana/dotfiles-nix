@@ -85,6 +85,7 @@
         openssh.authorizedKeys.keys = [
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEJOgAbezqTwOQZnkad6A+qoqE1wtOjLhHRYY4vYxTyD capcu@rogdesktop"
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEqSKqaPhlOzf9qXtN3du9AORQMhs1+J9IV/+6XNTWyW capcu@capcuDell"
+          "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAG8NzNAYDdt66g3YlH9/JpemTq87v5auOVQMJ128U78Kwyc9Dq8vYELxpglHWg4ILwmNp8mgAC9tDnmNI24PY1RgQG7Mq2cIciPPf8B8ebR3v0nMi5KHRR5cCf7FXpPqbPMAuqzz748gnCkpGypdquz2Psywxe02b/jwLDNrhoKORmJiA== vir@nixos"
         ];
         extraGroups = [
           "networkmanager"

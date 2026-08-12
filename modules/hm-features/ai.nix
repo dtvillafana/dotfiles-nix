@@ -40,7 +40,13 @@
               batch and filter client-side on `isRead === false` yourself; there's no
               server-side unread filter exposed by this tool. See "If `isRead` is missing"
               below if the field isn't present on a returned message.
-            - `read_email` -- full subject/from/to/cc/date/body text for one message ID.
+            - `read_email` -- full subject/from/to/cc/date/body text for one message ID,
+              truncated to the first 35,000 characters of the body.
+            - `read_email_body_chunk` -- same message body as `read_email`, but returned
+              in offset-based slices so a long email can be read in full. Call with
+              `offset: 0` first, then keep calling with the response's `nextOffset` until
+              `hasMore` is `false`. Use this whenever `read_email`'s body looks cut off or
+              the user needs the complete text of a long message.
             - `list_email_attachments` -- attachment metadata (id, name, size) for one
               message ID.
             - `read_email_attachment` -- downloads + locally parses one attachment. The
@@ -102,9 +108,9 @@
                for clarity since the source filenames are often generic (`invoice.pdf`,
                `receipt.pdf`).
             4. Optionally write a small `.txt` alongside with subject/from/to/date/
-               webLink for provenance -- the tool's `read_email` doesn't reliably surface
-               full body text back to this session (only `bodyPreview`/metadata came
-               through in practice), so don't rely on it for a full-body dump.
+               webLink for provenance -- for the full message body, prefer
+               `read_email_body_chunk` over `read_email` if the email is long, since
+               `read_email` truncates at 35,000 characters.
 
             ## Sending what you found
 
@@ -136,6 +142,21 @@
             are fixed at session start** -- the new tool won't be callable until a fresh
             conversation is opened (restarting the stdio subprocess mid-session isn't
             possible from within a session).
+
+            ## If `read_email_body_chunk` is missing
+
+            As of 2026-08-12 this tool only exists on the `feature/read-email-body-chunk`
+            branch of `~/git-repos/Claude-MCP-Read-Email-Attachments` (PR against `main`,
+            not yet merged) -- it will disappear if the server is reinstalled/reset from
+            `main` before that PR merges, or if the checkout gets reset back to `main`.
+            Re-add it: open `server.mjs`, find the `read_email` `registerAliases(...)`
+            block, and add a `fetchEmailBody(mailbox, messageId)` helper that does the
+            same Graph fetch + HTML-to-plain-text conversion `read_email` already does,
+            then a `read_email_body_chunk` tool that calls it and returns
+            `bodyText.slice(offset, offset + maxChars)` (default `maxChars` = 35000, same
+            as `MAX_RETURN_CHARS`) along with `nextOffset`/`hasMore` so the caller can page
+            through the rest. Run `node --check server.mjs`, then open a fresh conversation
+            (MCP tool lists are fixed at session start).
           '';
         };
         home.file.".config/opencode/AGENTS.md".text = ''

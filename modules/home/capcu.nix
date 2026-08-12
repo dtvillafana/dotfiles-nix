@@ -44,8 +44,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "dtvillafana";
           repo = "Claude-MCP-Read-Email-Attachments";
-          rev = "f6ccc2f195898058b2cbba3ffec093affca90977";
-          hash = "sha256-26Iy+g3HGzIhfELxYSNryHgGqYACnGv7Q4DiPXKVOHU=";
+          rev = "main";
+          hash = "sha256-9N5t/5tWljFSH4wDOp1I+HTHxz6NR1e7qlyCoyYpr9c=";
         };
         npmDepsHash = "sha256-bRFxD56mZk3E9psqdqXtGuDN8AG//O4wj2iu7+rbifI=";
         dontNpmBuild = true;

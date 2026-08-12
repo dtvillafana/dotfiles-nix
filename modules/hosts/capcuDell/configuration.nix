@@ -63,24 +63,26 @@
       services.udev.packages = [ pkgs.displaylink ];
 
       nixpkgs.config.cudaCapabilities = [ "12.0" ];
-      services.ollama.loadModels = lib.mkForce [ "hermes3:8b" ];
+      services.ollama.loadModels = lib.mkForce [ "gpt-oss:20b" ];
 
       services.hermes-agent = {
         enable = true;
+        container.enable = false;
         addToSystemPackages = true;
         user = "capcu";
         group = "capcu";
         createUser = false;
-        workingDirectory = "/home/capcu/";
+        workingDirectory = "/home/capcu";
         extraPackages = config.home-manager.users.capcu.home.packages;
         environmentFiles = [
           config.sops.secrets."hermes-env-capcu".path
         ];
         settings = {
+          toolsets = [ "all" ];
           model = {
             provider = "custom";
             base_url = "http://127.0.0.1:11434/v1";
-            default = "hermes3:8b";
+            default = "gpt-oss:20b";
             context_length = 65536;
           };
           max_turns = 100;
@@ -104,6 +106,7 @@
       systemd.services.hermes-agent = {
         after = [ "ollama-model-loader.service" ];
         requires = [ "ollama-model-loader.service" ];
+        environment.HOME = lib.mkForce "/home/capcu";
         serviceConfig.TimeoutStopSec = 210;
       };
 

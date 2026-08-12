@@ -17,6 +17,8 @@
 
       services.xserver.videoDrivers = [ "nvidia" ];
 
+      nixpkgs.config.cudaCapabilities = [ "6.1" ];
+
       hardware.nvidia = {
         package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
         modesetting.enable = true;

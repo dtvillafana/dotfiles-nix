@@ -3,6 +3,7 @@
   flake.nixosModules.capcuDellConfig =
     {
       config,
+      llm-agents,
       lib,
       pkgs,
       ...
@@ -60,6 +61,51 @@
 
       services.fwupd.enable = true;
       services.udev.packages = [ pkgs.displaylink ];
+
+      nixpkgs.config.cudaCapabilities = [ "12.0" ];
+      services.ollama.loadModels = lib.mkForce [ "hermes3:8b" ];
+
+      services.hermes-agent = {
+        enable = true;
+        addToSystemPackages = true;
+        user = "capcu";
+        group = "capcu";
+        createUser = false;
+        workingDirectory = "/home/capcu/";
+        extraPackages = config.home-manager.users.capcu.home.packages;
+        environmentFiles = [
+          config.sops.secrets."hermes-env-capcu".path
+        ];
+        settings = {
+          model = {
+            provider = "custom";
+            base_url = "http://127.0.0.1:11434/v1";
+            default = "hermes3:8b";
+            context_length = 65536;
+          };
+          max_turns = 100;
+          agent = {
+            max_turns = 60;
+            verbose = true;
+            tool_use_enforcement = true;
+            intent_ack_continuation = true;
+          };
+          memory = {
+            memory_enabled = true;
+            user_profile_enabled = true;
+          };
+          terminal = {
+            backend = "local";
+            timeout = 180;
+          };
+        };
+      };
+
+      systemd.services.hermes-agent = {
+        after = [ "ollama-model-loader.service" ];
+        requires = [ "ollama-model-loader.service" ];
+        serviceConfig.TimeoutStopSec = 210;
+      };
 
       systemd.services.e1000e-offload-workaround = {
         description = "Disable e1000e transmit offloads that can wedge the I219-LM NIC";
@@ -120,6 +166,7 @@
 
       environment.systemPackages = with pkgs; [
         displaylink
+        llm-agents.packages.${stdenv.hostPlatform.system}.hermes-desktop
         virtio-win
       ];
     };

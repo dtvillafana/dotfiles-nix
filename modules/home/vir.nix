@@ -59,7 +59,7 @@
         git_vps_vir = mkPrivateSecret "git_vps";
         ssh_nix_key_vir = mkPrivateSecret "ssh_nix_key";
         "hermes-env" = {
-          sopsFile = self + /secrets/hermes.yaml;
+          sopsFile = self + /secrets/hermes-rog.yaml;
           format = "yaml";
           owner = "vir";
           group = "vir";

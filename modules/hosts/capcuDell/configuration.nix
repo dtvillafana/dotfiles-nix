@@ -70,6 +70,10 @@
         format = "yaml";
         owner = "capcu";
         group = "capcu";
+        restartUnits = [
+          "hermes-agent.service"
+          "hermes-webui.service"
+        ];
       };
 
       services.hermes-agent = {
@@ -84,8 +88,13 @@
         environmentFiles = [
           config.sops.secrets."hermes-env-capcu".path
         ];
+        environment = {
+          API_SERVER_HOST = "127.0.0.1";
+          API_SERVER_PORT = "8642";
+        };
         settings = {
           toolsets = [ "all" ];
+          platforms.api_server.enabled = true;
           model = {
             provider = "custom";
             base_url = "http://127.0.0.1:11434/v1";
@@ -118,13 +127,29 @@
         hermesHome = "/home/capcu/.hermes";
         agent.package = config.services.hermes-agent.package;
         environmentFiles = [ config.sops.secrets."hermes-env-capcu".path ];
+        extraEnvironment = {
+          HERMES_WEBUI_CHAT_BACKEND = "gateway";
+          HERMES_WEBUI_GATEWAY_BASE_URL = "http://${config.services.hermes-agent.environment.API_SERVER_HOST}:${config.services.hermes-agent.environment.API_SERVER_PORT}";
+        };
       };
 
       systemd.services.hermes-agent = {
         after = [ "ollama-model-loader.service" ];
         requires = [ "ollama-model-loader.service" ];
         environment.HOME = lib.mkForce "/home/capcu";
+        restartTriggers = [
+          (pkgs.writeText "hermes-agent-gateway-config" (
+            builtins.toJSON {
+              inherit (config.services.hermes-agent) environment settings;
+            }
+          ))
+        ];
         serviceConfig.TimeoutStopSec = 210;
+      };
+
+      systemd.services.hermes-webui = {
+        after = [ "hermes-agent.service" ];
+        requires = [ "hermes-agent.service" ];
       };
 
       systemd.services.e1000e-offload-workaround = {

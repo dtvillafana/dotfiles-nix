@@ -109,12 +109,6 @@
         git_gitlab_pat_capcu = mkSharedSecret "git_gitlab_pat";
         git_vps_capcu = mkPrivateSecret "git_vps";
         ssh_nix_key_capcu = mkPrivateSecret "ssh_nix_key";
-        "hermes-env-capcu" = {
-          sopsFile = self + /secrets/hermes-dell.yaml;
-          format = "yaml";
-          owner = "capcu";
-          group = "capcu";
-        };
       };
 
       networking.networkmanager.plugins = with pkgs; [

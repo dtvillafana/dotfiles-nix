@@ -1,4 +1,4 @@
-{ ... }:
+{ self, ... }:
 {
   flake.nixosModules.capcuDellConfig =
     {
@@ -64,6 +64,13 @@
 
       nixpkgs.config.cudaCapabilities = [ "12.0" ];
       services.ollama.loadModels = lib.mkForce [ "gpt-oss:20b" ];
+
+      sops.secrets."hermes-env-capcu" = {
+        sopsFile = self + /secrets/hermes-dell.yaml;
+        format = "yaml";
+        owner = "capcu";
+        group = "capcu";
+      };
 
       services.hermes-agent = {
         enable = true;

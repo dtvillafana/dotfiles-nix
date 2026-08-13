@@ -1,11 +1,17 @@
-{ ... }:
+{ inputs, ... }:
 {
   flake.nixosModules.ollama =
     { pkgs, ... }:
+    let
+      llmPkgs = import inputs.llm-agents.inputs.nixpkgs {
+        inherit (pkgs.stdenv.hostPlatform) system;
+        config = pkgs.config;
+      };
+    in
     {
       services.ollama = {
         enable = true;
-        package = pkgs.ollama-cuda;
+        package = llmPkgs.ollama-cuda;
         environmentVariables = {
           OLLAMA_NUM_GPU = "99";
           OLLAMA_GPU_OVERHEAD = "805306368";
@@ -16,7 +22,7 @@
         ];
       };
 
-      environment.systemPackages = with pkgs; [
+      environment.systemPackages = with llmPkgs; [
         ollama-cuda
       ];
     };

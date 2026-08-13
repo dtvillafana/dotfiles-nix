@@ -110,6 +110,16 @@
         };
       };
 
+      services.hermes-webui = {
+        enable = true;
+        user = "capcu";
+        group = "capcu";
+        stateDir = "/home/capcu/.hermes/webui";
+        hermesHome = "/home/capcu/.hermes";
+        agent.package = config.services.hermes-agent.package;
+        environmentFiles = [ config.sops.secrets."hermes-env-capcu".path ];
+      };
+
       systemd.services.hermes-agent = {
         after = [ "ollama-model-loader.service" ];
         requires = [ "ollama-model-loader.service" ];

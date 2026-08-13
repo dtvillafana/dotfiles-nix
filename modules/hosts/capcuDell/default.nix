@@ -4,6 +4,7 @@
     modules = [
       inputs.determinate.nixosModules.default
       inputs.hermes-agent.nixosModules.default
+      inputs.hermes-webui.nixosModules.default
       inputs.home-manager.nixosModules.home-manager
       inputs.sops-nix.nixosModules.sops
       self.nixosModules.common

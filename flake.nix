@@ -16,6 +16,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     hermes-agent.url = "github:NousResearch/hermes-agent";
+    hermes-webui = {
+      url = "github:nesquena/hermes-webui";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     llm-agents.url = "github:numtide/llm-agents.nix";
     nixvim = {
       url = "github:dtvillafana/nixvim";

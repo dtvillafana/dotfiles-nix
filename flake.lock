@@ -258,6 +258,26 @@
         "type": "github"
       }
     },
+    "hermes-webui": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786620203,
+        "narHash": "sha256-M17DQFDUo6YtXqOFLV1JwREJw3jel/dG1JsrURma7Xs=",
+        "owner": "nesquena",
+        "repo": "hermes-webui",
+        "rev": "7d0bc4b6a5813a5632a12232d87c993d6b1b61b8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nesquena",
+        "repo": "hermes-webui",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -636,6 +656,7 @@
         "determinate": "determinate",
         "flake-parts": "flake-parts_2",
         "hermes-agent": "hermes-agent",
+        "hermes-webui": "hermes-webui",
         "home-manager": "home-manager",
         "import-tree": "import-tree",
         "llm-agents": "llm-agents",

@@ -63,7 +63,7 @@
       services.udev.packages = [ pkgs.displaylink ];
 
       nixpkgs.config.cudaCapabilities = [ "12.0" ];
-      services.ollama.loadModels = lib.mkForce [ "gpt-oss:20b" ];
+      services.ollama.loadModels = lib.mkForce [ "gpt-oss:20b" "nemotron-3.5-lightning:30b"];
 
       sops.secrets."hermes-env-capcu" = {
         sopsFile = self + /secrets/hermes-dell.yaml;

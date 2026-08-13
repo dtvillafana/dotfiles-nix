@@ -597,6 +597,23 @@
         "type": "github"
       }
     },
+    "ollama-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786424301,
+        "narHash": "sha256-6BDUXDF5pXL3stffvtNJOnhC0A1xjPv43ZpsxegXm4w=",
+        "owner": "ollama",
+        "repo": "ollama",
+        "rev": "1d5febee105f00c430e19214b7b7b620cf186f98",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ollama",
+        "ref": "v0.32.9",
+        "repo": "ollama",
+        "type": "github"
+      }
+    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -659,6 +676,7 @@
         "nix-index-database": "nix-index-database",
         "nixpkgs": "nixpkgs_5",
         "nixvim": "nixvim",
+        "ollama-src": "ollama-src",
         "sops-nix": "sops-nix",
         "treefmt-nix": "treefmt-nix_2",
         "wrapper-modules": "wrapper-modules"

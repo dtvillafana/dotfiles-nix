@@ -21,6 +21,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
+    ollama-src = {
+      url = "github:ollama/ollama/v0.32.9";
+      flake = false;
+    };
     nixvim = {
       url = "github:dtvillafana/nixvim";
       inputs.nixpkgs.follows = "nixpkgs";

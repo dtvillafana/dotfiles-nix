@@ -7,11 +7,25 @@
         inherit (pkgs.stdenv.hostPlatform) system;
         config = pkgs.config;
       };
+      ollama = llmPkgs.ollama-cuda.overrideAttrs (old: rec {
+        version = "0.32.9";
+        src = inputs.ollama-src;
+        vendorHash = "sha256-HMwoaFBMbpoy8f0I+O+i7kIa9BslLu3FcVWeaIOkpvs=";
+        llamaCppSrc = llmPkgs.fetchFromGitHub {
+          owner = "ggml-org";
+          repo = "llama.cpp";
+          tag = "b10353";
+          hash = "sha256-MQP91lL8zQLYcnYw5GlkMvH5sXiES+C6L4/1G3Y6TPY=";
+        };
+        postPatch =
+          builtins.replaceStrings [ "${old.passthru.llamaCppSrc}" ] [ "${llamaCppSrc}" ]
+            old.postPatch;
+      });
     in
     {
       services.ollama = {
         enable = true;
-        package = llmPkgs.ollama-cuda;
+        package = ollama;
         environmentVariables = {
           OLLAMA_NUM_GPU = "99";
           OLLAMA_GPU_OVERHEAD = "805306368";
@@ -22,8 +36,6 @@
         ];
       };
 
-      environment.systemPackages = with llmPkgs; [
-        ollama-cuda
-      ];
+      environment.systemPackages = [ ollama ];
     };
 }

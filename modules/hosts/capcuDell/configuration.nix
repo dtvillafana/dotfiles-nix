@@ -66,6 +66,7 @@
       services.ollama.loadModels = lib.mkForce [
         "gpt-oss:20b"
         "nemotron-3.5-lightning:30b"
+        "huihui_ai/mistral-small-abliterated:24b"
       ];
 
       sops.secrets."hermes-env-capcu" = {

@@ -3,11 +3,25 @@
   flake.nixosModules.capcuDellConfig =
     {
       config,
+      hermes-agent,
       llm-agents,
       lib,
       pkgs,
       ...
     }:
+    let
+      hermesPackage = hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default;
+      registrationLifecycle = pkgs.writeTextDir "registration_lifecycle.py" (
+        builtins.readFile (hermes-agent.outPath + "/registration_lifecycle.py")
+      );
+      fixedHermesPackage = hermesPackage.overrideAttrs (old: {
+        postInstall = (old.postInstall or "") + ''
+          for program in $out/bin/hermes*; do
+            wrapProgram "$program" --prefix PYTHONPATH : ${registrationLifecycle}
+          done
+        '';
+      });
+    in
     {
       services.xserver.videoDrivers = [ "nvidia" ];
 
@@ -66,7 +80,7 @@
       services.ollama.loadModels = lib.mkForce [
         "gpt-oss:20b"
         "nemotron-3.5-lightning:30b"
-        "huihui_ai/mistral-small-abliterated:24b"
+        "mistral-small3.2:24b"
       ];
 
       sops.secrets."hermes-env-capcu" = {
@@ -82,6 +96,7 @@
 
       services.hermes-agent = {
         enable = true;
+        package = fixedHermesPackage;
         container.enable = false;
         addToSystemPackages = true;
         user = "capcu";

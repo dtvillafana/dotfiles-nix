@@ -24,8 +24,10 @@
             - Use `search_messages` for keyword searches across the mailbox.
             - Use `list_recent_messages` only for newest-first requests. Filter its results
               client-side for dates or `isRead` when needed.
-            - Use `read_email` for message details. If its body is truncated, page through
-              `read_email_body_chunk` from offset 0 until `hasMore` is false.
+            - Use `read_email` for message metadata and short previews. When the full body
+              is needed, call `read_email_body_chunk` starting at offset 0, read each
+              chunk from `bodyText`, and continue with the returned `nextOffset` until
+              `hasMore` is false.
             - Use `list_email_attachments` and `read_email_attachment` for attachments.
               The raw downloaded file is at `hostTempPath`.
             - Use `begin_auth` and `auth_status` if Graph authentication fails.

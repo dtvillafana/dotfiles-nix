@@ -40,12 +40,12 @@
       };
       m365AttachmentReader = pkgs.buildNpmPackage {
         pname = "m365-attachment-reader-mcp-local";
-        version = "0.2.0-unstable-2026-08-06";
+        version = "0.2.0-unstable-2026-08-15";
         src = pkgs.fetchFromGitHub {
           owner = "dtvillafana";
           repo = "Claude-MCP-Read-Email-Attachments";
-          rev = "main";
-          hash = "sha256-9N5t/5tWljFSH4wDOp1I+HTHxz6NR1e7qlyCoyYpr9c=";
+          rev = "a748bdb733d33e32d9df5278a98ec06127068ebb";
+          hash = "sha256-15U3z04SrSLvwknCbwhn+Jtt1+CKTjm6722HcHjn9Cw=";
         };
         npmDepsHash = "sha256-bRFxD56mZk3E9psqdqXtGuDN8AG//O4wj2iu7+rbifI=";
         dontNpmBuild = true;

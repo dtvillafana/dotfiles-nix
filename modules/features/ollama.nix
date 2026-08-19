@@ -11,15 +11,27 @@
         version = "0.32.9";
         src = inputs.ollama-src;
         vendorHash = "sha256-HMwoaFBMbpoy8f0I+O+i7kIa9BslLu3FcVWeaIOkpvs=";
+        llamaCppVersion = "b10353";
         llamaCppSrc = llmPkgs.fetchFromGitHub {
           owner = "ggml-org";
           repo = "llama.cpp";
-          tag = "b10353";
+          tag = llamaCppVersion;
           hash = "sha256-MQP91lL8zQLYcnYw5GlkMvH5sXiES+C6L4/1G3Y6TPY=";
         };
         postPatch =
-          builtins.replaceStrings [ "${old.passthru.llamaCppSrc}" ] [ "${llamaCppSrc}" ]
+          builtins.replaceStrings
+            [
+              "${old.passthru.llamaCppSrc}"
+              old.passthru.llamaCppVersion
+            ]
+            [
+              "${llamaCppSrc}"
+              llamaCppVersion
+            ]
             old.postPatch;
+        passthru = old.passthru // {
+          inherit llamaCppSrc llamaCppVersion;
+        };
       });
     in
     {

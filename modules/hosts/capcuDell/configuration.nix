@@ -115,9 +115,9 @@
           toolsets = [ "all" ];
           platforms.api_server.enabled = true;
           model = {
-            provider = "custom";
+            provider = "ollama";
             base_url = "http://127.0.0.1:11434/v1";
-            default = "gpt-oss:20b";
+            default = "mistral-small3.2:24b";
             context_length = 65536;
           };
           max_turns = 100;
@@ -143,7 +143,7 @@
         user = "capcu";
         group = "capcu";
         stateDir = "/home/capcu/.hermes/webui";
-        hermesHome = "/home/capcu/.hermes";
+        hermesHome = "${config.services.hermes-agent.stateDir}/.hermes";
         agent.package = config.services.hermes-agent.package;
         environmentFiles = [ config.sops.secrets."hermes-env-capcu".path ];
         extraEnvironment = {

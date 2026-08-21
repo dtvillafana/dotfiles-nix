@@ -118,6 +118,7 @@
             networkmanagerapplet
             nixfmt-tree
             nvtopPackages.full
+            obs-studio
             pwgen-secure
             python313
             ripgrep

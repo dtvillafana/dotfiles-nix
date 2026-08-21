@@ -9,19 +9,6 @@
       pkgs,
       ...
     }:
-    let
-      hermesPackage = hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default;
-      registrationLifecycle = pkgs.writeTextDir "registration_lifecycle.py" (
-        builtins.readFile (hermes-agent.outPath + "/registration_lifecycle.py")
-      );
-      fixedHermesPackage = hermesPackage.overrideAttrs (old: {
-        postInstall = (old.postInstall or "") + ''
-          for program in $out/bin/hermes*; do
-            wrapProgram "$program" --prefix PYTHONPATH : ${registrationLifecycle}
-          done
-        '';
-      });
-    in
     {
       services.xserver.videoDrivers = [ "nvidia" ];
 
@@ -96,7 +83,7 @@
 
       services.hermes-agent = {
         enable = true;
-        package = fixedHermesPackage;
+        package = hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default;
         container.enable = false;
         addToSystemPackages = true;
         user = "capcu";
@@ -115,9 +102,9 @@
           toolsets = [ "all" ];
           platforms.api_server.enabled = true;
           model = {
-            provider = "ollama";
+            provider = "custom";
             base_url = "http://127.0.0.1:11434/v1";
-            default = "mistral-small3.2:24b";
+            default = "nemotron-3.5-lightning:30b";
             context_length = 65536;
           };
           max_turns = 100;
@@ -146,10 +133,7 @@
         hermesHome = "${config.services.hermes-agent.stateDir}/.hermes";
         agent.package = config.services.hermes-agent.package;
         environmentFiles = [ config.sops.secrets."hermes-env-capcu".path ];
-        extraEnvironment = {
-          HERMES_WEBUI_CHAT_BACKEND = "gateway";
-          HERMES_WEBUI_GATEWAY_BASE_URL = "http://${config.services.hermes-agent.environment.API_SERVER_HOST}:${config.services.hermes-agent.environment.API_SERVER_PORT}";
-        };
+        extraEnvironment.HERMES_WEBUI_CHAT_BACKEND = "legacy";
       };
 
       systemd.services.hermes-agent = {

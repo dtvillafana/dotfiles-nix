@@ -9,6 +9,18 @@
       pkgs,
       ...
     }:
+    let
+      evdi = config.boot.kernelPackages.evdi.overrideAttrs {
+        version = "1.15.0";
+        src = pkgs.fetchFromGitHub {
+          owner = "DisplayLink";
+          repo = "evdi";
+          tag = "v1.15.0";
+          hash = "sha256-CXF7PvmrPjjNoWXbWxEkFE/Sw4bO6YqDplPwF/OxhB0=";
+        };
+        prePatch = "";
+      };
+    in
     {
       services.xserver.videoDrivers = [ "nvidia" ];
 
@@ -54,9 +66,9 @@
       };
 
       boot = {
-        kernelPackages = pkgs.linuxPackages_latest;
+        kernelPackages = pkgs.linuxPackages_6_18;
         crashDump.enable = true;
-        extraModulePackages = [ config.boot.kernelPackages.evdi ];
+        extraModulePackages = [ evdi ];
         kernelModules = [ "evdi" ];
       };
 

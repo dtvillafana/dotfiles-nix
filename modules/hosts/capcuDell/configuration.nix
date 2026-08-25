@@ -114,7 +114,7 @@
           toolsets = [ "all" ];
           platforms.api_server.enabled = true;
           model = {
-            provider = "custom";
+            provider = "ollama";
             base_url = "http://127.0.0.1:11434/v1";
             default = "nemotron-3.5-lightning:30b";
             context_length = 65536;
@@ -145,7 +145,10 @@
         hermesHome = "${config.services.hermes-agent.stateDir}/.hermes";
         agent.package = config.services.hermes-agent.package;
         environmentFiles = [ config.sops.secrets."hermes-env-capcu".path ];
-        extraEnvironment.HERMES_WEBUI_CHAT_BACKEND = "legacy";
+        extraEnvironment = {
+          HERMES_WEBUI_CHAT_BACKEND = "gateway";
+          HERMES_WEBUI_GATEWAY_BASE_URL = "http://${config.services.hermes-agent.environment.API_SERVER_HOST}:${config.services.hermes-agent.environment.API_SERVER_PORT}";
+        };
       };
 
       systemd.services.hermes-agent = {

@@ -400,6 +400,28 @@
             mv "$temporary_config" "$config"
           '';
 
+          home.activation.configureHermesMcp = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+            # Integrate Outlook MCP for Hermes Agent
+            # The outlook-mcp was added via: hermes mcp add outlook-mcp --command "npx" --args "microsoft-outlook-mcp"
+            # 14 tools enabled: me, list_emails, get_email, create_email_draft, create_reply_draft,
+            #                  send_email, update_email, delete_email, move_email,
+            #                  reply_to_email, reply_all_email, get_attachment, search_emails, unified_search
+            mkdir -p "$HOME/.config/hermes"
+            if [ ! -f "$HOME/.config/hermes/mcp.json" ]; then
+              echo '{"mcpServers":{}}' > "$HOME/.config/hermes/mcp.json"
+            fi
+            # Add outlook-mcp entry if not present
+            MCP_FILE="$HOME/.config/hermes/mcp.json"
+            if ! jq -e '.mcpServers.outlook-mcp' "$MCP_FILE" >/dev/null 2>&1; then
+              cp "$MCP_FILE" "''${MCP_FILE}.tmp"
+              jq --arg name "outlook-mcp" \
+                 --arg command "npx" \
+                 --arg args "microsoft-outlook-mcp" \
+                 '.mcpServers[$name] = {command: $command, args: ($args | splits("\\s+"))}' \
+                 "''${MCP_FILE}.tmp" > "$MCP_FILE"
+              rm -f "''${MCP_FILE}.tmp"
+            fi
+          '';
           home.file = {
             ".ssh/id_ecdsa.pub".text =
               "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAG8NzNAYDdt66g3YlH9/JpemTq87v5auOVQMJ128U78Kwyc9Dq8vYELxpglHWg4ILwmNp8mgAC9tDnmNI24PY1RgQG7Mq2cIciPPf8B8ebR3v0nMi5KHRR5cCf7FXpPqbPMAuqzz748gnCkpGypdquz2Psywxe02b/jwLDNrhoKORmJiA== vir@nixos";

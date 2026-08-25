@@ -477,6 +477,7 @@
         # This attrset merges with the shared secrets declared by common.
         secrets = {
           gitea_token = mkWorkSecret "gitea_token";
+          gitea_llm_token = mkWorkSecret "gitea_llm_token";
           ansible_pass = mkWorkSecret "ansible_pass";
           git_gitea = mkWorkSecret "git_gitea";
           capcu_master_key = mkWorkSecret "capcu_master_key";

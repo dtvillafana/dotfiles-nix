@@ -188,11 +188,13 @@
           home.packages = with pkgs; [
             age
             arandr
+            ast-grep
             audacity
             bc
             blueman
             brightnessctl
             btop
+            bun
             dunst
             fd
             feh

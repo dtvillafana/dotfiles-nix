@@ -82,27 +82,28 @@
         "mistral-small3.2:24b"
       ];
 
-      home-manager.users.capcu.home.file.".config/opencode/opencode.json".text = lib.mkForce (
-        builtins.toJSON {
-          "$schema" = "https://opencode.ai/config.json";
-          plugin = [ "opencode-terminal-bell-notifier@0.2.0" ];
-          provider = {
-            "Local Ollama" = {
-              npm = "@ai-sdk/openai-compatible";
-              name = "Local Ollama";
-              options = {
-                baseURL = "http://127.0.0.1:11434/v1";
-                apiKey = "";
-              };
-              models = {
-                "nemotron-3.5-lightning:30b" = {
-                  name = "nemotron-3.5-lightning:30b";
-                };
+      home-manager.users.capcu.opencode.settings = {
+        "$schema" = "https://opencode.ai/config.json";
+        plugin = [
+          "opencode-terminal-bell-notifier@0.2.0"
+          "oh-my-openagent@4.19.4"
+        ];
+        provider = {
+          "Local Ollama" = {
+            npm = "@ai-sdk/openai-compatible";
+            name = "Local Ollama";
+            options = {
+              baseURL = "http://127.0.0.1:11434/v1";
+              apiKey = "";
+            };
+            models = {
+              "nemotron-3.5-lightning:30b" = {
+                name = "nemotron-3.5-lightning:30b";
               };
             };
           };
-        }
-      );
+        };
+      };
 
       sops.secrets."hermes-env-capcu" = {
         sopsFile = self + /secrets/hermes-dell.yaml;

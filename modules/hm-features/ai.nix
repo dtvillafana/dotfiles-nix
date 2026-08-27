@@ -228,7 +228,7 @@
                 "$schema" = "https://opencode.ai/config.json";
                 plugin = [
                   "opencode-terminal-bell-notifier@0.2.0"
-                  "oh-my-openagent@4.19.4"
+                  # "oh-my-openagent@4.19.4"
                 ];
                 agent = {
                   explore = {
@@ -319,6 +319,15 @@
                 };
               };
             };
+            home.file.".omo/omo.jsonc".enable = false;
+            home.activation.installOmoConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+              config="$HOME/.omo/omo.jsonc"
+              mkdir -p "$HOME/.omo"
+              if [ -L "$config" ]; then
+                rm "$config"
+              fi
+              install -m 0644 "${config.home.file.".omo/omo.jsonc".source}" "$config"
+            '';
           };
     };
 }

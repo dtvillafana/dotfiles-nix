@@ -86,7 +86,7 @@
         "$schema" = "https://opencode.ai/config.json";
         plugin = [
           "opencode-terminal-bell-notifier@0.2.0"
-          "oh-my-openagent@4.19.4"
+          # "oh-my-openagent@4.19.4"
         ];
         provider = {
           "Local Ollama" = {

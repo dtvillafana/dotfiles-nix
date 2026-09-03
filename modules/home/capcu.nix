@@ -155,6 +155,19 @@
 
       home-manager.users.capcu =
         { pkgs, lib, ... }:
+        let
+          webexWrapped = pkgs.writeShellScriptBin "webex" ''
+            export LD_LIBRARY_PATH="${pkgs.webex}/opt/Webex/lib:${
+              lib.makeLibraryPath [
+                pkgs.glib
+                pkgs.libx11
+                pkgs.libxscrnsaver
+                pkgs.stdenv.cc.cc.lib
+              ]
+            }''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+            exec "${pkgs.webex}/opt/Webex/bin/CiscoCollabHost" "$@"
+          '';
+        in
         {
           imports = [
             inputs.nix-index-database.homeModules.nix-index
@@ -175,6 +188,21 @@
 
           home.username = "capcu";
           home.homeDirectory = "/home/capcu";
+
+          home.file.".local/share/applications/webex.desktop" = {
+            force = true;
+            text = ''
+              [Desktop Entry]
+              Type=Application
+              Name=Webex
+              Comment=Webex
+              Exec=${lib.getExe webexWrapped} %U
+              Icon=${pkgs.webex}/opt/Webex/bin/sparklogosmall.png
+              Terminal=false
+              Categories=Network;InstantMessaging;
+              MimeType=x-scheme-handler/webexteams;x-scheme-handler/ciscospark;x-scheme-handler/webex;
+            '';
+          };
 
           programs.chromium = {
             enable = true;
@@ -233,7 +261,7 @@
             sshpass
             teams-for-linux
             vlc
-            webex
+            webexWrapped
             wireguard-tools
             xclip
             xdotool

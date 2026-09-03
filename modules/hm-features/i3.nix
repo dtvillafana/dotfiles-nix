@@ -192,6 +192,8 @@
                     "exec xinput --enable \"$(xinput | awk -F = '/TouchPad/{print $2}' | cut -b 1-2)\"";
                   "${mod}+Shift+s" =
                     "exec --no-startup-id sh -c 'env DISPLAY=$DISPLAY ${pkgs.scrot}/bin/scrot -s /tmp/screenshot.png && env DISPLAY=$DISPLAY ${pkgs.xclip}/bin/xclip -selection clipboard -t image/png < /tmp/screenshot.png && rm /tmp/screenshot.png'";
+                  "--release ${mod}+Mod1+s" =
+                    "exec --no-startup-id sh -c 'image=$(${lib.getExe' pkgs.coreutils "mktemp"} --suffix=.png) && trap \"rm -f $image\" EXIT && ${lib.getExe pkgs.scrot} --overwrite -s \"$image\" && ${lib.getExe pkgs.tesseract} \"$image\" stdout | ${lib.getExe pkgs.xclip} -selection clipboard'";
                   "${mod}+h" = "focus left";
                   "${mod}+j" = "focus down";
                   "${mod}+shift+a" =

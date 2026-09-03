@@ -22,6 +22,7 @@
       users.groups.guest = { };
 
       services.desktopManager.plasma6.enable = true;
+      systemd.user.services."drkonqi-coredump-launcher@".unitConfig.ConditionEnvironment = "DISPLAY";
       home-manager.users.guest =
         { pkgs, ... }:
         {

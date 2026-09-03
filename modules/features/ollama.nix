@@ -23,10 +23,12 @@
             [
               "${old.passthru.llamaCppSrc}"
               old.passthru.llamaCppVersion
+              "cmake/apply-git-patches.cmake"
             ]
             [
               "${llamaCppSrc}"
               llamaCppVersion
+              "llama/compat/apply-patch.cmake"
             ]
             old.postPatch;
         passthru = old.passthru // {

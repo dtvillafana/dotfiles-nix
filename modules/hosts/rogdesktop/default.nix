@@ -5,6 +5,7 @@
       inputs.determinate.nixosModules.default
       inputs.home-manager.nixosModules.home-manager
       inputs.hermes-agent.nixosModules.default
+      inputs.hermes-webui.nixosModules.default
       inputs.sops-nix.nixosModules.sops
       self.nixosModules.common
       self.nixosModules.rogdesktopConfig
@@ -14,10 +15,10 @@
       self.nixosModules.guestHome
       self.nixosModules.experiment
       self.nixosModules.ollama
-      self.nixosModules.hermes
     ];
     specialArgs = {
       inherit (inputs)
+        hermes-agent
         home-manager
         nixvim
         llm-agents

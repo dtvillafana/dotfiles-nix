@@ -47,6 +47,7 @@
         };
         loadModels = [
           "qwen3.5:9b"
+          "nemotron-3.5-lightning:30b"
         ];
       };
 

@@ -12,6 +12,7 @@
           modi = "run,drun";
           icon-theme = "Papirus";
           show-icons = true;
+          drun-reload-desktop-cache = true;
           drun-display-format = "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";
           disable-history = false;
           hide-scrollbar = true;

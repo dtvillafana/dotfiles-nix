@@ -58,7 +58,7 @@
             nvd = "nix run $HOME/git-repos/nixvim";
             q = "exit";
             lg = "lazygit";
-            nr = ''nix flake update --flake "${dotfiles}" nixvim && sudo nixos-rebuild switch --flake "${dotfiles}#${osConfig.networking.hostName}"'';
+            nr = ''nixos-rebuild switch --flake "${dotfiles}#${osConfig.networking.hostName}" --sudo --no-reexec --no-update-lock-file --no-write-lock-file'';
             nrf = ''nix flake update --flake "${dotfiles}" && sudo nixos-rebuild switch --flake "${dotfiles}#${osConfig.networking.hostName}" --refresh'';
             nrc = ''nix flake update --flake "${dotfiles}" nixvim nix-index-database && sudo nixos-rebuild switch --flake "${dotfiles}#${osConfig.networking.hostName}" --refresh && nix-collect-garbage -d && nix store optimise'';
             nrfc = ''nix flake update --flake "${dotfiles}" && sudo nixos-rebuild switch --flake "${dotfiles}#${osConfig.networking.hostName}" --refresh && nix-collect-garbage -d && nix store optimise'';

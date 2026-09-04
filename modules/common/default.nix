@@ -97,6 +97,7 @@
 
       environment.systemPackages = with pkgs; [
         curl
+        self.packages.${pkgs.stdenv.hostPlatform.system}.excise
         file
         git
         git-agecrypt

@@ -47,8 +47,17 @@
       ];
 
       perSystem =
-        { ... }:
         {
+          lib,
+          pkgs,
+          system,
+          ...
+        }:
+        {
+          packages = lib.optionalAttrs (system == "x86_64-linux") {
+            excise = pkgs.callPackage ./packages/excise.nix { };
+          };
+
           treefmt = {
             projectRootFile = "flake.nix";
             programs.nixfmt.enable = true;

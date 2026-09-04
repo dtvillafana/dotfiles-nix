@@ -42,8 +42,6 @@
             "/run/current-system/sw/bin"
           ];
 
-          nixpkgs.config.allowUnfree = true;
-
           programs.home-manager.enable = true;
 
           programs.ghostty = {

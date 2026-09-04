@@ -27,7 +27,7 @@
         self.nixosModules.xorg
       ];
 
-      home-manager.useGlobalPkgs = false;
+      home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "hm-bak";
       home-manager.extraSpecialArgs = {
@@ -153,8 +153,6 @@
           home.sessionVariables = {
             HERMES_HOME = "/var/lib/hermes/.hermes";
           };
-
-          nixpkgs.config.allowUnfree = true;
 
           programs.home-manager.enable = true;
 

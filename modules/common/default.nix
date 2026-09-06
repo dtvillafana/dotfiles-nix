@@ -6,6 +6,7 @@
       lib,
       pkgs,
       nodename,
+      secretsEnabled ? true,
       ...
     }:
     let
@@ -16,13 +17,15 @@
     in
     {
 
-      sops = {
-        defaultSopsFile = self + /secrets/secrets.json;
-        defaultSopsFormat = "json";
-      }
-      // lib.optionalAttrs (profileUsers != [ ]) {
-        age.sshKeyPaths = map (user: "/home/${user}/.ssh/id_ed25519") profileUsers;
-      };
+      sops = lib.mkIf secretsEnabled (
+        {
+          defaultSopsFile = self + /secrets/secrets.json;
+          defaultSopsFormat = "json";
+        }
+        // lib.optionalAttrs (profileUsers != [ ]) {
+          age.sshKeyPaths = map (user: "/home/${user}/.ssh/id_ed25519") profileUsers;
+        }
+      );
 
       networking.hostName = nodename;
 

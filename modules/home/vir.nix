@@ -4,8 +4,10 @@
     {
       system,
       llm-agents,
+      lib,
       nixvim,
       pkgs,
+      secretsEnabled ? true,
       ...
     }:
     let
@@ -31,7 +33,12 @@
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "hm-bak";
       home-manager.extraSpecialArgs = {
-        inherit llm-agents nixvim system;
+        inherit
+          llm-agents
+          nixvim
+          secretsEnabled
+          system
+          ;
       };
       users.users.vir = {
         isNormalUser = true;
@@ -52,7 +59,7 @@
       users.groups.vir = { };
       users.groups.git-secrets.members = [ "vir" ];
 
-      sops.secrets = {
+      sops.secrets = lib.mkIf secretsEnabled {
         git_github_vir = mkSharedSecret "git_github";
         git_gitlab_vir = mkSharedSecret "git_gitlab";
         git_gitlab_pat_vir = mkSharedSecret "git_gitlab_pat";
@@ -74,15 +81,17 @@
             self.homeModules.i3
             self.homeModules.browsers
             self.homeModules.zathura
-            self.homeModules.ssh
             self.homeModules.terminal
             self.homeModules.monitors
             self.homeModules.launcher
-            self.homeModules.git-repos
             self.homeModules.git
             self.homeModules.ai
             self.homeModules.tmux
             self.homeModules.zsh
+          ]
+          ++ lib.optionals secretsEnabled [
+            self.homeModules.ssh
+            self.homeModules.git-repos
           ];
 
           home.username = "vir";

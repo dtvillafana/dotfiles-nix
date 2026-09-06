@@ -5,8 +5,10 @@
       config,
       system,
       llm-agents,
+      lib,
       nixvim,
       pkgs,
+      secretsEnabled ? true,
       ...
     }:
     let
@@ -61,23 +63,25 @@
         "d /home/capcu/mounts/f 0700 capcu capcu -"
       ];
 
-      fileSystems = {
+      fileSystems = lib.mkIf secretsEnabled {
         "/home/capcu/mounts/n" = cifsMount "//ccufs1.capcu.org/Data";
         "/home/capcu/mounts/t" = cifsMount "//ccufs2.capcu.org/Data";
         "/home/capcu/mounts/u" = cifsMount "//ccufs3.capcu.org/Data";
         "/home/capcu/mounts/f" = cifsMount "//ccuficsapp.capcu.org/FICS";
       };
 
-      imports = [
-        self.nixosModules.xorg
-        self.nixosModules.work_sops
-      ];
+      imports = [ self.nixosModules.xorg ] ++ lib.optional secretsEnabled self.nixosModules.work_sops;
 
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "hm-bak";
       home-manager.extraSpecialArgs = {
-        inherit llm-agents nixvim system;
+        inherit
+          llm-agents
+          nixvim
+          secretsEnabled
+          system
+          ;
       };
       users.users.capcu = {
         isNormalUser = true;
@@ -103,7 +107,7 @@
       users.groups.capcu = { };
       users.groups.git-secrets.members = [ "capcu" ];
 
-      sops.secrets = {
+      sops.secrets = lib.mkIf secretsEnabled {
         git_github_capcu = mkSharedSecret "git_github";
         git_gitlab_capcu = mkSharedSecret "git_gitlab";
         git_gitlab_pat_capcu = mkSharedSecret "git_gitlab_pat";
@@ -174,35 +178,22 @@
             self.homeModules.i3
             self.homeModules.browsers
             self.homeModules.zathura
-            self.homeModules.ssh
             self.homeModules.terminal
             self.homeModules.monitors
             self.homeModules.launcher
-            self.homeModules.git-repos
-            self.homeModules.capcuGit
-            self.homeModules.capcuGitRepos
             self.homeModules.ai
             self.homeModules.tmux
             self.homeModules.zsh
+          ]
+          ++ lib.optionals secretsEnabled [
+            self.homeModules.ssh
+            self.homeModules.git-repos
+            self.homeModules.capcuGit
+            self.homeModules.capcuGitRepos
           ];
 
           home.username = "capcu";
           home.homeDirectory = "/home/capcu";
-
-          home.file.".local/share/applications/webex.desktop" = {
-            force = true;
-            text = ''
-              [Desktop Entry]
-              Type=Application
-              Name=Webex
-              Comment=Webex
-              Exec=${lib.getExe webexWrapped} %U
-              Icon=${pkgs.webex}/opt/Webex/bin/sparklogosmall.png
-              Terminal=false
-              Categories=Network;InstantMessaging;
-              MimeType=x-scheme-handler/webexteams;x-scheme-handler/ciscospark;x-scheme-handler/webex;
-            '';
-          };
 
           programs.chromium = {
             enable = true;
@@ -451,20 +442,25 @@
             fi
           '';
           home.file = {
+            ".local/share/applications/webex.desktop" = {
+              force = true;
+              text = ''
+                [Desktop Entry]
+                Type=Application
+                Name=Webex
+                Comment=Webex
+                Exec=${lib.getExe webexWrapped} %U
+                Icon=${pkgs.webex}/opt/Webex/bin/sparklogosmall.png
+                Terminal=false
+                Categories=Network;InstantMessaging;
+                MimeType=x-scheme-handler/webexteams;x-scheme-handler/ciscospark;x-scheme-handler/webex;
+              '';
+            };
             ".ssh/id_ecdsa.pub".text =
               "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAG8NzNAYDdt66g3YlH9/JpemTq87v5auOVQMJ128U78Kwyc9Dq8vYELxpglHWg4ILwmNp8mgAC9tDnmNI24PY1RgQG7Mq2cIciPPf8B8ebR3v0nMi5KHRR5cCf7FXpPqbPMAuqzz748gnCkpGypdquz2Psywxe02b/jwLDNrhoKORmJiA== vir@nixos";
             ".local/share/gopass/stores/.keep" = {
               source = builtins.toFile "keep" "";
             };
-            ".config/keepmenu/config.ini".text = ''
-              [dmenu]
-              dmenu_command = rofi -dmenu -matching fuzzy -i -sort
-
-              [database]
-              database_1 = ~/mounts/t/IT/ITDept.kdbx
-              password_cmd_1 = ${lib.getExe' pkgs.coreutils "cat"} ${config.sops.secrets.keepass.path}
-              type_library = xdotool
-            '';
             ".config/containers/policy.json".text = ''
               {
                   "default": [
@@ -498,6 +494,17 @@
 
               [instances]
               allow_multiple = true
+            '';
+          }
+          // lib.optionalAttrs secretsEnabled {
+            ".config/keepmenu/config.ini".text = ''
+              [dmenu]
+              dmenu_command = rofi -dmenu -matching fuzzy -i -sort
+
+              [database]
+              database_1 = ~/mounts/t/IT/ITDept.kdbx
+              password_cmd_1 = ${lib.getExe' pkgs.coreutils "cat"} ${config.sops.secrets.keepass.path}
+              type_library = xdotool
             '';
           };
 

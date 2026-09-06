@@ -5,6 +5,7 @@
       config,
       lib,
       osConfig,
+      secretsEnabled ? true,
       ...
     }:
     {
@@ -61,7 +62,7 @@
               '';
             };
             home.file.".claude/skills/compile-activity-report/SKILL.md" =
-              lib.mkIf (config.home.username == "capcu")
+              lib.mkIf (config.home.username == "capcu" && secretsEnabled)
                 {
                   text = ''
                     ---

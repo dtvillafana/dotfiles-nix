@@ -7,6 +7,7 @@
       llm-agents,
       lib,
       pkgs,
+      secretsEnabled ? true,
       ...
     }:
     let
@@ -105,7 +106,7 @@
         };
       };
 
-      sops.secrets."hermes-env-capcu" = {
+      sops.secrets."hermes-env-capcu" = lib.mkIf secretsEnabled {
         sopsFile = self + /secrets/hermes-dell.yaml;
         format = "yaml";
         owner = "capcu";
@@ -116,7 +117,7 @@
         ];
       };
 
-      services.hermes-agent = {
+      services.hermes-agent = lib.mkIf secretsEnabled {
         enable = true;
         package = hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default;
         container.enable = false;
@@ -160,7 +161,7 @@
         };
       };
 
-      services.hermes-webui = {
+      services.hermes-webui = lib.mkIf secretsEnabled {
         enable = true;
         user = "capcu";
         group = "capcu";
@@ -174,7 +175,7 @@
         };
       };
 
-      systemd.services.hermes-agent = {
+      systemd.services.hermes-agent = lib.mkIf secretsEnabled {
         after = [ "ollama-model-loader.service" ];
         requires = [ "ollama-model-loader.service" ];
         environment.HOME = lib.mkForce "/home/capcu";
@@ -188,7 +189,7 @@
         serviceConfig.TimeoutStopSec = 210;
       };
 
-      systemd.services.hermes-webui = {
+      systemd.services.hermes-webui = lib.mkIf secretsEnabled {
         after = [ "hermes-agent.service" ];
         requires = [ "hermes-agent.service" ];
       };
@@ -257,26 +258,4 @@
       ];
     };
 
-  flake.nixosModules.capcuDellBootstrapConfig =
-    { pkgs, ... }:
-    {
-      users.users.bootstrap = {
-        initialHashedPassword = "$y$j9T$qTtCIlz3KyW/1WKELiesF0$7nCjPFCkT8Ww04ieHzXVW8sJ2LZhL04fnENrTiP6s.C";
-        isNormalUser = true;
-        description = "bootstrap";
-        extraGroups = [
-          "networkmanager"
-          "wheel"
-          "dialout"
-          "tty"
-        ];
-        packages = with pkgs; [
-          curl
-          git
-          neovim
-        ];
-        shell = pkgs.zsh;
-      };
-      users.groups.bootstrap = { };
-    };
 }

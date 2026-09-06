@@ -8,6 +8,7 @@
       system,
       osConfig,
       pkgs,
+      secretsEnabled ? true,
       ...
     }:
     let
@@ -43,6 +44,8 @@
           autosuggestion.enable = true;
           sessionVariables = {
             EDITOR = lib.getExe pkgs.neovim;
+          }
+          // lib.optionalAttrs secretsEnabled {
             SOPS_AGE_SSH_PRIVATE_KEY_FILE = sopsSshKey;
             SOPS_AGE_KEY_CMD = "${lib.getExe pkgs.ssh-to-age} -private-key -i ${sopsSshKey}";
           };

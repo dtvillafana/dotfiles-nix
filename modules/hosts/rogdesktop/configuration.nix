@@ -6,6 +6,7 @@
       hermes-agent,
       lib,
       pkgs,
+      secretsEnabled ? true,
       ...
     }:
     let
@@ -37,12 +38,14 @@
 
       services.ollama.loadModels = lib.mkForce [ "qwen3.5:9b" ];
 
-      sops.secrets."hermes-env".restartUnits = [
-        "hermes-agent.service"
-        "hermes-webui.service"
-      ];
+      sops.secrets."hermes-env" = lib.mkIf secretsEnabled {
+        restartUnits = [
+          "hermes-agent.service"
+          "hermes-webui.service"
+        ];
+      };
 
-      services.hermes-agent = {
+      services.hermes-agent = lib.mkIf secretsEnabled {
         enable = true;
         package = hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default;
         container.enable = false;
@@ -85,7 +88,7 @@
         };
       };
 
-      services.hermes-webui = {
+      services.hermes-webui = lib.mkIf secretsEnabled {
         enable = true;
         user = "vir";
         group = "vir";
@@ -96,7 +99,7 @@
         extraEnvironment.HERMES_WEBUI_CHAT_BACKEND = "legacy";
       };
 
-      systemd.services.hermes-agent = {
+      systemd.services.hermes-agent = lib.mkIf secretsEnabled {
         after = [ "ollama-model-loader.service" ];
         requires = [ "ollama-model-loader.service" ];
         environment.HOME = lib.mkForce "/home/vir";
@@ -110,7 +113,7 @@
         serviceConfig.TimeoutStopSec = 210;
       };
 
-      systemd.services.hermes-webui = {
+      systemd.services.hermes-webui = lib.mkIf secretsEnabled {
         after = [ "hermes-agent.service" ];
         requires = [ "hermes-agent.service" ];
       };

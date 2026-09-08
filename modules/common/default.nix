@@ -106,6 +106,7 @@
         git-agecrypt
         gnupg
         neovim
+        self.packages.${pkgs.stdenv.hostPlatform.system}.open-browser-use
         pavucontrol
         pinentry-tty
         ssh-to-age

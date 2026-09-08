@@ -56,6 +56,7 @@
         {
           packages = lib.optionalAttrs (system == "x86_64-linux") {
             excise = pkgs.callPackage ./packages/excise.nix { };
+            open-browser-use = pkgs.callPackage ./packages/open-browser-use.nix { };
           };
 
           treefmt = {

@@ -241,6 +241,15 @@
                     mode = "subagent";
                   };
                 };
+                mcp.open_browser_use = {
+                  type = "local";
+                  command = [
+                    "obu"
+                    "mcp"
+                  ];
+                  enabled = true;
+                  timeout = 30000;
+                };
               } config.opencode.settings
             );
             home.file.".omo/omo.jsonc".text = builtins.toJSON {

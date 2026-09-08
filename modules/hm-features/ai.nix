@@ -5,9 +5,44 @@
       config,
       lib,
       osConfig,
+      pkgs,
       secretsEnabled ? true,
       ...
     }:
+    let
+      openBrowserUse = pkgs.callPackage ../../packages/open-browser-use.nix { };
+      socketDir = "$XDG_RUNTIME_DIR/open-browser-use";
+      openBrowserUseCommand = ''
+        socket_dir="${socketDir}"
+        case "''${1:-}" in
+          call|cdp|claim-tab|finalize-tabs|history|info|mcp|move-mouse|name-session|navigate|open-tab|ping|run|set-file-chooser-files|tabs|turn-ended|user-tabs|wait-file-chooser)
+            command="$1"
+            shift
+            exec ${openBrowserUse}/bin/open-browser-use "$command" --socket-dir "$socket_dir" "$@"
+            ;;
+          *)
+            exec ${openBrowserUse}/bin/open-browser-use "$@"
+            ;;
+        esac
+      '';
+      openBrowserUseCli = pkgs.symlinkJoin {
+        name = "open-browser-use-wrapped";
+        paths = [
+          (pkgs.writeShellScriptBin "open-browser-use" openBrowserUseCommand)
+          (pkgs.writeShellScriptBin "obu" openBrowserUseCommand)
+        ];
+      };
+      openBrowserUseHost = pkgs.writeShellScript "open-browser-use-host" ''
+        exec ${openBrowserUse}/bin/open-browser-use host --socket-dir "${socketDir}"
+      '';
+      nativeMessagingManifest = builtins.toJSON {
+        name = "com.ifuryst.open_browser_use.extension";
+        description = "Open Browser Use Chrome native messaging host";
+        path = openBrowserUseHost;
+        type = "stdio";
+        allowed_origins = [ "chrome-extension://bgjoihaepiejlfjinojjfgokghnodnhd/" ];
+      };
+    in
     {
       options.opencode.settings = lib.mkOption {
         type = lib.types.attrs;
@@ -15,8 +50,20 @@
         description = "Additional OpenCode configuration settings.";
       };
 
-      config =
-        lib.mkIf
+      config = lib.mkMerge [
+        {
+          home.packages = [ openBrowserUseCli ];
+
+          xdg.configFile = {
+            "BraveSoftware/Brave-Browser/NativeMessagingHosts/com.ifuryst.open_browser_use.extension.json".text =
+              nativeMessagingManifest;
+            "chromium/NativeMessagingHosts/com.ifuryst.open_browser_use.extension.json".text =
+              nativeMessagingManifest;
+            "google-chrome/NativeMessagingHosts/com.ifuryst.open_browser_use.extension.json".text =
+              nativeMessagingManifest;
+          };
+        }
+        (lib.mkIf
           (builtins.elem config.home.username [
             "vir"
             "capcu"
@@ -244,7 +291,7 @@
                 mcp.open_browser_use = {
                   type = "local";
                   command = [
-                    "obu"
+                    "${openBrowserUseCli}/bin/obu"
                     "mcp"
                   ];
                   enabled = true;
@@ -338,6 +385,8 @@
               fi
               install -m 0644 "${config.home.file.".omo/omo.jsonc".source}" "$config"
             '';
-          };
+          }
+        )
+      ];
     };
 }

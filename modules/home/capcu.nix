@@ -225,7 +225,6 @@
             keepmenu
             krita
             lazygit
-            libreoffice
             llm-agents.packages.${system}.agent-deck
             llm-agents.packages.${system}.claude-code
             llm-agents.packages.${system}.handy
@@ -233,6 +232,7 @@
             llm-agents.packages.${system}.opencode
             llm-agents.packages.${system}.opencode2
             llm-agents.packages.${system}.workmux
+            inputs.m365-tui.packages.${system}.default
             networkmanager
             networkmanager-fortisslvpn
             networkmanagerapplet

@@ -13,6 +13,12 @@
       gitlabSecret = osConfig.sops.secrets."git_gitlab_pat_${config.home.username}".path;
       external_git_repos = [
         {
+          name = "m365-tui";
+          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/m365-tui";
+          path = "$HOME/git-repos/m365-tui";
+          secret = githubSecret;
+        }
+        {
           name = "opencode-nvim";
           url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/opencode.nvim";
           path = "$HOME/git-repos/opencode-nvim";

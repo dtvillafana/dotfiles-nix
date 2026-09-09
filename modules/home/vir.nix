@@ -118,7 +118,6 @@
             jq
             krita
             lazygit
-            libreoffice
             llm-agents.packages.${system}.agent-deck
             llm-agents.packages.${system}.claude-code
             llm-agents.packages.${system}.handy

@@ -14,6 +14,28 @@
         "vir"
         "capcu"
       ];
+      libreofficeDraw = pkgs.symlinkJoin {
+        name = "libreoffice-draw";
+        paths = [
+          (pkgs.writeShellApplication {
+            name = "libreoffice-draw";
+            runtimeInputs = [ pkgs.libreoffice ];
+            text = ''
+              exec libreoffice --draw "$@"
+            '';
+          })
+          (pkgs.makeDesktopItem {
+            name = "libreoffice-draw";
+            desktopName = "LibreOffice Draw";
+            exec = "libreoffice-draw %U";
+            categories = [
+              "Graphics"
+              "VectorGraphics"
+            ];
+            type = "Application";
+          })
+        ];
+      };
     in
     {
 
@@ -105,7 +127,9 @@
         git
         git-agecrypt
         gnupg
+        libreofficeDraw
         neovim
+        onlyoffice-desktopeditors
         self.packages.${pkgs.stdenv.hostPlatform.system}.open-browser-use
         pavucontrol
         pinentry-tty

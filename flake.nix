@@ -21,6 +21,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
+    m365-tui = {
+      url = "github:dtvillafana/m365-tui";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     ollama-src = {
       url = "github:ollama/ollama/v0.32.9";
       flake = false;

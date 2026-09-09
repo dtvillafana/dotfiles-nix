@@ -355,6 +355,26 @@
         "type": "github"
       }
     },
+    "m365-tui": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786115169,
+        "narHash": "sha256-KZFCIoA3s4WL0PIXgseY8D3EupOm8sjoiIkIn/4Gt2A=",
+        "owner": "rootHytx",
+        "repo": "m365-tui",
+        "rev": "c9ff19e58b00b5a8a29e6bf2ebe8075ea5bd3d13",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rootHytx",
+        "repo": "m365-tui",
+        "type": "github"
+      }
+    },
     "nix": {
       "inputs": {
         "flake-parts": "flake-parts",
@@ -696,6 +716,7 @@
         "home-manager": "home-manager_2",
         "import-tree": "import-tree",
         "llm-agents": "llm-agents",
+        "m365-tui": "m365-tui",
         "nix-index-database": "nix-index-database",
         "nixpkgs": "nixpkgs_5",
         "nixvim": "nixvim",

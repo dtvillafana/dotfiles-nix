@@ -70,7 +70,6 @@
             gopass
             jq
             lazygit
-            libreoffice
             networkmanager
             pwgen-secure
             python313FreeThreading

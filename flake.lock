@@ -362,15 +362,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1786115169,
-        "narHash": "sha256-KZFCIoA3s4WL0PIXgseY8D3EupOm8sjoiIkIn/4Gt2A=",
-        "owner": "rootHytx",
+        "lastModified": 1788988197,
+        "narHash": "sha256-FqVpd1QHz56qhHuWTqnk2zgtk57Pc0u2XRFqAmrFlvs=",
+        "owner": "dtvillafana",
         "repo": "m365-tui",
-        "rev": "c9ff19e58b00b5a8a29e6bf2ebe8075ea5bd3d13",
+        "rev": "567913ce9ae5d265ee9b6225366b9902fb169e02",
         "type": "github"
       },
       "original": {
-        "owner": "rootHytx",
+        "owner": "dtvillafana",
         "repo": "m365-tui",
         "type": "github"
       }
@@ -583,11 +583,11 @@
         "nixvim": "nixvim_2"
       },
       "locked": {
-        "lastModified": 1788868933,
-        "narHash": "sha256-xzYZ19QLRfPDb+ogAQ/qW9a4VRiMkzJUrP4lpvdv6XA=",
+        "lastModified": 1788988287,
+        "narHash": "sha256-lKdZdqFGLserrEuBzL/CO5rYSdBRDaYfj2CzgwLrDrc=",
         "owner": "dtvillafana",
         "repo": "nixvim",
-        "rev": "b74604326dce96e166f9407bdce3d419158a6c7c",
+        "rev": "810c92bc00da2a033681e123f96e39f30a8da81e",
         "type": "github"
       },
       "original": {

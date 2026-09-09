@@ -569,11 +569,23 @@
     {
       programs.git = {
         enable = true;
+        includes = [
+          {
+            condition = "gitdir:~/git-repos/";
+            contents.user = {
+              name = "dtvillafana";
+              email = "82293276+dtvillafana@users.noreply.github.com";
+            };
+          }
+          {
+            condition = "gitdir:~/capcu-git-repos/";
+            contents.user = {
+              name = "David Villafaña";
+              email = "david.villafana@capcu.org";
+            };
+          }
+        ];
         settings = {
-          user = {
-            name = "David Villafaña";
-            email = "david.villafana@capcu.org";
-          };
           core.sshCommand = "${pkgs.openssh}/bin/ssh";
           credential = {
             "http://ccugitea.capcu.org:3000".helper = giteaCredentialHelper;

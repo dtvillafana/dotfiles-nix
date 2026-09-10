@@ -246,6 +246,119 @@
                     immediately.
                   '';
                 };
+            home.file.".claude/skills/daily-tasks/SKILL.md" =
+              lib.mkIf (config.home.username == "capcu" && secretsEnabled)
+                {
+                  text = ''
+                    ---
+                    name: daily-tasks
+                    description: Assemble David's prioritized list of what to work on today (or a stated day/week), merging open Gitea PRs and issues, capcu.org work-note deadlines, and actionable email. Use for "what should I work on today", "my tasks for today", "what's on my plate", or standup prep.
+                    ---
+
+                    # Daily task list
+
+                    Assembles a prioritized "what to work on now" list for
+                    david.villafana@capcu.org. This is the forward-looking mirror of
+                    `compile-activity-report` (which looks backward at finished work). Default
+                    horizon: **today**. The user may widen it ("this week", "next few days").
+
+                    ## 1. Gather sources — in parallel, they are independent
+
+                    **Gitea (ccugitea.capcu.org)** — open code work.
+                    - Read the API token from
+                      `${osConfig.sops.secrets.gitea_llm_token.path}` into `GITEA_TOKEN` for
+                      each command (shell state does not persist between Bash calls). Never echo
+                      the raw token into a tool result or copy it to another file.
+                    - Open PRs authored by / involving David:
+                      `GET /api/v1/repos/issues/search?type=pulls&state=open&limit=50`
+                    - PRs where David's review is requested:
+                      `GET /api/v1/repos/issues/search?type=pulls&state=open&review_requested=true&limit=50`
+                    - Open issues assigned to David:
+                      `GET /api/v1/repos/issues/search?type=issues&state=open&assigned=true&limit=50`
+                    - For any PR that looks close to landing, fetch
+                      `GET /api/v1/repos/<owner>/<repo>/pulls/<n>` and note `draft`,
+                      `mergeable`, `updated_at`. Treat draft / unmergeable / long-stale
+                      (`updated_at` older than ~2 weeks) branches as "idle", not active work.
+                    - `user.login == "dvillafana"` is David. Other logins (e.g. `cmercer`)
+                      matter here only when their PR is awaiting his review.
+
+                    **Work notes** — `~/git-repos/orgfiles/work/capcu/capcu.org` — read it
+                    directly (local file, not an API). Emacs org-mode, `#+TODO: TODO MEET CALL
+                    WAITING EVENT | DONE CANCELED DELEGATED`. Extract:
+                    - Active-state headings (`TODO/MEET/CALL/WAITING/EVENT`) with their priority
+                      cookie — `[#A]` highest through `[#D]`/none lowest.
+                    - Every `SCHEDULED:` / `DEADLINE:` timestamp. Parse the `<YYYY-MM-DD ...>`
+                      date relative to today:
+                      + date before today and state not DONE/CANCELED -> **overdue**, surface it.
+                      + date within the horizon (today through today+7) -> upcoming, surface it.
+                      + recurring stamps (`++2w`, `+1w`) -> compute the next occurrence.
+                    - Under an `[#A]`/`[#B]` project umbrella, list the unchecked `[ ]`
+                      next-actions and skip the `[X]` done ones.
+                    - One-line project descriptions and stakeholder names for context.
+
+                    **This file contains live production credentials, IPs, and passwords** for
+                    core banking system integrations (SymXchange, jXChange, etc.). Never quote,
+                    copy, or include any credential/IP/password into the output or into memory —
+                    take only project names, statuses, dates, and plain descriptions.
+
+                    **Email (Outlook, via m365-attachment-reader-local)** — actionable mail.
+                    Launch a background general-purpose agent (tool details in the
+                    `search-emails` skill) so it runs while you work Gitea + org. Give it
+                    today's date, say the task is forward-looking, and ask it to return only
+                    items needing David's action:
+                    - flagged messages still open,
+                    - threads where a reply from David is outstanding,
+                    - vendor replies that unblock or block his work,
+                    - meetings inside the horizon that need prep,
+                    - deadlines named in mail.
+                    Have it search active-project threads (Velera / disputes, BND Roughrider
+                    Coin / Symitar / SymXchange, infinione / OFAC / Paylynx / SimpliRisk, plus
+                    any project names surfaced from Gitea or the org file). It must separate
+                    "action on David" from "waiting on vendor" and skip routine noise
+                    (automated alerts, newsletters, no-prep invites).
+                    If the connector is not authenticated, the agent will report a device-code
+                    URL and code — surface those to David, deliver the list from Gitea + org in
+                    the meantime, and offer to re-run the mail search once he signs in.
+
+                    ## 2. Merge sources — none is subordinate to another
+
+                    - Items from two or three sources describing the same initiative become one
+                      entry; let each source fill what the others lack (org file = deadline and
+                      business context, Gitea = what is actually built, email = vendor and
+                      stakeholder state).
+                    - An item present in only one source still counts — most real tasks show up
+                      exactly once.
+                    - On a status conflict, trust the most recent / most specific signal and say
+                      so rather than silently picking one.
+                    - Keep "needs David's action" strictly apart from "waiting on someone else".
+
+                    ## 3. Deliver — terminal markdown, not an Artifact
+
+                    This is a personal working list; keep it in the reply (do not publish an
+                    Artifact). Structure:
+                    - **Today — hard deadlines**: `DEADLINE` today or overdue, plus explicit
+                      go-live / commitment dates from mail. Table each row with its source
+                      reference (`capcu.org:<line>`, repo `#<n>`).
+                    - **This week**: `[#A]`/`[#B]` work and project next-actions due within the
+                      horizon.
+                    - **Tomorrow (prep today)**: `SCHEDULED` items in the next day or two.
+                    - **Waiting on others (track only)**: no action unless stalled.
+                    - **Idle branches / lower priority**: stale PRs, `[#C]`/`[#D]` items.
+                    - **Suggested order today**: a short ordered list — hard deadline first,
+                      then highest business weight (A-priority, vendor-blocking,
+                      launch-critical), then quick vendor unblocks, then the rest.
+                    Flag scheduling collisions (two calendar items overlapping) explicitly.
+                    Order within each section by priority cookie, then deadline proximity.
+
+                    ## 4. After delivering
+
+                    The list is disposable — do not save it to memory. Do refresh
+                    time-sensitive memory snapshots if something material changed (a new project
+                    umbrella, a new stakeholder, a shifted go-live date), marked with today's
+                    date. Re-running after David edits the org file or authenticates the mail
+                    connector is expected and cheap.
+                  '';
+                };
             home.file.".config/opencode/AGENTS.md".text = ''
               # General Coding Instructions
 

@@ -85,17 +85,12 @@
 
       home-manager.users.capcu.opencode.settings = {
         "$schema" = "https://opencode.ai/config.json";
-        plugin = [
-          "opencode-terminal-bell-notifier@0.2.0"
-          # "oh-my-openagent@4.19.4"
-        ];
-        provider = {
+        providers = {
           "Local Ollama" = {
-            npm = "@ai-sdk/openai-compatible";
+            package = "@opencode/ai/providers/openai-compatible";
             name = "Local Ollama";
-            options = {
+            settings = {
               baseURL = "http://127.0.0.1:11434/v1";
-              apiKey = "";
             };
             models = {
               "nemotron-3.5-lightning:30b" = {

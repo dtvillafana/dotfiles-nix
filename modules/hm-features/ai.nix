@@ -47,7 +47,7 @@
       options.opencode.settings = lib.mkOption {
         type = lib.types.attrs;
         default = { };
-        description = "Additional OpenCode configuration settings.";
+        description = "Additional OpenCode V2 configuration settings.";
       };
 
       config = lib.mkMerge [
@@ -271,14 +271,20 @@
 
               - when you try a command and the program is not available, then try again using `nix shell` to get the desired program before trying something else.
             '';
+            home.file.".config/opencode/cli.json".text = builtins.toJSON {
+              "$schema" = "https://opencode.ai/v2/cli.json";
+              attention = {
+                enabled = true;
+                notifications = true;
+                sound = true;
+                volume = 0.4;
+              };
+            };
             home.file.".config/opencode/opencode.json".text = builtins.toJSON (
               lib.recursiveUpdate {
                 "$schema" = "https://opencode.ai/config.json";
-                plugin = [
-                  "opencode-terminal-bell-notifier@0.2.0"
-                  # "oh-my-openagent@4.19.4"
-                ];
-                agent = {
+                # plugins = [ "oh-my-openagent@4.19.4" ];
+                agents = {
                   explore = {
                     model = "openai/gpt-5.6-luna";
                     mode = "subagent";
@@ -288,14 +294,46 @@
                     mode = "subagent";
                   };
                 };
-                mcp.open_browser_use = {
+                providers.openai = {
+                  websocket = true;
+                  compaction.mode = "provider";
+                };
+                permissions = [
+                  {
+                    action = "read";
+                    resource = "*.env";
+                    effect = "ask";
+                  }
+                  {
+                    action = "read";
+                    resource = "**secret**";
+                    effect = "ask";
+                  }
+                  {
+                    action = "read";
+                    resource = "**/secrets/**";
+                    effect = "ask";
+                  }
+                  {
+                    action = "shell";
+                    resource = "git push *";
+                    effect = "ask";
+                  }
+                  {
+                    action = "external_directory";
+                    resource = "~/git-repos/orgfiles/*";
+                    effect = "allow";
+                  }
+                ];
+                mcp.servers.open_browser_use = {
                   type = "local";
                   command = [
                     "${openBrowserUseCli}/bin/obu"
                     "mcp"
                   ];
-                  enabled = true;
-                  timeout = 30000;
+                  timeout = {
+                    catalog = 30000;
+                  };
                 };
               } config.opencode.settings
             );

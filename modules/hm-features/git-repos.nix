@@ -132,21 +132,10 @@
           secret = githubSecret;
         }
         {
-          name = "csc-106";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/csc-106";
-          path = "$HOME/git-repos/csc-106";
-          secret = githubSecret;
-        }
-        {
           name = "charachorder-config";
           url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/charachorder-config";
           path = "$HOME/git-repos/charachorder-config";
           secret = githubSecret;
-        }
-        {
-          name = "CSC-106-practice";
-          url = "https://github.com/dtvillafana/CSC-106-practice";
-          path = "$HOME/git-repos/CSC-106-practice";
         }
         {
           name = "django-supabase-storage";

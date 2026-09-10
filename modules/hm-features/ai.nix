@@ -328,7 +328,16 @@
                     resource = "~/git-repos/orgfiles/*";
                     effect = "allow";
                   }
+                  {
+                    action = "external_directory";
+                    resource = "~/git-repos/dotfiles-nix/*";
+                    effect = "allow";
+                  }
                 ];
+                references.dotfiles = {
+                  path = "~/git-repos/dotfiles-nix";
+                  description = "NixOS and home-manager flake for this machine: hosts, home modules, OpenCode/AI config, packages, and secrets layout. Use when changing system or user config.";
+                };
                 mcp.servers.open_browser_use = {
                   type = "local";
                   command = [

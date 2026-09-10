@@ -69,7 +69,8 @@
                 } \
                 --run 'export M365_CLIENT_ID="$(${lib.getExe' pkgs.coreutils "cat"} ${config.sops.secrets.m365_client_id.path})"' \
                 --run 'export M365_TENANT_ID="$(${lib.getExe' pkgs.coreutils "cat"} ${config.sops.secrets.m365_tenant_id.path})"' \
-                --run 'export M365_TEAMS_CHANNELS=1'
+                --run 'export M365_TEAMS_CHANNELS=1' \
+                --run 'export M365_PRESENCE_WRITE=1'
             '';
           }
         else

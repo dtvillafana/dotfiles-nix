@@ -271,13 +271,16 @@
 
               - when you try a command and the program is not available, then try again using `nix shell` to get the desired program before trying something else.
             '';
-            home.file.".config/opencode/cli.json".text = builtins.toJSON {
-              "$schema" = "https://opencode.ai/v2/cli.json";
-              attention = {
-                enabled = true;
-                notifications = true;
-                sound = true;
-                volume = 0.4;
+            home.file.".config/opencode/cli.json" = {
+              force = true;
+              text = builtins.toJSON {
+                "$schema" = "https://opencode.ai/v2/cli.json";
+                attention = {
+                  enabled = true;
+                  notifications = true;
+                  sound = true;
+                  volume = 0.4;
+                };
               };
             };
             home.file.".config/opencode/opencode.json".text = builtins.toJSON (

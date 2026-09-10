@@ -61,7 +61,12 @@
             nativeBuildInputs = [ pkgs.makeWrapper ];
             postBuild = ''
               wrapProgram $out/bin/m365 \
-                --prefix PATH : ${lib.makeBinPath [ pkgs.sox pkgs.cloudflared ]} \
+                --prefix PATH : ${
+                  lib.makeBinPath [
+                    pkgs.sox
+                    pkgs.cloudflared
+                  ]
+                } \
                 --run 'export M365_CLIENT_ID="$(${lib.getExe' pkgs.coreutils "cat"} ${config.sops.secrets.m365_client_id.path})"' \
                 --run 'export M365_TENANT_ID="$(${lib.getExe' pkgs.coreutils "cat"} ${config.sops.secrets.m365_tenant_id.path})"' \
                 --run 'export M365_TEAMS_CHANNELS=1' \

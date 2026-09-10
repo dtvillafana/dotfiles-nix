@@ -52,6 +52,24 @@
         npmDepsHash = "sha256-bRFxD56mZk3E9psqdqXtGuDN8AG//O4wj2iu7+rbifI=";
         dontNpmBuild = true;
       };
+      m365Package = inputs.m365-tui.packages.${system}.default;
+      m365Wrapped =
+        if secretsEnabled then
+          pkgs.symlinkJoin {
+            name = "m365-tui";
+            paths = [ m365Package ];
+            nativeBuildInputs = [ pkgs.makeWrapper ];
+            postBuild = ''
+              wrapProgram $out/bin/m365 \
+                --prefix PATH : ${lib.makeBinPath [ pkgs.sox pkgs.cloudflared ]} \
+                --run 'export M365_CLIENT_ID="$(${lib.getExe' pkgs.coreutils "cat"} ${config.sops.secrets.m365_client_id.path})"' \
+                --run 'export M365_TENANT_ID="$(${lib.getExe' pkgs.coreutils "cat"} ${config.sops.secrets.m365_tenant_id.path})"' \
+                --run 'export M365_TEAMS_CHANNELS=1' \
+                --run 'export M365_ACS_CONNECTION_STRING="$(${lib.getExe' pkgs.coreutils "cat"} ${config.sops.secrets.M365_ACS_CONNECTION_STRING.path})"'
+            '';
+          }
+        else
+          m365Package;
     in
     {
       boot.supportedFilesystems = [ "cifs" ];
@@ -209,6 +227,7 @@
             arandr
             ast-grep
             audacity
+            azure-cli
             bc
             blueman
             brightnessctl
@@ -232,7 +251,7 @@
             llm-agents.packages.${system}.opencode
             llm-agents.packages.${system}.opencode2
             llm-agents.packages.${system}.workmux
-            inputs.m365-tui.packages.${system}.default
+            m365Wrapped
             networkmanager
             networkmanager-fortisslvpn
             networkmanagerapplet
@@ -240,6 +259,7 @@
             nvtopPackages.full
             openfortivpn
             openfortivpn-webview
+            powershell
             pwgen-secure
             python313
             remmina
@@ -540,6 +560,10 @@
           git_gitea = mkWorkSecret "git_gitea";
           capcu_master_key = mkWorkSecret "capcu_master_key";
           keepass = mkWorkSecret "keepass";
+          m365_client_id = mkWorkSecret { };
+          m365_tenant_id = mkWorkSecret { };
+          M365_ACS_CONNECTION_STRING = mkWorkSecret { };
+
           windows-share-capcu = {
             sopsFile = self + /secrets/work.json;
             format = "json";

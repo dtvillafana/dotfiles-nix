@@ -259,6 +259,7 @@
               - Keep expressions simple; factor out bindings only when they improve clarity or avoid repetition.
               - Pin external inputs through the flake lock file. Do not use impure fetches.
               - Prompt the user to evaluate the affected flake or configuration after changes when practical instead of running the checks.
+              - If something you're trying needs multiple dependencies, first try to get them all in a nix shell environment, and if this is not a one-off, or this requires NixOS configuration changes, recommend to the user to update their NixOS configuration to support what you are trying to do, then attempt a different method.
 
               ## Python
 

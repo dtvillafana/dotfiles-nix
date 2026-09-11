@@ -9,6 +9,21 @@
       ...
     }:
     {
+      # i3/startx has no desktop opener. xdg-open then needs DISPLAY, which
+      # agent-deck tmux panes often lack, so restore :0 when that X socket exists.
+      home.packages = [
+        (pkgs.writeShellApplication {
+          name = "xdg-open";
+          text = ''
+            if [ -z "''${DISPLAY:-}" ] && [ -z "''${WAYLAND_DISPLAY:-}" ] && [ -S /tmp/.X11-unix/X0 ]; then
+              export DISPLAY=:0
+              export XAUTHORITY="''${XAUTHORITY:-$HOME/.Xauthority}"
+            fi
+            exec ${lib.getExe' pkgs.xdg-utils "xdg-open"} "$@"
+          '';
+        })
+      ];
+
       xsession = {
         enable = true;
         initExtra = ''

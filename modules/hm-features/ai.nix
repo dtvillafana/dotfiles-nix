@@ -141,6 +141,24 @@
                       "dvillafana"`, and `pull_request.merged_at >= <range start>`.
                     - Group by `repository.full_name`; sort each group by `merged_at`.
 
+                    **Direct commits to the default branch across the CapCU org** — also capture
+                    code David pushed straight to `master`/`main` without a PR (hotfixes, config
+                    bumps, automation commits); these never appear in the PR search above.
+                    - Enumerate org repos: `GET /api/v1/orgs/capcu/repos?limit=50&page=N`,
+                      paginating until a short page. Skip archived repos unless the range
+                      predates their archival.
+                    - For each repo, list default-branch commits in the window:
+                      `GET /api/v1/repos/capcu/<repo>/commits?sha=<default_branch>&since=<ISO8601>&until=<ISO8601>&limit=50`
+                      — use the repo's actual `default_branch` from the repos listing. Repos with
+                      no commits in the window come back empty fast; skip them.
+                    - Keep commits whose `author.login == "dvillafana"` or whose
+                      `commit.author.email == "david.villafana@capcu.org"`.
+                    - Drop commits already covered by a merged PR above (match by SHA against the
+                      PR's commit range) and drop pure-merge commits with no standalone change,
+                      so nothing is double-counted.
+                    - Group by repo; summarize what the commits changed as a short bulleted list
+                      with the date span — don't dump every commit message.
+
                     **Email (Outlook, via m365-attachment-reader-local)** — co-equal source, not
                     just corroboration. Gitea only sees code; plenty of completed work (vendor
                     coordination, non-code project milestones, decisions, meetings-turned-status)
@@ -230,7 +248,7 @@
                       neutral+accent palette, restrained flourishes), not an editorial/landing
                       page treatment.
                     - Design both light and dark themes per the skill's token pattern.
-                    - Include a stat row (3–4 numbers) sized to the audience: raw PR/repo counts
+                    - Include a stat row (3–4 numbers) sized to the audience: raw PR / direct-commit / repo counts
                       for a technical reader, outcome-shaped counts (e.g. "processes automated",
                       "initiatives in progress") for a management reader.
                     - Republish to the same file path / same `url` on revision so the link stays

@@ -124,7 +124,6 @@
             llm-agents.packages.${system}.grok
             llm-agents.packages.${system}.handy
             llm-agents.packages.${system}.openclaw
-            llm-agents.packages.${system}.opencode
             llm-agents.packages.${system}.opencode2
             llm-agents.packages.${system}.workmux
             networkmanager

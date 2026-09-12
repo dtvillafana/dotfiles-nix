@@ -415,6 +415,27 @@
                 };
               };
             };
+            home.file.".grok/config.toml".text = ''
+              [marketplace]
+              default_skills_installs_purged = true
+              official_marketplace_auto_installed = true
+
+              [[marketplace.sources]]
+              name = "xAI Official"
+              git = "https://github.com/xai-org/plugin-marketplace.git"
+
+              [ui]
+              vim_mode = true
+            '';
+            home.file.".grok/config.toml".enable = false;
+            home.activation.installGrokConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+              config="$HOME/.grok/config.toml"
+              mkdir -p "$HOME/.grok"
+              if [ -L "$config" ]; then
+                rm "$config"
+              fi
+              install -m 0644 "${config.home.file.".grok/config.toml".source}" "$config"
+            '';
             home.file.".config/opencode/opencode.json".text = builtins.toJSON (
               lib.recursiveUpdate {
                 "$schema" = "https://opencode.ai/config.json";

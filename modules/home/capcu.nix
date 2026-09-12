@@ -251,6 +251,7 @@
             lazygit
             llm-agents.packages.${system}.agent-deck
             llm-agents.packages.${system}.claude-code
+            llm-agents.packages.${system}.grok
             llm-agents.packages.${system}.handy
             llm-agents.packages.${system}.openclaw
             llm-agents.packages.${system}.opencode

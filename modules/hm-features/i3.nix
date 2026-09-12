@@ -86,6 +86,8 @@
                   { class = "Soffice"; }
                   { class = "libreoffice"; }
                   { class = "libreoffice-impress"; }
+                  { class = "ONLYOFFICE"; }
+                  { class = "DesktopEditors"; }
                 ];
                 "$DB" = [
                   { class = "sqlitebrowser"; }

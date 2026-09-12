@@ -114,6 +114,7 @@
             gemini-cli
             git
             gopass
+            pass
             heroic
             jq
             krita

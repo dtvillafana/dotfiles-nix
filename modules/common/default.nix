@@ -124,6 +124,7 @@
         curl
         self.packages.${pkgs.stdenv.hostPlatform.system}.excise
         file
+        gh
         git
         git-agecrypt
         gnupg

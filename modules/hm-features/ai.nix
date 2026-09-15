@@ -413,6 +413,10 @@
                   sound = true;
                   volume = 0.4;
                 };
+                keybinds = {
+                  "agent.cycle" = "tab";
+                  "agent.cycle.reverse" = "shift+tab";
+                };
               };
             };
             home.file.".grok/config.toml".text = ''
@@ -436,43 +440,69 @@
               fi
               install -m 0644 "${config.home.file.".grok/config.toml".source}" "$config"
             '';
-            home.file.".config/opencode/opencode.json".text = builtins.toJSON (
-              lib.recursiveUpdate {
-                "$schema" = "https://opencode.ai/config.json";
-                # plugins = [ "oh-my-openagent@4.19.4" ];
-                agents = {
-                  explore = {
-                    model = "openai/gpt-5.6-luna";
-                    mode = "subagent";
-                  };
-                  general = {
-                    model = "openai/gpt-5.6-luna";
-                    mode = "subagent";
-                  };
+            home.file.".config/opencode/opencode.json".text =
+              let
+                subagentRule = effect: resource: {
+                  action = "subagent";
+                  inherit resource effect;
                 };
-                providers.openai = {
-                  websocket = true;
-                  compaction.mode = "provider";
-                };
-                permissions = [
+                exploreDescription = ''
+                  Fast agent specialized for exploring codebases. Use this when you need to quickly find files by patterns (eg. "src/components/**/*.tsx"), search code for keywords (eg. "API endpoints"), or answer questions about the codebase (eg. "how do API endpoints work?"). When calling this agent, specify the desired thoroughness level: "quick" for basic searches, "medium" for moderate exploration, or "very thorough" for comprehensive analysis across multiple locations and naming conventions.
+                '';
+                exploreSystem = ''
+                  You are a file search specialist. You excel at thoroughly navigating and exploring codebases.
+
+                  Your strengths:
+                  - Rapidly finding files using glob patterns
+                  - Searching code and text with powerful regex patterns
+                  - Reading and analyzing file contents
+
+                  Guidelines:
+                  - Use Glob for broad file pattern matching
+                  - Use Grep for searching file contents with regex
+                  - Use Read when you know the specific file path you need to read
+                  - Adapt your search approach based on the thoroughness level specified by the caller
+                  - Return file paths as absolute paths in your final response
+                  - For clear communication, avoid using emojis
+                  - Do not create any files, or run bash commands that modify the user's system state in any way
+
+                  Complete the user's search request efficiently and report your findings clearly.
+                '';
+                generalDescription = "General-purpose agent for researching complex questions and executing multi-step tasks. Use this agent to execute multiple units of work in parallel.";
+                explorePermissions = [
                   {
-                    action = "read";
-                    resource = "*.env";
-                    effect = "ask";
+                    action = "*";
+                    resource = "*";
+                    effect = "deny";
+                  }
+                  {
+                    action = "grep";
+                    resource = "*";
+                    effect = "allow";
+                  }
+                  {
+                    action = "glob";
+                    resource = "*";
+                    effect = "allow";
+                  }
+                  {
+                    action = "webfetch";
+                    resource = "*";
+                    effect = "allow";
+                  }
+                  {
+                    action = "websearch";
+                    resource = "*";
+                    effect = "allow";
                   }
                   {
                     action = "read";
-                    resource = "**secret**";
-                    effect = "ask";
+                    resource = "*";
+                    effect = "allow";
                   }
                   {
-                    action = "read";
-                    resource = "**/secrets/**";
-                    effect = "ask";
-                  }
-                  {
-                    action = "shell";
-                    resource = "git push *";
+                    action = "external_directory";
+                    resource = "*";
                     effect = "ask";
                   }
                   {
@@ -485,109 +515,177 @@
                     resource = "~/git-repos/dotfiles-nix/*";
                     effect = "allow";
                   }
+                  {
+                    action = "subagent";
+                    resource = "*";
+                    effect = "deny";
+                  }
                 ];
-                references.dotfiles = {
-                  path = "~/git-repos/dotfiles-nix";
-                  description = "NixOS and home-manager flake for this machine: hosts, home modules, OpenCode/AI config, packages, and secrets layout. Use when changing system or user config.";
+                generalPermissions = [
+                  {
+                    action = "question";
+                    resource = "*";
+                    effect = "deny";
+                  }
+                  {
+                    action = "subagent";
+                    resource = "*";
+                    effect = "deny";
+                  }
+                ];
+                planFilePermissions = [
+                  {
+                    action = "edit";
+                    resource = "*";
+                    effect = "deny";
+                  }
+                  {
+                    action = "edit";
+                    resource = "~/.opencode/plan/*";
+                    effect = "allow";
+                  }
+                  {
+                    action = "external_directory";
+                    resource = "~/.opencode/plan/*";
+                    effect = "allow";
+                  }
+                ];
+                mkFamilySubagentPerms = explore: general: [
+                  (subagentRule "deny" "*")
+                  (subagentRule "allow" explore)
+                  (subagentRule "allow" general)
+                ];
+                mkExplore = model: {
+                  inherit model;
+                  mode = "subagent";
+                  description = exploreDescription;
+                  system = exploreSystem;
+                  permissions = explorePermissions;
                 };
-                mcp.servers.open_browser_use = {
-                  type = "local";
-                  command = [
-                    "${openBrowserUseCli}/bin/obu"
-                    "mcp"
+                mkGeneral = model: {
+                  inherit model;
+                  mode = "subagent";
+                  description = generalDescription;
+                  permissions = generalPermissions;
+                };
+                mkBuild =
+                  {
+                    model,
+                    explore,
+                    general,
+                    description,
+                  }:
+                  {
+                    inherit model description;
+                    mode = "primary";
+                    permissions = mkFamilySubagentPerms explore general;
+                  };
+                mkPlan =
+                  {
+                    model,
+                    explore,
+                    general,
+                    description,
+                  }:
+                  {
+                    inherit model description;
+                    mode = "primary";
+                    permissions = planFilePermissions ++ mkFamilySubagentPerms explore general;
+                  };
+              in
+              builtins.toJSON (
+                lib.recursiveUpdate {
+                  "$schema" = "https://opencode.ai/config.json";
+                  agents = {
+                    explore = {
+                      model = "openai/gpt-5.6-luna";
+                      mode = "subagent";
+                    };
+                    general = {
+                      model = "openai/gpt-5.6-luna";
+                      mode = "subagent";
+                    };
+                    "grok-explore" = mkExplore "xai/grok-build-0.1";
+                    "grok-general" = mkGeneral "xai/grok-4.6#low";
+                    "openai-explore" = mkExplore "openai/gpt-5.6-luna-fast#low";
+                    "openai-general" = mkGeneral "openai/gpt-5.6-terra#low";
+                    "grok-build" = mkBuild {
+                      model = "xai/grok-4.6#medium";
+                      explore = "grok-explore";
+                      general = "grok-general";
+                      description = "The default agent. Executes tools based on configured permissions.";
+                    };
+                    "grok-plan" = mkPlan {
+                      model = "xai/grok-4.6#high";
+                      explore = "grok-explore";
+                      general = "grok-general";
+                      description = "Read-only agent for exploring the codebase and planning work before implementation. Cannot edit code files.";
+                    };
+                    "openai-build" = mkBuild {
+                      model = "openai/gpt-5.6-sol#medium";
+                      explore = "openai-explore";
+                      general = "openai-general";
+                      description = "The default agent. Executes tools based on configured permissions.";
+                    };
+                    "openai-plan" = mkPlan {
+                      model = "openai/gpt-5.6-sol#medium";
+                      explore = "openai-explore";
+                      general = "openai-general";
+                      description = "Read-only agent for exploring the codebase and planning work before implementation. Cannot edit code files.";
+                    };
+                  };
+                  providers.openai = {
+                    websocket = true;
+                    compaction.mode = "provider";
+                  };
+                  permissions = [
+                    {
+                      action = "read";
+                      resource = "*.env";
+                      effect = "ask";
+                    }
+                    {
+                      action = "read";
+                      resource = "**secret**";
+                      effect = "ask";
+                    }
+                    {
+                      action = "read";
+                      resource = "**/secrets/**";
+                      effect = "ask";
+                    }
+                    {
+                      action = "shell";
+                      resource = "git push *";
+                      effect = "ask";
+                    }
+                    {
+                      action = "external_directory";
+                      resource = "~/git-repos/orgfiles/*";
+                      effect = "allow";
+                    }
+                    {
+                      action = "external_directory";
+                      resource = "~/git-repos/dotfiles-nix/*";
+                      effect = "allow";
+                    }
                   ];
-                  timeout = {
-                    catalog = 30000;
+                  references.dotfiles = {
+                    path = "~/git-repos/dotfiles-nix";
+                    description = "NixOS and home-manager flake for this machine: hosts, home modules, OpenCode/AI config, packages, and secrets layout. Use when changing system or user config.";
                   };
-                };
-              } config.opencode.settings
-            );
-            home.file.".omo/omo.jsonc".text = builtins.toJSON {
-              "[opencode]" = {
-                "$schema" =
-                  "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/omo.schema.json";
-                agents = {
-                  sisyphus = {
-                    model = "openai/gpt-5.6-sol";
-                    reasoning = "medium";
+                  mcp.servers.open_browser_use = {
+                    type = "local";
+                    command = [
+                      "${openBrowserUseCli}/bin/obu"
+                      "mcp"
+                    ];
+                    timeout = {
+                      catalog = 30000;
+                    };
                   };
-                  hephaestus = {
-                    model = "openai/gpt-5.6-sol";
-                    reasoning = "medium";
-                  };
-                  oracle = {
-                    model = "openai/gpt-5.6-sol";
-                    reasoning = "xhigh";
-                  };
-                  librarian = {
-                    model = "openai/gpt-5.6-luna";
-                    reasoning = "low";
-                  };
-                  explore = {
-                    model = "openai/gpt-5.6-luna";
-                    reasoning = "low";
-                  };
-                  multimodal-looker = {
-                    model = "openai/gpt-5.6-sol";
-                    reasoning = "low";
-                  };
-                  prometheus.model = "openai/gpt-5.6-luna-fast";
-                  metis.model = "openai/gpt-5.6-luna-fast";
-                  momus = {
-                    model = "openai/gpt-5.6-terra";
-                    reasoning = "high";
-                  };
-                  atlas = {
-                    model = "openai/gpt-5.6-sol";
-                    reasoning = "medium";
-                  };
-                  sisyphus-junior = {
-                    model = "openai/gpt-5.6-sol";
-                    reasoning = "medium";
-                  };
-                };
-                categories = {
-                  visual-engineering = {
-                    model = "openai/gpt-5.6-sol";
-                    reasoning = "high";
-                  };
-                  ultrabrain = {
-                    model = "openai/gpt-5.6-sol";
-                    reasoning = "xhigh";
-                  };
-                  deep = {
-                    model = "openai/gpt-5.6-sol";
-                    reasoning = "medium";
-                  };
-                  artistry = {
-                    model = "openai/gpt-5.6-sol";
-                    reasoning = "xhigh";
-                  };
-                  quick.model = "openai/gpt-5.6-luna-fast";
-                  unspecified-low = {
-                    model = "openai/gpt-5.6-terra";
-                    reasoning = "high";
-                  };
-                  unspecified-high = {
-                    model = "openai/gpt-5.6-terra";
-                    reasoning = "high";
-                  };
-                  writing = {
-                    model = "openai/gpt-5.6-sol";
-                    reasoning = "medium";
-                  };
-                };
-              };
-            };
-            home.file.".omo/omo.jsonc".enable = false;
-            home.activation.installOmoConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-              config="$HOME/.omo/omo.jsonc"
-              mkdir -p "$HOME/.omo"
-              if [ -L "$config" ]; then
-                rm "$config"
-              fi
-              install -m 0644 "${config.home.file.".omo/omo.jsonc".source}" "$config"
-            '';
+                } config.opencode.settings
+              );
           }
         )
       ];

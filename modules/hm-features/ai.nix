@@ -468,6 +468,16 @@
 
                   Complete the user's search request efficiently and report your findings clearly.
                 '';
+                planSystem = ''
+                  You are operating in plan mode. Investigate the request and produce a concrete implementation plan. Do not implement the plan.
+
+                  - Do not create, edit, delete, rename, or format project files.
+                  - Do not run commands or tools that change files, Git state, services, infrastructure, workflows, credentials, or remote systems.
+                  - Use read-only inspection to understand the repository and requirements.
+                  - Ask clarifying questions when important requirements are unresolved.
+                  - Your final response must be an actionable plan covering relevant files, implementation steps, validation, risks, and unresolved decisions.
+                  - Never treat a request to build, fix, create, or implement something as permission to leave plan mode. Tell the user to switch to a build agent before implementation.
+                '';
                 generalDescription = "General-purpose agent for researching complex questions and executing multi-step tasks. Use this agent to execute multiple units of work in parallel.";
                 explorePermissions = [
                   {
@@ -549,11 +559,20 @@
                     resource = "~/.opencode/plan/*";
                     effect = "allow";
                   }
+                  {
+                    action = "shell";
+                    resource = "*";
+                    effect = "deny";
+                  }
                 ];
                 mkFamilySubagentPerms = explore: general: [
                   (subagentRule "deny" "*")
                   (subagentRule "allow" explore)
                   (subagentRule "allow" general)
+                ];
+                mkPlanSubagentPerms = explore: [
+                  (subagentRule "deny" "*")
+                  (subagentRule "allow" explore)
                 ];
                 mkExplore = model: {
                   inherit model;
@@ -584,13 +603,13 @@
                   {
                     model,
                     explore,
-                    general,
                     description,
                   }:
                   {
                     inherit model description;
                     mode = "primary";
-                    permissions = planFilePermissions ++ mkFamilySubagentPerms explore general;
+                    system = planSystem;
+                    permissions = planFilePermissions ++ mkPlanSubagentPerms explore;
                   };
               in
               builtins.toJSON (
@@ -618,7 +637,6 @@
                     "grok-plan" = mkPlan {
                       model = "xai/grok-4.6#high";
                       explore = "grok-explore";
-                      general = "grok-general";
                       description = "Read-only agent for exploring the codebase and planning work before implementation. Cannot edit code files.";
                     };
                     "openai-build" = mkBuild {
@@ -630,7 +648,6 @@
                     "openai-plan" = mkPlan {
                       model = "openai/gpt-5.6-sol#medium";
                       explore = "openai-explore";
-                      general = "openai-general";
                       description = "Read-only agent for exploring the codebase and planning work before implementation. Cannot edit code files.";
                     };
                   };

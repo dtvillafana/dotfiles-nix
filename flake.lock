@@ -362,11 +362,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789494175,
-        "narHash": "sha256-9yC7/pDTowPgwxE4882vsAdf5kYAoP/Kz78NJMW377M=",
+        "lastModified": 1789671683,
+        "narHash": "sha256-9RxpJATfaolhCm2HS806LsJxww4H+RP5We8Z551BCVM=",
         "owner": "dtvillafana",
         "repo": "m365-tui",
-        "rev": "9f5b73a15870629692d795c87391a74414bfe154",
+        "rev": "a1d4c72054609b29e504fbedc66bb19fcf1f79ee",
         "type": "github"
       },
       "original": {

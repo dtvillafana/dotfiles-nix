@@ -46,6 +46,7 @@ in
           command = lib.getExe m365AttachmentReader;
           env = mcpEnv;
         };
+        settings.tools.tool_search.enabled = "off";
       };
     };
 }

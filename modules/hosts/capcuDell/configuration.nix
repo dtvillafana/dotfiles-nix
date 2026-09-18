@@ -237,7 +237,10 @@
         '';
       };
 
-      users.users.capcu.extraGroups = [ "libvirtd" ];
+      users.users.capcu.extraGroups = [
+        "capcu"
+        "libvirtd"
+      ];
 
       home-manager.users.capcu.services.autorandr.extraOptions = [
         "--default"

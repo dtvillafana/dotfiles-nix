@@ -13,6 +13,7 @@ let
         self.nixosModules.capcuDellConfig
         self.nixosModules.capcuDellHardware
         self.nixosModules.capcuHome
+        self.nixosModules.hermesM365Email
         self.nixosModules.ollama
       ];
       specialArgs = {

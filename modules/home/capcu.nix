@@ -40,18 +40,7 @@
         group = "capcu";
         mode = "0400";
       };
-      m365AttachmentReader = pkgs.buildNpmPackage {
-        pname = "m365-attachment-reader-mcp-local";
-        version = "0.2.0-unstable-2026-08-15";
-        src = pkgs.fetchFromGitHub {
-          owner = "dtvillafana";
-          repo = "Claude-MCP-Read-Email-Attachments";
-          rev = "a748bdb733d33e32d9df5278a98ec06127068ebb";
-          hash = "sha256-15U3z04SrSLvwknCbwhn+Jtt1+CKTjm6722HcHjn9Cw=";
-        };
-        npmDepsHash = "sha256-bRFxD56mZk3E9psqdqXtGuDN8AG//O4wj2iu7+rbifI=";
-        dontNpmBuild = true;
-      };
+      m365AttachmentReader = self.packages.${system}.m365-attachment-reader;
       m365Package = inputs.m365-tui.packages.${system}.default;
       m365Wrapped =
         if secretsEnabled then
@@ -445,28 +434,6 @@
             mv "$temporary_config" "$config"
           '';
 
-          home.activation.configureHermesMcp = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-            # Integrate Outlook MCP for Hermes Agent
-            # The outlook-mcp was added via: hermes mcp add outlook-mcp --command "npx" --args "microsoft-outlook-mcp"
-            # 14 tools enabled: me, list_emails, get_email, create_email_draft, create_reply_draft,
-            #                  send_email, update_email, delete_email, move_email,
-            #                  reply_to_email, reply_all_email, get_attachment, search_emails, unified_search
-            mkdir -p "$HOME/.config/hermes"
-            if [ ! -f "$HOME/.config/hermes/mcp.json" ]; then
-              echo '{"mcpServers":{}}' > "$HOME/.config/hermes/mcp.json"
-            fi
-            # Add outlook-mcp entry if not present
-            MCP_FILE="$HOME/.config/hermes/mcp.json"
-            if ! jq -e '.mcpServers.outlook-mcp' "$MCP_FILE" >/dev/null 2>&1; then
-              cp "$MCP_FILE" "''${MCP_FILE}.tmp"
-              jq --arg name "outlook-mcp" \
-                 --arg command "npx" \
-                 --arg args "microsoft-outlook-mcp" \
-                 '.mcpServers[$name] = {command: $command, args: ($args | splits("\\s+"))}' \
-                 "''${MCP_FILE}.tmp" > "$MCP_FILE"
-              rm -f "''${MCP_FILE}.tmp"
-            fi
-          '';
           home.file = {
             ".local/share/applications/webex.desktop" = {
               force = true;

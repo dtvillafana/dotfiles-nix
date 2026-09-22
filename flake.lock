@@ -362,11 +362,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790023249,
-        "narHash": "sha256-nCIRvOlky9nfkFdyohGw0Fz/5QIB2drAxPDCjhsdxcs=",
+        "lastModified": 1790116803,
+        "narHash": "sha256-XnPpQMAFc1WDDUwwW83NI+vPYS1G1eQKWs90nfUco5g=",
         "owner": "dtvillafana",
         "repo": "m365-tui",
-        "rev": "1c209e50c60b4b266ecf1183ff593716b1f54417",
+        "rev": "f2d9a530cf7e5bbb2883a6f16959e77ca808c4f7",
         "type": "github"
       },
       "original": {
@@ -723,7 +723,8 @@
         "ollama-src": "ollama-src",
         "sops-nix": "sops-nix",
         "treefmt-nix": "treefmt-nix_2",
-        "wrapper-modules": "wrapper-modules"
+        "wrapper-modules": "wrapper-modules",
+        "zoho-desk-mcp-server": "zoho-desk-mcp-server"
       }
     },
     "sops-nix": {
@@ -815,6 +816,27 @@
         "type": "github"
       }
     },
+    "treefmt-nix_3": {
+      "inputs": {
+        "nixpkgs": [
+          "zoho-desk-mcp-server",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786901030,
+        "narHash": "sha256-WSFCsDSE5ffgD2MqzkM2CYjeFiKhRF/dJUN8uedb6YE=",
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "rev": "27b3b12a8e6375f28ebe122f07d230ca5459bbfa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
     "uv2nix": {
       "inputs": {
         "nixpkgs": [
@@ -855,6 +877,27 @@
       "original": {
         "owner": "BirdeeHub",
         "repo": "nix-wrapper-modules",
+        "type": "github"
+      }
+    },
+    "zoho-desk-mcp-server": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "treefmt-nix": "treefmt-nix_3"
+      },
+      "locked": {
+        "lastModified": 1790101329,
+        "narHash": "sha256-gQyC22K8mqb5zssA3DF57bKAGw5wwmOwWGHy1n/oprE=",
+        "owner": "dtvillafana",
+        "repo": "zoho-desk-mcp-server",
+        "rev": "e7213e0feb1fef72c038cd66507f6b0b51cf2109",
+        "type": "github"
+      },
+      "original": {
+        "owner": "dtvillafana",
+        "repo": "zoho-desk-mcp-server",
         "type": "github"
       }
     }

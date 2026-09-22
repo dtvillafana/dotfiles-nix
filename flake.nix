@@ -25,6 +25,10 @@
       url = "github:dtvillafana/m365-tui";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    zoho-desk-mcp-server = {
+      url = "github:dtvillafana/zoho-desk-mcp-server";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     ollama-src = {
       url = "github:ollama/ollama/v0.32.9";
       flake = false;

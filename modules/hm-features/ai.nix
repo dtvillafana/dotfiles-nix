@@ -1,4 +1,4 @@
-{ ... }:
+{ inputs, ... }:
 {
   flake.homeModules.ai =
     {
@@ -35,6 +35,8 @@
       openBrowserUseHost = pkgs.writeShellScript "open-browser-use-host" ''
         exec ${openBrowserUse}/bin/open-browser-use host --socket-dir "${socketDir}"
       '';
+      servicedeskPackage =
+        inputs.zoho-desk-mcp-server.packages.${pkgs.stdenv.hostPlatform.system}.default;
       nativeMessagingManifest = builtins.toJSON {
         name = "com.ifuryst.open_browser_use.extension";
         description = "Open Browser Use Chrome native messaging host";
@@ -306,7 +308,7 @@
                   text = ''
                     ---
                     name: compile-activity-report
-                    description: Compile a report of David's completed/in-progress work over a date range, pulled from Gitea PR history, Outlook email, and his capcu.org work notes. Use when asked for an activity summary, status report, or "what have I done since X" to give to a supervisor or management.
+                    description: Compile a report of David's completed/in-progress work over a date range, pulled from Gitea PR history, ServiceDesk tickets, Outlook email, and his capcu.org work notes. Use when asked for an activity summary, status report, or "what have I done since X" to give to a supervisor or management.
                     ---
 
                     # Compile activity report
@@ -319,7 +321,7 @@
 
                     Run these in parallel — they're independent.
 
-                    **Gitea (ccugitea.capcu.org)** — one of three co-equal sources; covers
+                    **Gitea (ccugitea.capcu.org)** — one of four co-equal sources; covers
                     code-tracked work at PR-level detail.
                     - Read the API token from
                       `${osConfig.sops.secrets.gitea_llm_token.path}` into `GITEA_TOKEN` for
@@ -351,6 +353,45 @@
                     - Group by repo; summarize what the commits changed as a short bulleted list
                       with the date span — don't dump every commit message.
 
+                    **ServiceDesk (servicedesk MCP)** — co-equal
+                    source for helpdesk work. Gitea does not see tickets, notes, or closures.
+                    - Call the `servicedesk` MCP tools (names start with `servicedesk_`). Do not
+                      spawn the server yourself and do not read `config.json` — it holds the
+                      technician API key.
+                    - David's technician identity is email `david.villafana@capcu.org`. Resolve
+                      with `servicedesk_find_user_by_email` or
+                      `servicedesk_list_active_assigned_requests` (`technician_email`) if a
+                      tool wants an id or display name.
+                    - Open / still assigned (in progress):
+                      `servicedesk_list_active_assigned_requests` with
+                      `technician_email` = `david.villafana@capcu.org`. Raise
+                      `max_assigned_requests` while `list_info.has_more_rows` is true. Keep
+                      tickets whose `last_updated_time` (or notes/history) fall in the report
+                      window; older idle assignments can still appear under in-progress if they
+                      remain on his queue.
+                    - Closed in the window: `servicedesk_list_requests` with `status` =
+                      `Closed`, `sort_by` = `last_updated_time`, `sort_order` = `desc`. Paginate
+                      with `start_index` until rows fall before the range start. Keep those
+                      whose `technician` is David and whose `completed_time` / `closed_time` /
+                      `last_updated_time` is inside the range. ServiceDesk often rejects
+                      combined status+technician filters, so filter client-side. If the closed
+                      list is huge, `servicedesk_api_request` GET `requests` with
+                      technician search_criteria, then drop non-closed / out-of-range rows.
+                    - Other activity by David in the window, even when he is not the current
+                      assignee: notes he added, status/assignment changes, resolutions, and
+                      tasks. For tickets updated in-range, call
+                      `servicedesk_list_request_notes` and/or `servicedesk_get_request_full`.
+                      For a timeline, `servicedesk_api_request` GET `requests/<id>/history` and
+                      keep events in the window whose actor is David.
+                      `servicedesk_list_tasks` for tasks he owns. `servicedesk_search_requests`
+                      for his name only when the assigned/closed lists look incomplete.
+                    - Read-only for this report — do not create, update, close, or comment.
+                    - Tickets often contain member PII. Never quote account numbers, SSNs,
+                      passwords, or full descriptions — request id, subject, status, and a
+                      one-line sanitized takeaway only.
+                    - If the MCP is missing or fails, say so in the report rather than silently
+                      omitting ServiceDesk.
+
                     **Email (Outlook, via m365-attachment-reader-local)** — co-equal source, not
                     just corroboration. Gitea only sees code; plenty of completed work (vendor
                     coordination, non-code project milestones, decisions, meetings-turned-status)
@@ -365,7 +406,7 @@
                     from *in-progress/waiting-on-vendor*. Skip routine noise (meeting invites,
                     automated alerts).
 
-                    **Work notes** — `~/git-repos/orgfiles/work/capcu/capcu.org` — a third
+                    **Work notes** — `~/git-repos/orgfiles/work/capcu/capcu.org` — a fourth
                     co-equal source, not just enrichment text. Some completed or in-progress work
                     (vendor/account setup, planning, non-code tasks) is tracked only here and
                     must show up as its own initiative even with nothing to merge it into. An
@@ -375,10 +416,10 @@
                     - Headings/items whose state changed to `DONE` within the report window, or
                       whose surrounding notes/timestamps place them in that window — report
                       these as completed initiatives in their own right if they don't map to a
-                      Gitea/email item.
-                    - `WAITING`/`DELEGATED` items relevant to initiatives also seen in Gitea or
-                      email — useful for the "in progress" section, and worth including on their
-                      own even without a Gitea/email counterpart.
+                      Gitea/email/ServiceDesk item.
+                    - `WAITING`/`DELEGATED` items relevant to initiatives also seen in Gitea,
+                      email, or ServiceDesk — useful for the "in progress" section, and worth
+                      including on their own even without a counterpart in the other sources.
                     - Project names and one-line descriptions to enrich vague Gitea repo names
                       where they do overlap.
 
@@ -394,19 +435,21 @@
 
                     ## 2. Merge sources — none is subordinate to another
 
-                    Gitea, email, and the org file are three co-equal sources of truth. Merge
-                    them into one initiative list rather than treating any one as a footnote on
-                    another:
+                    Gitea, ServiceDesk, email, and the org file are four co-equal sources of
+                    truth. Merge them into one initiative list rather than treating any one as
+                    a footnote on another:
 
-                    - Where items from two or three sources clearly map to the same initiative,
+                    - Where items from two or more sources clearly map to the same initiative,
                       merge into one entry and let each source fill in what the others lack
                       (email/org file give business context and vendor/task status; Gitea gives
-                      what was actually built).
+                      what was actually built; ServiceDesk gives ticket status, closures, and
+                      requester-facing work).
                     - Where an item from any single source has **no corresponding activity in
-                      the others** (e.g. a vendor-coordination milestone from email, a non-code
-                      task from the org file, a repo with no email or org-file trace), include
-                      it as its own initiative — do not drop it just because it isn't
-                      corroborated elsewhere. Most real work will only show up in one source.
+                      the others** (e.g. a closed ServiceDesk request with no PR, a
+                      vendor-coordination milestone from email, a non-code task from the org
+                      file, a repo with no email or org-file trace), include it as its own
+                      initiative — do not drop it just because it isn't corroborated elsewhere.
+                      Most real work will only show up in one source.
                     - If sources conflict on status (e.g. email or the org file implies
                       still-open work on something Gitea shows fully merged), trust the more
                       recent/specific signal and say so rather than silently picking one.
@@ -440,9 +483,9 @@
                       neutral+accent palette, restrained flourishes), not an editorial/landing
                       page treatment.
                     - Design both light and dark themes per the skill's token pattern.
-                    - Include a stat row (3–4 numbers) sized to the audience: raw PR / direct-commit / repo counts
+                    - Include a stat row (3–4 numbers) sized to the audience: raw PR / direct-commit / repo / ticket counts
                       for a technical reader, outcome-shaped counts (e.g. "processes automated",
-                      "initiatives in progress") for a management reader.
+                      "tickets closed", "initiatives in progress") for a management reader.
                     - Republish to the same file path / same `url` on revision so the link stays
                       stable across follow-up edits (e.g. re-scoping the date range, changing
                       audience).
@@ -462,7 +505,7 @@
                   text = ''
                     ---
                     name: daily-tasks
-                    description: Assemble David's prioritized list of what to work on today (or a stated day/week), merging open Gitea PRs and issues, capcu.org work-note deadlines, and actionable email. Use for "what should I work on today", "my tasks for today", "what's on my plate", or standup prep.
+                    description: Assemble David's prioritized list of what to work on today (or a stated day/week), merging open Gitea PRs and issues, ServiceDesk tickets, capcu.org work-note deadlines, and actionable email. Use for "what should I work on today", "my tasks for today", "what's on my plate", or standup prep.
                     ---
 
                     # Daily task list
@@ -492,6 +535,30 @@
                     - `user.login == "dvillafana"` is David. Other logins (e.g. `cmercer`)
                       matter here only when their PR is awaiting his review.
 
+                    **ServiceDesk (servicedesk MCP)** — open
+                    tickets.
+                    - Call the `servicedesk` MCP tools (names start with `servicedesk_`). Do not
+                      spawn the server yourself and do not read `config.json` — it holds the
+                      technician API key.
+                    - David's technician identity is email `david.villafana@capcu.org`.
+                    - Primary queue: `servicedesk_list_active_assigned_requests` with
+                      `technician_email` = `david.villafana@capcu.org` (raise
+                      `max_assigned_requests` while `list_info.has_more_rows` is true). These
+                      non-closed assigned tickets are what he should work.
+                    - Also call `servicedesk_list_open_requests` (paginate `start_index` while
+                      `list_info.has_more_rows`) and keep unassigned or group tickets that
+                      belong on his plate. Do not dump the entire org-wide open queue.
+                    - For priority, due date, or the last note on a ticket that might be
+                      today's work, `servicedesk_get_request` or
+                      `servicedesk_get_request_full`.
+                    - Read-only for this list — do not create, update, close, pick up, or
+                      comment unless David asked to act on a ticket.
+                    - Tickets often contain member PII. Never quote account numbers, SSNs,
+                      passwords, or full descriptions — request id, subject, status, priority,
+                      due date, and a one-line sanitized summary only.
+                    - If the MCP is missing or fails, say so and continue with Gitea + org +
+                      email rather than silently omitting tickets.
+
                     **Work notes** — `~/git-repos/orgfiles/work/capcu/capcu.org` — read it
                     directly (local file, not an API). Emacs org-mode, `#+TODO: TODO MEET CALL
                     WAITING EVENT | DONE CANCELED DELEGATED`. Extract:
@@ -513,7 +580,7 @@
 
                     **Email (Outlook, via m365-attachment-reader-local)** — actionable mail.
                     Launch a background general-purpose agent (tool details in the
-                    `search-emails` skill) so it runs while you work Gitea + org. Give it
+                    `search-emails` skill) so it runs while you work Gitea + ServiceDesk + org. Give it
                     today's date, say the task is forward-looking, and ask it to return only
                     items needing David's action:
                     - flagged messages still open,
@@ -527,15 +594,16 @@
                     "action on David" from "waiting on vendor" and skip routine noise
                     (automated alerts, newsletters, no-prep invites).
                     If the connector is not authenticated, the agent will report a device-code
-                    URL and code — surface those to David, deliver the list from Gitea + org in
-                    the meantime, and offer to re-run the mail search once he signs in.
+                    URL and code — surface those to David, deliver the list from Gitea + org +
+                    ServiceDesk in the meantime, and offer to re-run the mail search once he
+                    signs in.
 
                     ## 2. Merge sources — none is subordinate to another
 
-                    - Items from two or three sources describing the same initiative become one
+                    - Items from two or more sources describing the same initiative become one
                       entry; let each source fill what the others lack (org file = deadline and
                       business context, Gitea = what is actually built, email = vendor and
-                      stakeholder state).
+                      stakeholder state, ServiceDesk = ticket status and requester work).
                     - An item present in only one source still counts — most real tasks show up
                       exactly once.
                     - On a status conflict, trust the most recent / most specific signal and say
@@ -547,8 +615,9 @@
                     This is a personal working list; keep it in the reply (do not publish an
                     Artifact). Structure:
                     - **Today — hard deadlines**: `DEADLINE` today or overdue, plus explicit
-                      go-live / commitment dates from mail. Table each row with its source
-                      reference (`capcu.org:<line>`, repo `#<n>`).
+                      go-live / commitment dates from mail, plus ServiceDesk tickets due today
+                      or overdue. Table each row with its source reference (`capcu.org:<line>`,
+                      repo `#<n>`, `SDP #<id>`).
                     - **This week**: `[#A]`/`[#B]` work and project next-actions due within the
                       horizon.
                     - **Tomorrow (prep today)**: `SCHEDULED` items in the next day or two.
@@ -884,14 +953,33 @@
                     path = "~/git-repos/dotfiles-nix";
                     description = "NixOS and home-manager flake for this machine: hosts, home modules, OpenCode/AI config, packages, and secrets layout. Use when changing system or user config.";
                   };
-                  mcp.servers.open_browser_use = {
-                    type = "local";
-                    command = [
-                      "${openBrowserUseCli}/bin/obu"
-                      "mcp"
-                    ];
-                    timeout = {
-                      catalog = 30000;
+                  mcp.servers = {
+                    open_browser_use = {
+                      type = "local";
+                      command = [
+                        "${openBrowserUseCli}/bin/obu"
+                        "mcp"
+                      ];
+                      timeout = {
+                        catalog = 30000;
+                      };
+                    };
+                  }
+                  // lib.optionalAttrs (config.home.username == "capcu" && secretsEnabled) {
+                    servicedesk = {
+                      type = "local";
+                      command = [
+                        "${pkgs.writeShellScript "servicedesk-mcp-server" ''
+                          set -euo pipefail
+                          set -a
+                          source "${osConfig.sops.templates.servicedesk-mcp-env.path}"
+                          set +a
+                          exec ${lib.getExe servicedeskPackage}
+                        ''}"
+                      ];
+                      timeout = {
+                        catalog = 30000;
+                      };
                     };
                   };
                 } config.opencode.settings

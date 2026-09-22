@@ -41,6 +41,17 @@
         mode = "0400";
       };
       m365AttachmentReader = self.packages.${system}.m365-attachment-reader;
+      servicedeskMcp =
+        if secretsEnabled then
+          pkgs.writeShellScript "servicedesk-mcp-server" ''
+            set -euo pipefail
+            set -a
+            source "${config.sops.templates.servicedesk-mcp-env.path}"
+            set +a
+            exec ${lib.getExe inputs.zoho-desk-mcp-server.packages.${system}.default}
+          ''
+        else
+          null;
       m365Package = inputs.m365-tui.packages.${system}.default;
       m365Wrapped =
         if secretsEnabled then
@@ -126,10 +137,6 @@
         git_vps_capcu = mkPrivateSecret "git_vps";
         ssh_nix_key_capcu = mkPrivateSecret "ssh_nix_key";
       };
-
-      networking.networkmanager.plugins = with pkgs; [
-        networkmanager-fortisslvpn
-      ];
 
       environment.etc = {
         "ppp/ip-up" = {
@@ -247,7 +254,6 @@
             llm-agents.packages.${system}.workmux
             m365Wrapped
             networkmanager
-            networkmanager-fortisslvpn
             networkmanagerapplet
             nixfmt-tree
             nvtopPackages.full
@@ -399,6 +405,7 @@
                 --arg clientId "94f0e6f2-1e6e-4227-8db0-6e2c6597eb2f" \
                 --arg dataDir "/home/capcu/.local/state/m365-attachment-reader-mcp-local" \
                 --arg tenantId "284e75a7-9343-4b85-8e22-0b774e0b4298" \
+                ${lib.optionalString secretsEnabled ''--arg sdpCommand "${servicedeskMcp}" \''}
                 '.mcpServers = ((.mcpServers // {}) + {
                   "m365-attachment-reader-local": {
                     command: $command,
@@ -408,7 +415,7 @@
                       M365_MCP_DATA_DIR: $dataDir,
                       M365_TENANT_ID: $tenantId
                     }
-                  }
+                  }${lib.optionalString secretsEnabled '', "servicedesk": { command: $sdpCommand }''}
                 })' \
                 "$config" >"$temporary_config"
             else
@@ -418,6 +425,7 @@
                 --arg clientId "94f0e6f2-1e6e-4227-8db0-6e2c6597eb2f" \
                 --arg dataDir "/home/capcu/.local/state/m365-attachment-reader-mcp-local" \
                 --arg tenantId "284e75a7-9343-4b85-8e22-0b774e0b4298" \
+                ${lib.optionalString secretsEnabled ''--arg sdpCommand "${servicedeskMcp}" \''}
                 '{ mcpServers: {
                   "m365-attachment-reader-local": {
                     command: $command,
@@ -427,7 +435,7 @@
                       M365_MCP_DATA_DIR: $dataDir,
                       M365_TENANT_ID: $tenantId
                     }
-                  }
+                  }${lib.optionalString secretsEnabled '', "servicedesk": { command: $sdpCommand }''}
                 }}' >"$temporary_config"
             fi
 
@@ -535,6 +543,10 @@
           m365_client_id = mkWorkSecret { };
           m365_tenant_id = mkWorkSecret { };
           M365_ACS_CONNECTION_STRING = mkWorkSecret { };
+          servicedesk_base_url = mkWorkSecret { };
+          servicedesk_api_key = mkWorkSecret { };
+          servicedesk_verify_tls = mkWorkSecret { };
+          servicedesk_timeout_seconds = mkWorkSecret { };
 
           windows-share-capcu = {
             sopsFile = self + /secrets/work.json;
@@ -553,6 +565,17 @@
             mkTemplate "git-credentials-gitlab" "https://dvillafanaiv:${config.sops.placeholder.git_gitlab_pat_capcu}@gitlab.com\n";
           "git-credentials-gitea" =
             mkTemplate "git-credentials-gitea" "https://dvillafana:${config.sops.placeholder.git_gitea}@ccugitea.capcu.org\n";
+          servicedesk-mcp-env = {
+            content = ''
+              SERVICEDESK_BASE_URL=${config.sops.placeholder.servicedesk_base_url}
+              SERVICEDESK_API_KEY=${config.sops.placeholder.servicedesk_api_key}
+              SERVICEDESK_VERIFY_TLS=${config.sops.placeholder.servicedesk_verify_tls}
+              SERVICEDESK_TIMEOUT_SECONDS=${config.sops.placeholder.servicedesk_timeout_seconds}
+            '';
+            owner = "capcu";
+            group = "capcu";
+            mode = "0400";
+          };
         };
       };
     };

@@ -244,7 +244,7 @@
                   lib.hm.dag.entryAfter [ "writeBoundary" ] ''
                     config="$HOME/.claude/settings.json"
                     hook="${config.home.homeDirectory}/.claude/hooks/append-sent-by-claude.py"
-                    matcher='mcp__.*__(send_outlook_email|outlook_send_mail|outlook_send_email|outlook_send_draft)$'
+                    matcher='mcp__.*__(send_outlook_email|reply_outlook_email|outlook_send_mail|outlook_send_email|outlook_send_draft)$'
                     mkdir -p "$HOME/.claude"
                     if [ ! -e "$config" ]; then
                       echo '{}' >"$config"
@@ -265,7 +265,7 @@
               text = ''
                 ---
                 name: search-emails
-                description: Search David's Microsoft 365 mailbox and read or download matching emails and attachments. Use for mailbox search, email reading, and attachment requests.
+                description: Search David's Microsoft 365 mailbox and read or download matching emails and attachments. Use for mailbox search, email reading, attachment requests, and sending or replying to Outlook mail.
                 ---
 
                 # Microsoft 365 email
@@ -275,14 +275,21 @@
 
                 - Use `search_messages` for keyword searches across the mailbox.
                 - Use `list_recent_messages` only for newest-first requests. Filter its results
-                  client-side for dates or `isRead` when needed.
-                - Use `read_email` for message metadata and short previews. When the full body
+                  client-side for dates or `isRead` when needed. Set
+                  `onlyWithAttachments: false` when looking up mail to read or reply to.
+                - Use `read_email` with the `messageId` from list/search. When the full body
                   is needed, call `read_email_body_chunk` starting at offset 0, read each
                   chunk from `bodyText`, and continue with the returned `nextOffset` until
                   `hasMore` is false.
                 - Use `list_email_attachments` and `read_email_attachment` for attachments.
                   The raw downloaded file is at `hostTempPath`.
                 - Use `begin_auth` and `auth_status` if Graph authentication fails.
+
+                Typical chain — copy `messageId` through every step:
+                1. `search_messages` or `list_recent_messages`
+                2. `read_email` with that `messageId`
+                3. `reply_outlook_email` with the **same** `messageId` (never
+                   `send_outlook_email` for a reply)
 
                 ## Search workflow
 
@@ -295,8 +302,16 @@
 
                 ## Attachments and sending
 
-                Copy downloaded files from `hostTempPath` to the requested destination. Draft
-                with `send_outlook_email`; set `send_now: true` only after explicit approval.
+                Copy downloaded files from `hostTempPath` to the requested destination.
+
+                - New mail: draft with `send_outlook_email`; set `send_now: true` only after
+                  explicit approval.
+                - Replies: after `read_email`, call `reply_outlook_email` with that same
+                  `messageId` so the reply stays in the Outlook conversation. Do not use
+                  `send_outlook_email` with an "RE:" subject — that starts a new thread.
+                  Default is a draft; set `send_now: true` only after explicit approval.
+                  Use `replyAll: true` when the original had multiple recipients.
+
                 If every To/Cc/Bcc address ends in `@capcu.org`, end the body with a small
                 footer that says exactly: Sent by Claude. Omit that footer when any
                 recipient is outside `@capcu.org`.

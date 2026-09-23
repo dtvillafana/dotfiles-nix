@@ -7,9 +7,9 @@ let
       version = "0.2.0-unstable-2026-09-23";
       src = pkgs.fetchFromGitHub {
         owner = "dtvillafana";
-        repo = "Claude-MCP-Read-Email-Attachments";
-        rev = "571b211e0928e4bd0fce133e2e7e861bd34a8bed";
-        hash = "sha256-AL1u+robP5vqpTiobXKgQ0Rm9NglTqzXYAufYKHWces=";
+        repo = "Outlook-Email-MCP";
+        rev = "ae43cc4373d1c3a34fedf9e2fcffbcbbfc36209d";
+        hash = "sha256-0ZieCDKk1UgLiruc0x9i/Z2zMFkDUn1P5XXIiSIAGt4=";
       };
       npmDepsHash = "sha256-bRFxD56mZk3E9psqdqXtGuDN8AG//O4wj2iu7+rbifI=";
       dontNpmBuild = true;

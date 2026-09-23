@@ -879,36 +879,36 @@
                   update = "disable";
                   agents = {
                     explore = {
-                      model = "openai/gpt-5.6-luna";
+                      model = "openai/gpt-6-luna#medium";
                       mode = "subagent";
                     };
                     general = {
-                      model = "openai/gpt-5.6-luna";
+                      model = "openai/gpt-6-luna#max";
                       mode = "subagent";
                     };
                     "grok-explore" = mkExplore "xai/grok-build-0.1";
-                    "grok-general" = mkGeneral "xai/grok-4.6#low";
-                    "openai-explore" = mkExplore "openai/gpt-5.6-luna-fast#low";
-                    "openai-general" = mkGeneral "openai/gpt-5.6-terra#low";
+                    "grok-general" = mkGeneral "xai/grok-4.7#low";
+                    "openai-explore" = mkExplore "openai/gpt-6-luna#medium";
+                    "openai-general" = mkGeneral "openai/gpt-6-luna#max";
                     "grok-build" = mkBuild {
-                      model = "xai/grok-4.6#medium";
+                      model = "xai/grok-4.7#high";
                       explore = "grok-explore";
                       general = "grok-general";
                       description = "The default agent. Executes tools based on configured permissions.";
                     };
                     "grok-plan" = mkPlan {
-                      model = "xai/grok-4.6#high";
+                      model = "xai/grok-4.7#high";
                       explore = "grok-explore";
                       description = "Read-only agent for exploring the codebase and planning work before implementation. Cannot edit code files.";
                     };
                     "openai-build" = mkBuild {
-                      model = "openai/gpt-5.6-sol#medium";
+                      model = "openai/gpt-6-sol#high";
                       explore = "openai-explore";
                       general = "openai-general";
                       description = "The default agent. Executes tools based on configured permissions.";
                     };
                     "openai-plan" = mkPlan {
-                      model = "openai/gpt-5.6-sol#medium";
+                      model = "openai/gpt-6-sol#high";
                       explore = "openai-explore";
                       description = "Read-only agent for exploring the codebase and planning work before implementation. Cannot edit code files.";
                     };

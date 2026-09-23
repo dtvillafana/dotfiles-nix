@@ -8,8 +8,8 @@ let
       src = pkgs.fetchFromGitHub {
         owner = "dtvillafana";
         repo = "Outlook-Email-MCP";
-        rev = "ae43cc4373d1c3a34fedf9e2fcffbcbbfc36209d";
-        hash = "sha256-0ZieCDKk1UgLiruc0x9i/Z2zMFkDUn1P5XXIiSIAGt4=";
+        rev = "ca026870343a80419a7acd86e534282e243bc5fb";
+        hash = "sha256-Ooa2uTpp1PAO3eY5oiQvwrkf10AxmdPd46+hSm+8hZM=";
       };
       npmDepsHash = "sha256-bRFxD56mZk3E9psqdqXtGuDN8AG//O4wj2iu7+rbifI=";
       dontNpmBuild = true;

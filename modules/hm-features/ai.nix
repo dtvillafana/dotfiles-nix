@@ -311,6 +311,10 @@
                   `send_outlook_email` with an "RE:" subject — that starts a new thread.
                   Default is a draft; set `send_now: true` only after explicit approval.
                   Use `replyAll: true` when the original had multiple recipients.
+                - Drafts: `send_outlook_email` / `reply_outlook_email` return `draftId`.
+                  Use `list_outlook_drafts` to find drafts, `edit_outlook_draft` to change
+                  subject/body/recipients or add attachments, and `delete_outlook_draft`
+                  to discard. Both edit and delete refuse sent mail. Confirm before delete.
 
                 If every To/Cc/Bcc address ends in `@capcu.org`, end the body with a small
                 footer that says exactly: Sent by Claude. Omit that footer when any

@@ -70,7 +70,11 @@
                 --run 'export M365_CLIENT_ID="$(${lib.getExe' pkgs.coreutils "cat"} ${config.sops.secrets.m365_client_id.path})"' \
                 --run 'export M365_TENANT_ID="$(${lib.getExe' pkgs.coreutils "cat"} ${config.sops.secrets.m365_tenant_id.path})"' \
                 --run 'export M365_TEAMS_CHANNELS=1' \
-                --run 'export M365_PRESENCE_WRITE=1'
+                --run 'export M365_PEOPLE_SEARCH=1' \
+                --run 'export M365_PRESENCE_WRITE=1' \
+                --run 'export M365_PRESENCE_READ=1' \
+                --run 'export M365_CALENDAR_NOTIFY=all' \
+                --run 'export M365_TEAMS_IMAGE_CACHE_DIR=/home/capcu/.config/m365-tui'
             '';
           }
         else
@@ -84,6 +88,7 @@
         "d /home/capcu/mounts/t 0700 capcu capcu -"
         "d /home/capcu/mounts/u 0700 capcu capcu -"
         "d /home/capcu/mounts/f 0700 capcu capcu -"
+        "d /home/capcu/.config/m365-tui 0700 capcu capcu -"
       ];
 
       fileSystems = lib.mkIf secretsEnabled {

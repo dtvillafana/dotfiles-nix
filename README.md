@@ -30,6 +30,21 @@ For a local checkout, use `path:/home/vir/git-repos/dotfiles-nix` instead of the
 
 # Additional setup
 
+## Nix-on-Droid
+
+Install [Nix-on-Droid](https://github.com/nix-community/nix-on-droid) on an aarch64 Android
+device, then switch to the flake configuration:
+
+```bash
+nix-on-droid switch --flake "github:dtvillafana/dotfiles-nix#default"
+```
+
+The `default` output is under `nixOnDroidConfigurations`; use
+`path:/path/to/dotfiles-nix#default` for a local checkout. It includes the shared Git and tmux Home
+Manager modules.
+
+## Secrets
+
 `~/.config/sops/age/keys.txt` may be populated from gopass for interactive SOPS use. NixOS secret
 activation uses `/home/USERNAME/.ssh/id_ed25519`.
 

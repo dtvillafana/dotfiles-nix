@@ -87,6 +87,7 @@
         "d /home/capcu/mounts/n 0700 capcu capcu -"
         "d /home/capcu/mounts/t 0700 capcu capcu -"
         "d /home/capcu/mounts/u 0700 capcu capcu -"
+        "d /home/capcu/mounts/i 0700 capcu capcu -"
         "d /home/capcu/mounts/f 0700 capcu capcu -"
         "d /home/capcu/.config/m365-tui 0700 capcu capcu -"
       ];
@@ -95,6 +96,7 @@
         "/home/capcu/mounts/n" = cifsMount "//ccufs1.capcu.org/Data";
         "/home/capcu/mounts/t" = cifsMount "//ccufs2.capcu.org/Data";
         "/home/capcu/mounts/u" = cifsMount "//ccufs3.capcu.org/Data";
+        "/home/capcu/mounts/i" = cifsMount "//ccufs3.capcu.org/installs";
         "/home/capcu/mounts/f" = cifsMount "//ccuficsapp.capcu.org/FICS";
       };
 

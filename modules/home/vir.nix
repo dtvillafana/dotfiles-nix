@@ -61,6 +61,7 @@
 
       sops.secrets = lib.mkIf secretsEnabled {
         git_github_vir = mkSharedSecret "git_github";
+        git_codeberg_vir = mkSharedSecret "git_codeberg";
         git_gitlab_vir = mkSharedSecret "git_gitlab";
         git_gitlab_pat_vir = mkSharedSecret "git_gitlab_pat";
         git_vps_vir = mkPrivateSecret "git_vps";

@@ -140,6 +140,7 @@
       sops.secrets = lib.mkIf secretsEnabled {
         git_github_capcu = mkSharedSecret "git_github";
         git_gitlab_capcu = mkSharedSecret "git_gitlab";
+        git_codeberg_capcu = mkSharedSecret "git_codeberg";
         git_gitlab_pat_capcu = mkSharedSecret "git_gitlab_pat";
         git_vps_capcu = mkPrivateSecret "git_vps";
         ssh_nix_key_capcu = mkPrivateSecret "ssh_nix_key";

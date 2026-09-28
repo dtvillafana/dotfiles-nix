@@ -668,11 +668,11 @@
         "nixvim": "nixvim_2"
       },
       "locked": {
-        "lastModified": 1790337771,
-        "narHash": "sha256-nMu7gOrCVZJ8ljU1+PBR94k2QyE9a1zpBufafcDGsnc=",
+        "lastModified": 1790424118,
+        "narHash": "sha256-ZV21rxcdlXh06SM8fuIlbgEh3iy2j0+GCA6kof8eqKU=",
         "owner": "dtvillafana",
         "repo": "nixvim",
-        "rev": "4f55b4b3377d98f4d146a08cd8e45e4e9cc47c6b",
+        "rev": "c0b9716adc14f47d5a1777b579c7da49473bbdd6",
         "type": "github"
       },
       "original": {

@@ -11,7 +11,14 @@
     let
       githubSecret = osConfig.sops.secrets."git_github_${config.home.username}".path;
       gitlabSecret = osConfig.sops.secrets."git_gitlab_pat_${config.home.username}".path;
+      codebergSecret = osConfig.sops.secrets."git_codeberg_${config.home.username}".path;
       external_git_repos = [
+        {
+          name = "NDRL-notes";
+          url = "https://dvillafanaiv:$(cat ${codebergSecret})@codeberg.org/dvillafanaiv/NDRL-notes";
+          path = "$HOME/git-repos/NDRL-notes";
+          secret = codebergSecret;
+        }
         {
           name = "m365-tui";
           url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/m365-tui";

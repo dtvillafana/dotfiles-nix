@@ -43,6 +43,9 @@
         {
           defaultSopsFile = self + /secrets/secrets.json;
           defaultSopsFormat = "json";
+          secrets.headscale_preauth_key = {
+            mode = "0400";
+          };
         }
         // lib.optionalAttrs (profileUsers != [ ]) {
           age.sshKeyPaths = map (user: "/home/${user}/.ssh/id_ed25519") profileUsers;
@@ -54,6 +57,7 @@
       services.resolved.enable = true;
 
       networking.networkmanager.enable = true;
+      services.tailscale.enable = true;
       time.timeZone = "America/North_Dakota/New_Salem";
 
       i18n.defaultLocale = "en_US.UTF-8";
@@ -135,9 +139,41 @@
         pavucontrol
         pinentry-tty
         ssh-to-age
+        tailscale
         unzip
         wget
         xdotool
+        (pkgs.writeShellApplication {
+          name = "headscale-toggle";
+          runtimeInputs = [
+            pkgs.jq
+            pkgs.tailscale
+          ];
+          text = ''
+            if [ "$#" -ne 0 ]; then
+              echo "Usage: headscale-toggle" >&2
+              exit 1
+            fi
+
+            if tailscale status --json | jq -e '.BackendState == "Running"' >/dev/null; then
+              /run/wrappers/bin/sudo ${lib.getExe pkgs.tailscale} down
+              echo "Headscale disconnected."
+            else
+              ${
+                if secretsEnabled then
+                  ''
+                    /run/wrappers/bin/sudo ${lib.getExe pkgs.tailscale} up --login-server=https://ts.dvilla.me --auth-key=file:${config.sops.secrets.headscale_preauth_key.path} --exit-node=nixos-headscale-linode
+                    echo "Headscale connected."
+                  ''
+                else
+                  ''
+                    echo "Headscale connection requires the non-bootstrap configuration and a preauth key." >&2
+                    exit 1
+                  ''
+              }
+            fi
+          '';
+        })
       ];
 
       programs.nix-ld.enable = true;

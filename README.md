@@ -30,6 +30,16 @@ For a local checkout, use `path:/home/vir/git-repos/dotfiles-nix` instead of the
 
 # Additional setup
 
+## Headscale
+
+The NixOS hosts provide `headscale-toggle` to connect to or disconnect from
+`https://ts.dvilla.me` (the connection is shared by all users on the host).
+Replace the encrypted `headscale_preauth_key` placeholder in `secrets/secrets.json`
+with a valid Headscale preauth key using `sops secrets/secrets.json` before connecting.
+The key is only read when connecting; switching configurations does not connect
+automatically. The toggle requires sudo access. Bootstrap configurations can
+disconnect, but cannot connect until switched to the normal configuration.
+
 ## Nix-on-Droid
 
 Install [Nix-on-Droid](https://github.com/nix-community/nix-on-droid) on an aarch64 Android

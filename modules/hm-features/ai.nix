@@ -238,29 +238,27 @@
                     main()
               '';
             };
-            home.activation.configureClaudeEmailFooter =
-              lib.mkIf (config.home.username == "capcu")
-                (
-                  lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-                    config="$HOME/.claude/settings.json"
-                    hook="${config.home.homeDirectory}/.claude/hooks/append-sent-by-claude.py"
-                    matcher='mcp__.*__(send_outlook_email|reply_outlook_email|outlook_send_mail|outlook_send_email|outlook_send_draft)$'
-                    mkdir -p "$HOME/.claude"
-                    if [ ! -e "$config" ]; then
-                      echo '{}' >"$config"
-                    fi
-                    temporary_config=$(mktemp "$HOME/.claude/settings.json.XXXXXX")
-                    ${pkgs.jq}/bin/jq \
-                      --arg command "$hook" \
-                      --arg matcher "$matcher" \
-                      '.hooks.PreToolUse = (
-                        ((.hooks.PreToolUse // []) | map(select((.hooks // []) | all(.command != $command))))
-                        + [{ matcher: $matcher, hooks: [{ type: "command", command: $command }] }]
-                      )' \
-                      "$config" >"$temporary_config"
-                    mv "$temporary_config" "$config"
-                  ''
-                );
+            home.activation.configureClaudeEmailFooter = lib.mkIf (config.home.username == "capcu") (
+              lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+                config="$HOME/.claude/settings.json"
+                hook="${config.home.homeDirectory}/.claude/hooks/append-sent-by-claude.py"
+                matcher='mcp__.*__(send_outlook_email|reply_outlook_email|outlook_send_mail|outlook_send_email|outlook_send_draft)$'
+                mkdir -p "$HOME/.claude"
+                if [ ! -e "$config" ]; then
+                  echo '{}' >"$config"
+                fi
+                temporary_config=$(mktemp "$HOME/.claude/settings.json.XXXXXX")
+                ${pkgs.jq}/bin/jq \
+                  --arg command "$hook" \
+                  --arg matcher "$matcher" \
+                  '.hooks.PreToolUse = (
+                    ((.hooks.PreToolUse // []) | map(select((.hooks // []) | all(.command != $command))))
+                    + [{ matcher: $matcher, hooks: [{ type: "command", command: $command }] }]
+                  )' \
+                  "$config" >"$temporary_config"
+                mv "$temporary_config" "$config"
+              ''
+            );
             home.file.".claude/skills/search-emails/SKILL.md" = lib.mkIf (config.home.username == "capcu") {
               text = ''
                 ---
@@ -921,13 +919,13 @@
                       description = "Read-only agent for exploring the codebase and planning work before implementation. Cannot edit code files.";
                     };
                     "openai-build" = mkBuild {
-                      model = "openai/gpt-6-sol#high";
+                      model = "openai/gpt-6.1-sol#high";
                       explore = "openai-explore";
                       general = "openai-general";
                       description = "The default agent. Executes tools based on configured permissions.";
                     };
                     "openai-plan" = mkPlan {
-                      model = "openai/gpt-6-sol#high";
+                      model = "openai/gpt-6.1-sol#high";
                       explore = "openai-explore";
                       description = "Read-only agent for exploring the codebase and planning work before implementation. Cannot edit code files.";
                     };

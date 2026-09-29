@@ -17,6 +17,8 @@
             "store --file=${config.home.homeDirectory}/.git-credentials-gitlab";
           credential."https://codeberg.org".helper =
             "store --file=${config.home.homeDirectory}/.git-credentials-codeberg";
+          credential."https://git.dvilla.me".helper =
+            "store --file=${config.home.homeDirectory}/.git-credentials-dvilla";
         };
         lfs.enable = true;
       };

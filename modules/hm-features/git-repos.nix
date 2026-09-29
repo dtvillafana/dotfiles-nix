@@ -12,6 +12,7 @@
       githubSecret = osConfig.sops.secrets."git_github_${config.home.username}".path;
       gitlabSecret = osConfig.sops.secrets."git_gitlab_pat_${config.home.username}".path;
       codebergSecret = osConfig.sops.secrets."git_codeberg_${config.home.username}".path;
+      dvillaSecret = osConfig.sops.secrets."git_dvilla_${config.home.username}".path;
       external_git_repos = [
         {
           name = "NDRL-notes";
@@ -117,8 +118,9 @@
         }
         {
           name = "finances";
-          url = "vps:~/git-repos/finances";
+          url = "https://david:$(cat ${dvillaSecret})@git.dvilla.me/david/finances";
           path = "$HOME/git-repos/finances";
+          secret = dvillaSecret;
         }
         {
           name = "dotfiles-nix";

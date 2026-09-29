@@ -142,6 +142,7 @@
         git_gitlab_capcu = mkSharedSecret "git_gitlab";
         git_codeberg_capcu = mkSharedSecret "git_codeberg";
         git_gitlab_pat_capcu = mkSharedSecret "git_gitlab_pat";
+        git_dvilla_capcu = mkSharedSecret "git_dvilla";
         git_vps_capcu = mkPrivateSecret "git_vps";
         ssh_nix_key_capcu = mkPrivateSecret "ssh_nix_key";
       };
@@ -573,6 +574,8 @@
             mkTemplate "git-credentials-gitlab" "https://dvillafanaiv:${config.sops.placeholder.git_gitlab_pat_capcu}@gitlab.com\n";
           "git-credentials-gitea" =
             mkTemplate "git-credentials-gitea" "https://dvillafana:${config.sops.placeholder.git_gitea}@ccugitea.capcu.org\n";
+          "git-credentials-dvilla" =
+            mkTemplate "git-credentials-dvilla" "https://david:${config.sops.placeholder.git_dvilla_capcu}@git.dvilla.me\n";
           servicedesk-mcp-env = {
             content = ''
               SERVICEDESK_BASE_URL=${config.sops.placeholder.servicedesk_base_url}
@@ -623,6 +626,9 @@
             }";
             "https://gitlab.com".helper = "store --file=${
               osConfig.sops.templates."git-credentials-gitlab".path
+            }";
+            "https://git.dvilla.me".helper = "store --file=${
+              osConfig.sops.templates."git-credentials-dvilla".path
             }";
           };
         };

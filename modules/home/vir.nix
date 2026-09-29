@@ -7,6 +7,7 @@
       lib,
       nixvim,
       pkgs,
+      config,
       secretsEnabled ? true,
       ...
     }:
@@ -64,6 +65,7 @@
         git_codeberg_vir = mkSharedSecret "git_codeberg";
         git_gitlab_vir = mkSharedSecret "git_gitlab";
         git_gitlab_pat_vir = mkSharedSecret "git_gitlab_pat";
+        git_dvilla_vir = mkSharedSecret "git_dvilla";
         git_vps_vir = mkPrivateSecret "git_vps";
         ssh_nix_key_vir = mkPrivateSecret "ssh_nix_key";
         "hermes-env" = {
@@ -71,6 +73,15 @@
           format = "yaml";
           owner = "vir";
           group = "vir";
+        };
+      };
+
+      sops.templates = lib.mkIf secretsEnabled {
+        "git-credentials-dvilla-vir" = {
+          content = "https://david:${config.sops.placeholder.git_dvilla_vir}@git.dvilla.me\n";
+          path = "${config.users.users.vir.home}/.git-credentials-dvilla";
+          owner = "vir";
+          mode = "0600";
         };
       };
 

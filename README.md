@@ -32,13 +32,18 @@ For a local checkout, use `path:/home/vir/git-repos/dotfiles-nix` instead of the
 
 ## Headscale
 
-The NixOS hosts provide `headscale-toggle` to connect to or disconnect from
-`https://ts.dvilla.me` (the connection is shared by all users on the host).
-Replace the encrypted `headscale_preauth_key` placeholder in `secrets/secrets.json`
-with a valid Headscale preauth key using `sops secrets/secrets.json` before connecting.
-The key is only read when connecting; switching configurations does not connect
-automatically. The toggle requires sudo access. Bootstrap configurations can
-disconnect, but cannot connect until switched to the normal configuration.
+Normal NixOS hosts connect to `https://ts.dvilla.me` automatically (the connection is
+shared by all users). Replace the encrypted `headscale_preauth_key` placeholder in
+`secrets/secrets.json` with a valid, reusable Headscale preauth key using
+`sops secrets/secrets.json` before switching configurations. Bootstrap configurations
+do not connect automatically.
+
+`headscale-toggle` switches the exit node and DNS, but keeps the host connected to
+Headscale in both states. On uses `nixos-headscale-linode` as the exit node and
+Headscale-managed DNS. Off uses the normal default route and DNS, except that
+`git.dvilla.me` still resolves through Headscale and connects over the tailnet.
+The toggle requires sudo access. After a reboot or configuration switch, it defaults
+to off. Check `tailscaled-autoconnect.service` if Headscale is not connected.
 
 ## Nix-on-Droid
 

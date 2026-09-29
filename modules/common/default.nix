@@ -14,6 +14,26 @@
         "vir"
         "capcu"
       ];
+      headscaleGitDns = pkgs.writeShellApplication {
+        name = "headscale-git-dns";
+        runtimeInputs = [
+          pkgs.jq
+          pkgs.systemd
+          pkgs.tailscale
+        ];
+        text = ''
+          if ! tailscale status --json | jq -e '.BackendState == "Running"' >/dev/null; then
+            echo "Headscale is not connected yet." >&2
+            exit 1
+          fi
+
+          if tailscale status --json | jq -e '.ExitNodeStatus == null' >/dev/null; then
+            resolvectl domain tailscale0 '~git.dvilla.me'
+            resolvectl default-route tailscale0 false
+            resolvectl dns tailscale0 100.100.100.100
+          fi
+        '';
+      };
       libreofficeDraw = pkgs.symlinkJoin {
         name = "libreoffice-draw";
         paths = [
@@ -57,7 +77,42 @@
       services.resolved.enable = true;
 
       networking.networkmanager.enable = true;
-      services.tailscale.enable = true;
+      services.tailscale = {
+        enable = true;
+      }
+      // lib.optionalAttrs secretsEnabled {
+        authKeyFile = config.sops.secrets.headscale_preauth_key.path;
+        extraUpFlags = [
+          "--login-server=https://ts.dvilla.me"
+          "--exit-node="
+          "--accept-dns=false"
+        ];
+        extraSetFlags = [
+          "--exit-node="
+          "--accept-dns=false"
+        ];
+      };
+
+      systemd.services.headscale-git-dns = lib.mkIf secretsEnabled {
+        description = "Route Git DNS through Headscale when the exit node is off";
+        wantedBy = [
+          "multi-user.target"
+          "systemd-resolved.service"
+          "tailscaled.service"
+        ];
+        after = [
+          "systemd-resolved.service"
+          "tailscaled.service"
+          "tailscaled-autoconnect.service"
+          "tailscaled-set.service"
+        ];
+        serviceConfig = {
+          Type = "oneshot";
+          Restart = "on-failure";
+          RestartSec = "5s";
+        };
+        script = lib.getExe headscaleGitDns;
+      };
       time.timeZone = "America/North_Dakota/New_Salem";
 
       i18n.defaultLocale = "en_US.UTF-8";
@@ -155,22 +210,18 @@
               exit 1
             fi
 
-            if tailscale status --json | jq -e '.BackendState == "Running"' >/dev/null; then
-              /run/wrappers/bin/sudo ${lib.getExe pkgs.tailscale} down
-              echo "Headscale disconnected."
+            if ! tailscale status --json | jq -e '.BackendState == "Running"' >/dev/null; then
+              echo "Headscale is not connected; check tailscaled-autoconnect.service." >&2
+              exit 1
+            fi
+
+            if tailscale status --json | jq -e '.ExitNodeStatus != null' >/dev/null; then
+              /run/wrappers/bin/sudo ${lib.getExe pkgs.tailscale} set --exit-node= --accept-dns=false
+              /run/wrappers/bin/sudo ${lib.getExe headscaleGitDns}
+              echo "Headscale exit node and general DNS disabled; Git remains on Headscale."
             else
-              ${
-                if secretsEnabled then
-                  ''
-                    /run/wrappers/bin/sudo ${lib.getExe pkgs.tailscale} up --login-server=https://ts.dvilla.me --auth-key=file:${config.sops.secrets.headscale_preauth_key.path} --exit-node=nixos-headscale-linode
-                    echo "Headscale connected."
-                  ''
-                else
-                  ''
-                    echo "Headscale connection requires the non-bootstrap configuration and a preauth key." >&2
-                    exit 1
-                  ''
-              }
+              /run/wrappers/bin/sudo ${lib.getExe pkgs.tailscale} set --exit-node=nixos-headscale-linode --accept-dns=true
+              echo "Headscale exit node and DNS enabled."
             fi
           '';
         })

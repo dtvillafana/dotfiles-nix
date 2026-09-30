@@ -4,12 +4,12 @@ let
     pkgs:
     pkgs.buildNpmPackage {
       pname = "m365-attachment-reader-mcp-local";
-      version = "0.2.0-unstable-2026-09-23";
+      version = "0.2.0-unstable-2026-09-30";
       src = pkgs.fetchFromGitHub {
         owner = "dtvillafana";
         repo = "Outlook-Email-MCP";
-        rev = "ca026870343a80419a7acd86e534282e243bc5fb";
-        hash = "sha256-Ooa2uTpp1PAO3eY5oiQvwrkf10AxmdPd46+hSm+8hZM=";
+        rev = "7f1d7d286451d04daf61881ccbdbd6ffa7037a13";
+        hash = "sha256-o4tZsGBsInzHTTyQD/nCPWJ3Z9qPTZqybMfxI89QwiA=";
       };
       npmDepsHash = "sha256-bRFxD56mZk3E9psqdqXtGuDN8AG//O4wj2iu7+rbifI=";
       dontNpmBuild = true;

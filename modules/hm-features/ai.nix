@@ -311,8 +311,12 @@
                   Use `replyAll: true` when the original had multiple recipients.
                 - Drafts: `send_outlook_email` / `reply_outlook_email` return `draftId`.
                   Use `list_outlook_drafts` to find drafts, `edit_outlook_draft` to change
-                  subject/body/recipients or add attachments, and `delete_outlook_draft`
-                  to discard. Both edit and delete refuse sent mail. Confirm before delete.
+                  subject/body/recipients or add attachments, `send_outlook_draft` to send
+                  it as saved, and `delete_outlook_draft` to discard. Edit, send, and delete
+                  refuse sent mail. Confirm before delete.
+                - When the user approves sending a draft you already saved, call
+                  `send_outlook_draft` with its `draftId`. Do not resend the text with
+                  `send_now: true`; that leaves a duplicate draft behind.
 
                 If every To/Cc/Bcc address ends in `@capcu.org`, end the body with a small
                 footer that says exactly: Sent by Claude. Omit that footer when any

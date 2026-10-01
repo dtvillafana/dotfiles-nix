@@ -2,12 +2,12 @@
 {
   flake.nixosModules.hpenvyConfig =
     {
-      pkgs,
+      config,
       ...
     }:
     {
-      environment.systemPackages = with pkgs; [
-        linuxKernel.packages.linux_hardened.broadcom_sta
+      environment.systemPackages = [
+        config.boot.kernelPackages.broadcom_sta
       ];
 
     };

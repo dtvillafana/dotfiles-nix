@@ -62,6 +62,7 @@
             q = "exit";
             lg = "lazygit";
             nr = ''nixos-rebuild switch --flake "${dotfiles}#${osConfig.networking.hostName}" --sudo --no-reexec --no-update-lock-file --no-write-lock-file'';
+            nrb = ''nixos-rebuild boot --flake "${dotfiles}#${osConfig.networking.hostName}" --sudo --no-reexec --no-update-lock-file --no-write-lock-file'';
             nrf = ''nix flake update --flake "${dotfiles}" && sudo nixos-rebuild switch --flake "${dotfiles}#${osConfig.networking.hostName}" --refresh'';
             nrc = ''nix flake update --flake "${dotfiles}" nixvim nix-index-database && sudo nixos-rebuild switch --flake "${dotfiles}#${osConfig.networking.hostName}" --refresh && sudo nix-collect-garbage -d && sudo nix store optimise'';
             nrfc = ''nix flake update --flake "${dotfiles}" && sudo nixos-rebuild switch --flake "${dotfiles}#${osConfig.networking.hostName}" --refresh && sudo nix-collect-garbage -d && sudo nix store optimise'';

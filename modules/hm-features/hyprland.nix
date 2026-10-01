@@ -21,7 +21,7 @@
           osConfig.programs.hyprland.package
           polkit
           procps
-          rofi
+          wofi
           slurp
           tesseract
           uwsm
@@ -40,7 +40,7 @@
                 done
               ;;
             password|username|otp)
-              entry="$(gopass ls --flat | rofi -dmenu -matching fuzzy -i -sort)" || exit 0
+              entry="$(gopass ls --flat | wofi --dmenu --no-custom-entry --cache-file /dev/null --sort-order alphabetical --prompt 'Select credential…')" || exit 0
               [ -n "$entry" ] || exit 0
               case "$1" in
                 password) value="$(gopass show -o "$entry")" ;;
@@ -61,17 +61,17 @@
               ;;
             kill-user|kill-root)
               if [ "$1" = kill-root ]; then
-                process="$(ps -e -o comm= | sort -u | rofi -dmenu -matching fuzzy -i -sort)" || exit 0
+                process="$(ps -e -o comm= | sort -u | wofi --dmenu --no-custom-entry --cache-file /dev/null --prompt 'Stop process (root)…')" || exit 0
                 [ -n "$process" ] || exit 0
                 exec pkexec ${lib.getExe' pkgs.procps "pkill"} -x "$process"
               else
-                process="$(ps -u "$USER" -o comm= | sort -u | rofi -dmenu -matching fuzzy -i -sort)" || exit 0
+                process="$(ps -u "$USER" -o comm= | sort -u | wofi --dmenu --no-custom-entry --cache-file /dev/null --prompt 'Stop process…')" || exit 0
                 [ -n "$process" ] || exit 0
                 exec pkill -x "$process"
               fi
               ;;
             logout)
-              answer="$(printf 'Cancel\nLog out\n' | rofi -dmenu -i -p 'Exit Hyprland?')" || exit 0
+              answer="$(printf 'Cancel\nLog out\n' | wofi --dmenu --no-custom-entry --cache-file /dev/null --prompt 'Exit Hyprland?')" || exit 0
               if [ "$answer" = 'Log out' ]; then
                 exec uwsm stop
               fi
@@ -95,7 +95,6 @@
         hyprpolkitagent
         dunst
         networkmanagerapplet
-        rofi
         wtype
         wdisplays
         wayvnc
@@ -124,11 +123,18 @@
 
       xdg.configFile."hypr/hyprland.lua".source = ./hyprland/config.lua;
       xdg.configFile."hypr/user.lua".text = lib.mkDefault "";
+      home.pointerCursor = {
+        package = pkgs.adwaita-icon-theme;
+        name = "Adwaita";
+        size = 24;
+        gtk.enable = true;
+        x11.enable = true;
+      };
       # UWSM imports these before starting graphical-session.target and portals.
       xdg.configFile."uwsm/env-hyprland".text = ''
         export NIXOS_OZONE_WL=1
+        export XCURSOR_THEME=Adwaita
         export XCURSOR_SIZE=24
-        export HYPRCURSOR_SIZE=24
       '';
 
       # Distinct ports allow different users' sessions to coexist on one host.
@@ -200,6 +206,7 @@
         modules-left = [
           "hyprland/workspaces"
           "hyprland/submap"
+          "hyprland/window"
         ];
         modules-right = [
           "network"
@@ -213,6 +220,11 @@
         "hyprland/workspaces" = {
           format = "{name}";
           all-outputs = false;
+        };
+        "hyprland/window" = {
+          format = "{title}";
+          max-length = 80;
+          separate-outputs = true;
         };
         network = {
           format-wifi = "W: {essid} ({signalStrength}%) {ipaddr}";
@@ -233,7 +245,7 @@
         window#waybar { background: #222222; color: #ffffff; }
         #workspaces button { color: #ffffff; padding: 0 8px; border-radius: 0; }
         #workspaces button.active { background: #285577; }
-        #network, #disk, #battery, #memory, #pulseaudio, #clock, #tray, #submap { padding: 0 8px; }
+        #network, #disk, #battery, #memory, #pulseaudio, #clock, #tray, #submap, #window { padding: 0 8px; }
       '';
     };
 }

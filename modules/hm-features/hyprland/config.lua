@@ -3,15 +3,15 @@ require("monitors")
 require("user")
 
 hl.env("NIXOS_OZONE_WL", "1")
+hl.env("XCURSOR_THEME", "Adwaita")
 hl.env("XCURSOR_SIZE", "24")
-hl.env("HYPRCURSOR_SIZE", "24")
 
 hl.config({
-    general = { layout = "dwindle", gaps_in = 0, gaps_out = 0, border_size = 2 },
+    general = { layout = "dwindle", gaps_in = 0, gaps_out = 0, border_size = 0 },
     decoration = { rounding = 0, blur = { enabled = false }, shadow = { enabled = false } },
     animations = { enabled = false },
     input = { kb_layout = "us", kb_options = "ctrl:swapcaps", follow_mouse = 1 },
-    cursor = { no_warps = true },
+    cursor = { no_warps = true, enable_hyprcursor = false },
     dwindle = { preserve_split = true },
     binds = { workspace_back_and_forth = true },
     misc = { disable_hyprland_logo = true, force_default_wallpaper = -1 },
@@ -67,7 +67,7 @@ end
 
 exec("SUPER + Return", "ghostty")
 exec("SUPER + SHIFT + Return", "hypr-neovide")
-exec("SUPER + D", "rofi -show drun")
+exec("SUPER + D", "wofi")
 exec("SUPER + T", "hypr-desktop-action kill-user")
 exec("SUPER + SHIFT + T", "hypr-desktop-action kill-root")
 exec("SUPER + G", "hypr-desktop-action password")

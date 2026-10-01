@@ -214,6 +214,7 @@
             self.homeModules.monitors
             self.homeModules.launcher
             self.homeModules.ai
+            self.homeModules.agent-deck
             self.homeModules.tmux
             self.homeModules.zsh
           ]
@@ -256,7 +257,6 @@
             keepmenu
             krita
             lazygit
-            llm-agents.packages.${system}.agent-deck
             llm-agents.packages.${system}.claude-code
             llm-agents.packages.${system}.grok
             llm-agents.packages.${system}.handy
@@ -276,7 +276,6 @@
             remmina
             ripgrep
             ripgrep-all
-            rofi
             scli
             sops
             sshfs
@@ -474,26 +473,11 @@
                pppd-use-peerdns = 0
                pppd-ipparam = capcu
             '';
-            ".config/agent-deck/config.toml".text = ''
-              default_tool = "claude"
-              theme = "dark"
-
-              [claude]
-              dangerous_mode = false
-
-              [global_search]
-              enabled = true
-              tier = "auto"
-              recent_days = 90
-
-              [instances]
-              allow_multiple = true
-            '';
           }
           // lib.optionalAttrs secretsEnabled {
             ".config/keepmenu/config.ini".text = ''
               [dmenu]
-              dmenu_command = rofi -dmenu -matching fuzzy -i -sort
+              dmenu_command = wofi --dmenu --no-custom-entry --cache-file /dev/null --sort-order alphabetical --prompt KeePass
 
               [database]
               database_1 = ~/mounts/t/IT/ITDept.kdbx

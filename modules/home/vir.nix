@@ -99,6 +99,7 @@
             self.homeModules.launcher
             self.homeModules.git
             self.homeModules.ai
+            self.homeModules.agent-deck
             self.homeModules.tmux
             self.homeModules.zsh
           ]
@@ -131,7 +132,6 @@
             jq
             krita
             lazygit
-            llm-agents.packages.${system}.agent-deck
             llm-agents.packages.${system}.claude-code
             llm-agents.packages.${system}.grok
             llm-agents.packages.${system}.handy
@@ -150,7 +150,6 @@
             python313
             ripgrep
             ripgrep-all
-            rofi
             scli
             signal-cli
             signal-desktop

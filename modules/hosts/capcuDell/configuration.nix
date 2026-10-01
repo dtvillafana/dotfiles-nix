@@ -21,110 +21,58 @@
         };
         prePatch = "";
       };
-      # Office FortiGate FG100FTK22020085 replaces the Headscale certificate
-      # with a short-lived leaf and does not send its CA. tailscaled verifies
-      # that leaf as root, so a capcu NSS exception cannot help. Trust only
-      # the current leaf for ts.dvilla.me, and only inside tailscaled.
-      fortinetHeadscaleBundle = "/var/lib/tailscale-fortinet-trust/ca-bundle.crt";
-      trustFortinetHeadscaleCert = pkgs.writeShellApplication {
-        name = "trust-fortinet-headscale-cert";
+      # Office FortiGate FG100FTK22020085 MITMs Headscale. Trust that CA only
+      # inside tailscaled so the rest of the system keeps the public roots.
+      tailscaleCaBundle = pkgs.runCommand "tailscale-ca-bundle.crt" { } ''
+        cat ${config.security.pki.caBundle} ${./Fortinet_CA_SSL.cer} >"$out"
+      '';
+      # Run a minimal Hyprland greeter so WayVNC also works before login.
+      # Its server exits with the greeter; capcu's user service takes over 5901.
+      greeterConfig = pkgs.writeText "sddm-hyprland.lua" ''
+        hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
+        hl.config({
+          input = { kb_layout = "us", kb_options = "ctrl:swapcaps" },
+          misc = { disable_hyprland_logo = true, force_default_wallpaper = -1 },
+          animations = { enabled = false },
+        })
+        hl.window_rule({ match = { class = "sddm-greeter.*" }, fullscreen = true })
+        hl.on("hyprland.start", function()
+          hl.exec_cmd("${lib.getExe greeterVnc}")
+        end)
+      '';
+      greeterVncConfig = pkgs.writeText "sddm-wayvnc.conf" ''
+        address=127.0.0.1
+        port=5901
+        enable_auth=false
+      '';
+      greeterVnc = pkgs.writeShellApplication {
+        name = "sddm-wayvnc";
         runtimeInputs = [
           pkgs.coreutils
-          pkgs.gawk
-          pkgs.gnugrep
-          pkgs.openssl
-          pkgs.systemd
+          pkgs.wayvnc
         ];
         text = ''
-          host="ts.dvilla.me"
-          issuer_cn="FG100FTK22020085"
-          bundle="${fortinetHeadscaleBundle}"
-          system_bundle="/etc/ssl/certs/ca-certificates.crt"
-          restart=1
-          if [ "''${1:-}" = "--no-restart" ]; then
-            restart=0
-          fi
-
-          leaf="$(mktemp)"
-          staged="$(mktemp)"
-          trap 'rm -f "$leaf" "$staged"' EXIT
-          mkdir -p "$(dirname "$bundle")"
-
-          fetched=0
-          if timeout 10 openssl s_client \
-            -connect "$host:443" \
-            -servername "$host" \
-            -showcerts \
-            </dev/null 2>/dev/null \
-            | awk '/-----BEGIN CERTIFICATE-----/{capture=1} capture{print} /-----END CERTIFICATE-----/{exit}' >"$leaf" \
-            && [ -s "$leaf" ] \
-            && openssl x509 -in "$leaf" -noout -subject >/dev/null
-          then
-            fetched=1
-          fi
-
-          if [ "$fetched" -eq 1 ]; then
-            subject="$(openssl x509 -in "$leaf" -noout -subject)"
-            issuer="$(openssl x509 -in "$leaf" -noout -issuer)"
-            san="$(openssl x509 -in "$leaf" -noout -ext subjectAltName 2>/dev/null || true)"
-            if openssl verify -CAfile "$system_bundle" "$leaf" >/dev/null 2>&1; then
-              cp "$system_bundle" "$staged"
-            elif printf '%s\n%s\n' "$subject" "$san" | grep -F -e "CN=$host" -e "DNS:$host" >/dev/null \
-              && printf '%s\n' "$issuer" | grep -F -q "CN=$issuer_cn"
-            then
-              cat "$system_bundle" "$leaf" >"$staged"
-              echo "Trusting Fortinet temporary certificate for $host ($issuer)"
-            else
-              echo "Refusing certificate for $host ($subject / $issuer)" >&2
-              cp "$system_bundle" "$staged"
-            fi
-          elif [ -s "$bundle" ]; then
-            echo "Could not fetch a certificate for $host; keeping the existing bundle" >&2
-            exit 0
-          else
-            echo "Could not fetch a certificate for $host; using the system bundle" >&2
-            cp "$system_bundle" "$staged"
-          fi
-
-          if [ -f "$bundle" ] && cmp -s "$staged" "$bundle"; then
-            exit 0
-          fi
-
-          install -m 644 "$staged" "$bundle"
-          if [ "$restart" -eq 1 ] && systemctl is-active --quiet tailscaled.service; then
-            systemctl restart tailscaled.service
-            systemctl restart tailscaled-autoconnect.service || true
-          fi
+          # On logout, the old user server may briefly still own port 5901.
+          # Retry while the greeter compositor is alive, never after it exits.
+          while [ -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; do
+            wayvnc --desktop --disable-resizing --config ${greeterVncConfig} || true
+            sleep 2
+          done
         '';
       };
     in
     {
       services.xserver.videoDrivers = [ "nvidia" ];
 
-      services.xserver.windowManager.i3.enable = true;
-
       services.displayManager = {
-        sddm.enable = true;
-        defaultSession = "none+i3";
-      };
-
-      systemd.services.x0vncserver = {
-        description = "Share the SDDM and i3 X11 display over VNC";
-        wantedBy = [ "graphical.target" ];
-        after = [ "display-manager.service" ];
-        script = ''
-          for xauthority in /run/sddm/xauth_*; do
-            if [ -e "$xauthority" ]; then
-              export XAUTHORITY="$xauthority"
-              exec ${pkgs.tigervnc}/bin/x0vncserver -display :0 -localhost yes -rfbport 5901 -SecurityTypes None
-            fi
-          done
-          exit 1
-        '';
-        serviceConfig = {
-          Restart = "always";
-          RestartSec = 2;
+        sddm = {
+          enable = true;
+          wayland = {
+            enable = true;
+            compositorCommand = "${lib.getExe config.programs.hyprland.package} --config ${greeterConfig}";
+          };
         };
+        defaultSession = "hyprland-uwsm";
       };
 
       hardware = {
@@ -137,7 +85,8 @@
             intelBusId = "PCI:0:2:0";
             nvidiaBusId = "PCI:2:0:0";
             offload.enableOffloadCmd = true;
-            reverseSync.enable = true;
+            # XRandR reverse PRIME is X11-only. Hyprland handles DRM outputs.
+            offload.enable = true;
           };
         };
       };
@@ -265,44 +214,7 @@
         requires = [ "hermes-agent.service" ];
       };
 
-      systemd.services.tailscale-fortinet-trust = {
-        description = "Trust the office FortiGate certificate presented for Headscale";
-        wantedBy = [ "tailscaled.service" ];
-        before = [ "tailscaled.service" ];
-        after = [ "network-online.target" ];
-        wants = [ "network-online.target" ];
-        serviceConfig = {
-          Type = "oneshot";
-          StateDirectory = "tailscale-fortinet-trust";
-        };
-        script = "${lib.getExe trustFortinetHeadscaleCert} --no-restart";
-      };
-
-      systemd.services.tailscale-fortinet-trust-refresh = {
-        description = "Refresh the office FortiGate certificate trusted by tailscaled";
-        after = [ "network-online.target" ];
-        wants = [ "network-online.target" ];
-        serviceConfig = {
-          Type = "oneshot";
-          StateDirectory = "tailscale-fortinet-trust";
-        };
-        script = lib.getExe trustFortinetHeadscaleCert;
-      };
-
-      systemd.timers.tailscale-fortinet-trust-refresh = {
-        wantedBy = [ "timers.target" ];
-        timerConfig = {
-          OnActiveSec = "30s";
-          OnUnitActiveSec = "1h";
-          AccuracySec = "10s";
-        };
-      };
-
-      systemd.services.tailscaled = {
-        after = [ "tailscale-fortinet-trust.service" ];
-        wants = [ "tailscale-fortinet-trust.service" ];
-        environment.SSL_CERT_FILE = fortinetHeadscaleBundle;
-      };
+      systemd.services.tailscaled.environment.SSL_CERT_FILE = "${tailscaleCaBundle}";
 
       systemd.services.e1000e-offload-workaround = {
         description = "Disable e1000e transmit offloads that can wedge the I219-LM NIC";
@@ -356,13 +268,6 @@
         "capcu"
         "libvirtd"
       ];
-
-      home-manager.users.capcu.services.autorandr.extraOptions = [
-        "--default"
-        "capcuoffice"
-      ];
-      home-manager.users.capcu.xsession.initExtra = config.services.xserver.displayManager.setupCommands;
-      home-manager.users.capcu.systemd.user.services.x0vncserver.Install.WantedBy = lib.mkForce [ ];
 
       environment.systemPackages = with pkgs; [
         displaylink

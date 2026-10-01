@@ -26,6 +26,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
+    hyprwhichkey-src = {
+      url = "github:Juhan280/hyprwhichkey/6f4408e456bbd6b33f43845d797b92407037ae74";
+      flake = false;
+    };
     m365-tui = {
       url = "github:dtvillafana/m365-tui";
       inputs.nixpkgs.follows = "nixpkgs";

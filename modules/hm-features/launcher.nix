@@ -11,60 +11,41 @@
         };
       };
 
-      programs.wofi = {
+      programs.fuzzel = {
         enable = true;
         settings = {
-          show = "drun,run";
-          prompt = "Search apps and commands…";
-          term = "ghostty";
-          location = "center";
-          width = 640;
-          lines = 8;
-          dynamic_lines = true;
-          matching = "fuzzy";
-          insensitive = true;
-          allow_images = true;
-          allow_markup = false;
-          image_size = 24;
-          hide_scroll = true;
-          gtk_dark = true;
-          "drun-display_generic" = true;
-          "run-always_parse_args" = true;
-          "run-show_all" = false;
+          main = {
+            font = "DejaVu Sans:size=12";
+            prompt = "Search apps… ";
+            terminal = "ghostty -e";
+            launch-prefix = "uwsm app --";
+            anchor = "center";
+            width = 55;
+            lines = 10;
+            match-mode = "fzf";
+            list-executables-in-path = true;
+            sort-result = true;
+            icon-theme = "Papirus-Dark";
+            horizontal-pad = 16;
+            vertical-pad = 12;
+            inner-pad = 8;
+          };
+          colors = {
+            background = "1e1e2eff";
+            text = "cdd6f4ff";
+            prompt = "cdd6f4ff";
+            input = "cdd6f4ff";
+            match = "89b4faff";
+            selection = "89b4faff";
+            selection-text = "1e1e2eff";
+            selection-match = "313244ff";
+            border = "585b70ff";
+          };
+          border = {
+            width = 1;
+            radius = 12;
+          };
         };
-        style = ''
-          * {
-            font-family: "DejaVu Sans", sans-serif;
-            font-size: 15px;
-          }
-
-          #window {
-            background-color: rgba(30, 30, 46, 0.97);
-            color: #cdd6f4;
-            border: 1px solid #585b70;
-            border-radius: 18px;
-          }
-
-          #outer-box { padding: 16px; }
-
-          #input {
-            padding: 12px 16px;
-            margin-bottom: 12px;
-            background-color: #313244;
-            color: #cdd6f4;
-            border: 1px solid #45475a;
-            border-radius: 12px;
-            box-shadow: none;
-          }
-
-          #input:focus { border-color: #89b4fa; }
-          #scroll { background-color: transparent; }
-          #entry { padding: 10px 12px; border-radius: 10px; }
-          #entry:selected { background-color: #89b4fa; }
-          #text { margin: 0 8px; color: #cdd6f4; }
-          #text:selected { color: #1e1e2e; }
-          #img { margin-right: 8px; }
-        '';
       };
     };
 }

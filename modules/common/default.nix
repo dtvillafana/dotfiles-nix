@@ -22,12 +22,13 @@
           pkgs.tailscale
         ];
         text = ''
-          if ! tailscale status --json | jq -e '.BackendState == "Running"' >/dev/null; then
+          if ! tailscale status --json --peers=false | jq -e '.BackendState == "Running"' >/dev/null; then
             echo "Headscale is not connected yet." >&2
             exit 1
           fi
 
-          if tailscale status --json | jq -e '.ExitNodeStatus == null' >/dev/null; then
+          exit_node_enabled="$(tailscale debug prefs | jq -r '(.ExitNodeID // "") != "" or (.ExitNodeIP // "") != ""')"
+          if [ "$exit_node_enabled" = false ]; then
             resolvectl domain tailscale0 '~git.dvilla.me'
             resolvectl default-route tailscale0 false
             resolvectl dns tailscale0 100.100.100.100
@@ -74,6 +75,11 @@
 
       networking.hostName = nodename;
 
+      fonts.packages = with pkgs.nerd-fonts; [
+        jetbrains-mono
+        symbols-only
+      ];
+
       services.resolved.enable = true;
 
       networking.networkmanager.enable = true;
@@ -93,7 +99,7 @@
         ];
       };
 
-      systemd.services.headscale-git-dns = lib.mkIf secretsEnabled {
+      systemd.services.headscale-git-dns = lib.mkIf (secretsEnabled && config.services.tailscale.enable) {
         description = "Route Git DNS through Headscale when the exit node is off";
         wantedBy = [
           "multi-user.target"
@@ -209,12 +215,15 @@
               exit 1
             fi
 
-            if ! tailscale status --json | jq -e '.BackendState == "Running"' >/dev/null; then
+            if ! tailscale status --json --peers=false | jq -e '.BackendState == "Running"' >/dev/null; then
               echo "Headscale is not connected; check tailscaled-autoconnect.service." >&2
               exit 1
             fi
 
-            if tailscale status --json | jq -e '.ExitNodeStatus != null' >/dev/null; then
+            # Preferences describe the selected exit node even when it is offline
+            # or the runtime status has not caught up yet.
+            exit_node_enabled="$(tailscale debug prefs | jq -r '(.ExitNodeID // "") != "" or (.ExitNodeIP // "") != ""')"
+            if [ "$exit_node_enabled" = true ]; then
               /run/wrappers/bin/sudo ${lib.getExe pkgs.tailscale} set --exit-node= --accept-dns=false
               /run/wrappers/bin/sudo ${lib.getExe headscaleGitDns}
               echo "Headscale exit node and general DNS disabled; Git remains on Headscale."

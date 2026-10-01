@@ -27,6 +27,48 @@ and the installed GUI applications are retained. XWayland remains enabled
 because some applications still require X11; it is not an Xorg desktop session.
 The old i3, startx, autorandr, and Plasma session definitions are removed.
 
+## Configuration ownership
+
+- `programs.fuzzel` in `modules/hm-features/launcher.nix` owns the launcher
+  theme. Super+D searches applications and PATH executables with fzf-style
+  matching; Super+Shift+D selects a PATH executable or enters a shell command.
+  Fuzzel also handles credential, system-action, process, and keepmenu
+  selections without Wofi's GTK redraw/layout behavior. App launches use
+  Fuzzel's default frequency cache; shell commands use a separate
+  `$XDG_CACHE_HOME/fuzzel-commands` cache (normally `~/.cache/fuzzel-commands`).
+  All searchable menus have separate frequency caches: credentials, keepmenu,
+  process lists, system actions, and confirmations use `fuzzel-<menu>` files
+  in the same cache directory. Credential caches contain labels and counts,
+  not passwords; newly created menu caches are private to the user. Ranking
+  uses launch counts, not recency-weighted frecency. Credential menus accept
+  only existing entries, and confirmations initially select Cancel. Keepmenu's
+  password-entry prompts bypass caching and retain password masking.
+- NixOS `programs.hyprland` installs Hyprland and configures UWSM, XWayland,
+  and system portals in `modules/features/hyprland-desktop.nix`.
+- Home Manager `wayland.windowManager.hyprland` generates `hyprland.lua` from
+  `modules/hm-features/hyprland/_settings.nix`: desktop settings, workspace
+  bindings, window rules, static shortcuts, and resize/bar/workspace submaps.
+  The underscore keeps this
+  private Home Manager module out of the flake's recursive imports.
+- `config.lua` is appended through Home Manager's `extraConfig` option (the
+  pinned release-26.05 module does not provide `extraLuaFiles`).
+  It retains custom group/focus/reorder callbacks, the mouse submap, and
+  startup hooks for the tray applet, notifications, and wallpaper. It still
+  loads the existing `monitors.lua` and per-user `user.lua` overrides.
+- `programs.waybar`, `services.hypridle`, `programs.hyprlock`, and
+  `services.hyprpolkitagent` own their settings and services. UWSM owns
+  `graphical-session.target`; Home Manager's separate Hyprland session target
+  is disabled. Waybar and Hypridle are no longer spawned from Lua.
+- Hyprwhichkey is pinned through `hyprwhichkey-src` and bundled with AGS 2 in
+   `packages/hyprwhichkey.nix`. Its user service follows the graphical session;
+   it owns binding and submap hints instead of custom compositor notifications.
+  A local patch adds explicit modifier-hold show/hide requests without changing
+  manual toggles or hiding submap hints on modifier release. JetBrains Mono Nerd
+  Font and Symbols Nerd Font are installed systemwide by the common NixOS module.
+
+After switching this migration, log out and back in so the old compositor-started
+Waybar/Hypridle processes are replaced cleanly by their systemd services.
+
 ## Build before switching
 
 Use a path flake URL so newly created files are included without staging your
@@ -63,7 +105,8 @@ out unattended to all nodes before testing one locally.
 
 WayVNC starts with each user's graphical session and stops with it. It captures
 all outputs, disables client-driven display resizing, and binds only to
-`127.0.0.1`. No firewall ports are opened. Ports are:
+IPv4/IPv6 loopback (`127.0.0.1` and `::1`), matching the old Dell listener.
+No firewall ports are opened. Ports are:
 
 | Session | Port |
 | --- | --- |
@@ -77,6 +120,10 @@ The Dell greeter runs a minimal Hyprland compositor and its own WayVNC process.
 On login, that compositor exits and capcu's WayVNC service takes over the same
 port. **The VNC connection will drop; reconnect after login or logout.** This
 handoff needs testing on the actual Dell before depending on remote-only access.
+SDDM can keep the greeter alive for about five seconds after starting the user
+session. The user server retries indefinitely, including after a clean exit;
+systemd startup rate limiting is disabled so port contention or monitor hotplug
+cannot permanently prevent it from returning.
 Logging into a different user means connecting to that user's port instead.
 Other nodes require a running user session; WayVNC does not itself create a
 session or provide a login screen. Inactive VT sessions may stop rendering.
@@ -91,6 +138,45 @@ Like the old configuration, VNC has no separate password: SSH is the remote
 authentication/encryption boundary. **Local users can also connect to these
 loopback listeners.** Do not change the bind address to a public interface
 without configuring VNC authentication and encryption.
+
+### Dell reboot acceptance gate
+
+Tailscale is temporarily disabled **only on capcuDell**, because the office
+firewall blocks Headscale. Its DNS helper is also disabled. Use LAN SSH
+(`capcudell.capcu.org`, currently `172.20.1.222`) for the tunnel and recovery,
+not a tailnet address. Remove the host's `services.tailscale.enable` override
+and rebuild to restore it. The other hosts are unchanged.
+
+Do not count a successful build as a successful remote-access test. Build on
+the Dell first, retain its previous generation, and keep an independent LAN
+SSH shell and local/onsite access available for the first switch/reboot.
+Switching may stop the old desktop and disconnect VNC; save work first.
+
+After reboot, **before anyone logs in locally**:
+
+1. Open the existing SSH/VNC client profile using the LAN hostname and port
+   5901. Verify the SDDM login screen renders and accepts keyboard/mouse input.
+2. Log in remotely as capcu, wait for the greeter to exit, and reconnect to
+   the same port. Verify all expected monitors (including the portrait output),
+   mouse movement/clicks, Ctrl/Super shortcuts, and clipboard in both directions.
+3. Lock and unlock remotely. Log out, reconnect, and verify SDDM returns;
+   log in again. Repeat with the usual dock/monitor arrangement.
+4. Check `systemctl --user status wayvnc`,
+   `journalctl --user -b -u wayvnc`, and
+   `journalctl -b -u display-manager`. A listening port alone does not prove
+   working frame capture or input.
+
+If this fails, recover through the independent SSH shell or a local TTY:
+
+```sh
+sudo nixos-rebuild switch --rollback
+sudo reboot
+```
+
+Alternatively select the previous generation in the boot menu. Do not garbage
+collect that generation until the complete reboot/login/logout test passes.
+Unlike the old single X11 server, the Wayland greeter/user handoff disconnects
+the viewer; seamless login/logout continuity is not promised.
 
 ## Applications and screen sharing
 
@@ -107,8 +193,12 @@ without configuring VNC authentication and encryption.
 - Webex is retained, but its native client's Wayland screen-sharing support
   depends on the vendor build. If sharing fails, use a supported browser client;
   XWayland alone cannot capture the complete Wayland desktop.
-- Handy starts in the UWSM graphical session. Verify its global hotkey and text
-  insertion; compositor-level shortcuts are not identical to X11 global grabs.
+- Handy starts in the UWSM graphical session. For capcu, Hyprland owns
+  Alt+Space hold-to-talk: pressing starts recording, releasing Space or either
+  Alt key stops it. Ordinary Space/Alt releases do not toggle recording.
+  The Handy service selects `wtype` for direct text insertion on Wayland,
+  preserving the rest of its saved settings. Test dictation in your target app;
+  some browsers and remote-desktop clients may need a different typing backend.
 - Super+Shift+G opens capcu's keepmenu database when secrets are enabled.
   Test username/password/Tab auto-typing into both native and XWayland apps.
   KeePassXC's own X11 auto-type is not made Wayland-compatible by this change;
@@ -140,18 +230,32 @@ Super remains the main modifier. Workspace names, directional focus/movement,
 resize/system/bar/workspace/mouse modes, gopass typing, audio, brightness, and
 screenshot/OCR shortcuts carry over. Notable differences:
 
+- Super+F1 or Waybar's keyboard icon toggles Hyprwhichkey's binding overlay.
+  Holding either Super key alone for one second also shows it; another key event
+  cancels the pending hold, and releasing Super hides only hold-opened help.
+  Hold requests use `hypr-desktop-action` so the Astal client is on PATH.
+  Submap hints appear automatically and disappear when the mode exits.
+  Native long-press detection shares `input.repeat_delay = 1000`, so normal key
+  repeats and repeating shortcuts also begin after one second.
+  Bindings have descriptions so upstream can list them.
 - Super+B/V preselect the next split right/down.
 - Super+W/S toggle a tabbed group, not i3's arbitrary container tree or stacks.
 - Super+A focuses the previous window; Super+Space cycles windows.
+- Super+Shift+H/K moves a tab earlier; Super+Shift+J/L moves it later.
+  Shifted arrow keys behave the same; ungrouped windows move normally.
 - Super+Shift+C/R reload the configuration, not restart the compositor.
 - Super+Ctrl+R (i3 title formatting) has no equivalent and is omitted.
-- Super+Shift+T uses a PolicyKit prompt to kill another user's process.
+- Super+Shift+T uses noninteractive sudo to stop matching processes across users
+  (SIGTERM, like Super+T). It requires sudo permission; failures show a notification.
 - Super+P/Shift+P disable/enable devices whose names contain `touchpad`.
 
 All three desktop users can access ydotool's input-simulation socket. This
 allows input injection, not access to raw physical input events. Gopass secrets
-are passed to wtype through stdin, not process arguments. There are no idle
-screen-off timers, preserving the previous rogdesktop behavior.
+are passed through stdin, not process arguments: normally to wtype, but to
+ydotool with slower key events for browsers and Remmina to avoid virtual-keymap
+translation and dropped characters. The ydotool path assumes a US
+keyboard layout and ASCII credentials. There are no idle screen-off timers,
+preserving the previous rogdesktop behavior.
 
 After logging in, check:
 
@@ -159,7 +263,7 @@ After logging in, check:
 hyprctl configerrors
 hyprctl monitors all
 hyprctl clients
-systemctl --user status wayvnc hyprpolkitagent handy
+systemctl --user status wayvnc hyprwhichkey hyprpolkitagent handy
 systemctl --user status xdg-desktop-portal xdg-desktop-portal-hyprland
 journalctl --user -b -u wayvnc
 ```

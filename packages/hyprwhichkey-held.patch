@@ -1,0 +1,62 @@
+--- a/src/app.ts
++++ b/src/app.ts
+@@ -6,6 +6,7 @@
+ 
+ const hyprland = AstalHyprland.get_default();
+ let toggleBaseLayer = () => {};
++let heldBaseLayer = (_show: boolean) => {};
+ 
+ const binds_arr = Variable<AstalHyprland.Bind[][]>([]);
+ 
+@@ -14,8 +15,10 @@
+ 	css: style,
+ 	main() {
+ 		let wk = WhichKey({ binds: binds_arr() });
++		let held = false;
+ 
+ 		hyprland.connect("submap", (_, submap) => {
++			held = false;
+ 			console.log(`"${submap}"`);
+ 			if (!submap) return wk.set_visible(false);
+ 
+@@ -24,14 +27,28 @@
+ 		});
+ 
+ 		toggleBaseLayer = () => {
++			held = false;
+ 			console.log("base");
+ 			if (wk.visible) return wk.set_visible(false);
+ 			setBinds("", 3);
+ 			wk.set_visible(true);
+ 		};
++		heldBaseLayer = show => {
++			if (show) {
++				if (wk.visible) return;
++				setBinds("", 3);
++				held = true;
++				wk.set_visible(true);
++			} else if (held) {
++				held = false;
++				wk.set_visible(false);
++			}
++		};
+ 	},
+ 	requestHandler(_request, res) {
+-		toggleBaseLayer();
++		if (_request === "show-held") heldBaseLayer(true);
++		else if (_request === "hide-held") heldBaseLayer(false);
++		else toggleBaseLayer();
+ 		res("ok");
+ 	},
+ });
+--- a/src/style.scss
++++ b/src/style.scss
+@@ -5,7 +5,7 @@
+ $key: #89b4fa;
+ 
+ .container {
+-	font-family: "JetBrainsMono Nerd Font";
++	font-family: "JetBrainsMono Nerd Font", "Symbols Nerd Font";
+ 	font-size: 1em;
+ 	color: rgba($subtext, 1);
+ 	background-color: rgba($base, 0.7);

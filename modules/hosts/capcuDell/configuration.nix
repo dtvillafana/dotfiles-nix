@@ -32,7 +32,7 @@
         hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
         hl.config({
           input = { kb_layout = "us", kb_options = "ctrl:swapcaps" },
-          misc = { disable_hyprland_logo = true, force_default_wallpaper = -1 },
+          misc = { disable_hyprland_logo = true, disable_splash_rendering = true, force_default_wallpaper = -1 },
           animations = { enabled = false },
         })
         hl.window_rule({ match = { class = "sddm-greeter.*" }, fullscreen = true })
@@ -41,7 +41,7 @@
         end)
       '';
       greeterVncConfig = pkgs.writeText "sddm-wayvnc.conf" ''
-        address=127.0.0.1
+        address=127.0.0.1 ::1
         port=5901
         enable_auth=false
       '';
@@ -214,7 +214,12 @@
         requires = [ "hermes-agent.service" ];
       };
 
-      systemd.services.tailscaled.environment.SSL_CERT_FILE = "${tailscaleCaBundle}";
+      # Temporary: the office firewall blocks Headscale. LAN SSH/VNC stays usable.
+      # Remove this override to re-enable this host without changing other nodes.
+      services.tailscale.enable = lib.mkForce false;
+      systemd.services.tailscaled = lib.mkIf config.services.tailscale.enable {
+        environment.SSL_CERT_FILE = "${tailscaleCaBundle}";
+      };
 
       systemd.services.e1000e-offload-workaround = {
         description = "Disable e1000e transmit offloads that can wedge the I219-LM NIC";

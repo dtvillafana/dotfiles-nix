@@ -41,6 +41,20 @@
         mode = "0400";
       };
       m365AttachmentReader = self.packages.${system}.m365-attachment-reader;
+      # Keep the executable basename so keepmenu adds its prompt/password flags.
+      keepmenuFuzzel = pkgs.writeShellApplication {
+        name = "fuzzel";
+        text = ''
+          for argument in "$@"; do
+            case "$argument" in
+              --password|--password=*)
+                exec ${lib.getExe pkgs.fuzzel} --dmenu --cache=/dev/null "$@"
+                ;;
+            esac
+          done
+          exec hypr-desktop-action menu keepmenu "$@"
+        '';
+      };
       servicedeskMcp =
         if secretsEnabled then
           pkgs.writeShellScript "servicedesk-mcp-server" ''
@@ -368,9 +382,11 @@
 
           programs.home-manager.enable = true;
 
-          xdg.configFile."hypr/user.lua".text = lib.optionalString secretsEnabled ''
-            hl.bind("SUPER + SHIFT + G", hl.dsp.exec_cmd("${lib.getExe pkgs.keepmenu} -C -c $HOME/.config/keepmenu/config.ini"))
-          '';
+          xdg.configFile."hypr/user.lua".text =
+            builtins.readFile ../hm-features/hyprland/handy.lua
+            + lib.optionalString secretsEnabled ''
+              hl.bind("SUPER + SHIFT + G", hl.dsp.exec_cmd("${lib.getExe pkgs.keepmenu} -C -c $HOME/.config/keepmenu/config.ini"))
+            '';
 
           systemd.user.services.handy = {
             Unit = {
@@ -379,6 +395,16 @@
               PartOf = [ "graphical-session.target" ];
             };
             Service = {
+              ExecStartPre = pkgs.writeShellScript "handy-wayland-settings" ''
+                set -eu
+                settings="''${XDG_DATA_HOME:-$HOME/.local/share}/com.pais.handy/settings_store.json"
+                if [ -f "$settings" ]; then
+                  temporary_settings=$(${pkgs.coreutils}/bin/mktemp "$settings.XXXXXX")
+                  trap '${pkgs.coreutils}/bin/rm -f "$temporary_settings"' EXIT
+                  ${pkgs.jq}/bin/jq '.settings.typing_tool = "wtype"' "$settings" > "$temporary_settings"
+                  ${pkgs.coreutils}/bin/mv "$temporary_settings" "$settings"
+                fi
+              '';
               ExecStart = "${llm-agents.packages.${system}.handy}/bin/handy --start-hidden";
               Restart = "on-failure";
             };
@@ -477,7 +503,7 @@
           // lib.optionalAttrs secretsEnabled {
             ".config/keepmenu/config.ini".text = ''
               [dmenu]
-              dmenu_command = wofi --dmenu --no-custom-entry --cache-file /dev/null --sort-order alphabetical --prompt KeePass
+              dmenu_command = ${lib.getExe keepmenuFuzzel}
 
               [database]
               database_1 = ~/mounts/t/IT/ITDept.kdbx

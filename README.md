@@ -72,6 +72,10 @@ Headscale-managed DNS. Off uses the normal default route and DNS, except that
 `git.dvilla.me` still resolves through Headscale and connects over the tailnet.
 The toggle requires sudo access. After a reboot or configuration switch, it defaults
 to off. Check `tailscaled-autoconnect.service` if Headscale is not connected.
+The toggle reads the configured exit-node preference, not peer reachability.
+It waits for `tailscale set` to finish; if this takes many seconds, check
+`journalctl -u tailscaled` for daemon/control-server errors. A configuration
+switch can reapply the off defaults through `tailscaled-set.service`.
 
 ## Nix-on-Droid
 

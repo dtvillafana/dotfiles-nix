@@ -318,6 +318,23 @@
         "type": "github"
       }
     },
+    "hyprwhichkey-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1746461075,
+        "narHash": "sha256-lr7pPRQ5dyzSKytFdnHs9WfH+6+VxAr/sWMLAK6965w=",
+        "owner": "Juhan280",
+        "repo": "hyprwhichkey",
+        "rev": "6f4408e456bbd6b33f43845d797b92407037ae74",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Juhan280",
+        "repo": "hyprwhichkey",
+        "rev": "6f4408e456bbd6b33f43845d797b92407037ae74",
+        "type": "github"
+      }
+    },
     "import-tree": {
       "locked": {
         "lastModified": 1788467110,
@@ -888,6 +905,7 @@
         "hermes-agent": "hermes-agent",
         "hermes-webui": "hermes-webui",
         "home-manager": "home-manager_2",
+        "hyprwhichkey-src": "hyprwhichkey-src",
         "import-tree": "import-tree",
         "llm-agents": "llm-agents",
         "m365-tui": "m365-tui",

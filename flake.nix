@@ -38,6 +38,19 @@
       url = "github:ollama/ollama/v0.32.9";
       flake = false;
     };
+    mixar-src = {
+      url = "github:Mixar-AI/mixar-app/v4.1.4";
+      flake = false;
+    };
+    mixar-blender-src = {
+      # Match the upstream submodule pinned by Mixar v4.1.4.
+      url = "github:blender/blender/fbe6228777e7d9afefcd61a413844e790ae75db7";
+      flake = false;
+    };
+    mcp-for-blender-src = {
+      url = "github:ahujasid/mcp-for-blender/60d2a31b4632a7bc178f3dd636f7e68dfb5c8ae4";
+      flake = false;
+    };
     nixvim = {
       url = "github:dtvillafana/nixvim";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -69,6 +82,12 @@
         {
           packages = lib.optionalAttrs (system == "x86_64-linux") {
             excise = pkgs.callPackage ./packages/excise.nix { };
+            mcp-for-blender = pkgs.callPackage ./packages/mcp-for-blender.nix {
+              inherit (inputs) mcp-for-blender-src;
+            };
+            mixar = pkgs.callPackage ./packages/mixar.nix {
+              inherit (inputs) mixar-src mixar-blender-src;
+            };
             open-browser-use = pkgs.callPackage ./packages/open-browser-use.nix { };
           };
 

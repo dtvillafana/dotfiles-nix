@@ -30,6 +30,27 @@ For a local checkout, use `path:/home/vir/git-repos/dotfiles-nix` instead of the
 
 # Additional setup
 
+## Blender MCP (vir)
+
+The configuration installs MCP for Blender and its matching add-on, and registers
+the `blender` MCP server in OpenCode. The server connects to `localhost:9876`;
+telemetry is disabled. No `uvx` or upstream setup script is needed.
+
+After switching the configuration:
+
+1. Open Blender, go to **Edit → Preferences → Add-ons**, search for **MCP for Blender**,
+   and enable it. Save Preferences if automatic saving is disabled.
+2. In the 3D viewport, press **N** and open the **MCP for Blender** tab. If the server
+   is not already running, click **Start MCP Server**.
+3. Restart OpenCode and use `/mcps` to check the `blender` connection. Ask OpenCode
+   to inspect the current Blender scene as an end-to-end check.
+
+Keep the add-on bound to localhost: its socket can execute Python inside Blender
+and has no authentication. Save your scene before asking an agent to modify it.
+This setup targets stock Blender; only one Blender instance should listen on port
+9876 at a time. Enable optional asset integrations and their credentials in Blender
+only when needed.
+
 ## Headscale
 
 Normal NixOS hosts connect to `https://ts.dvilla.me` automatically (the connection is

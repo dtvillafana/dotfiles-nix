@@ -375,6 +375,57 @@
         "type": "github"
       }
     },
+    "mcp-for-blender-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790750363,
+        "narHash": "sha256-GFKE8+PU9+BnuMPK03UpCIfEB6aJjCaDw9d6S42NWc4=",
+        "owner": "ahujasid",
+        "repo": "mcp-for-blender",
+        "rev": "60d2a31b4632a7bc178f3dd636f7e68dfb5c8ae4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ahujasid",
+        "repo": "mcp-for-blender",
+        "rev": "60d2a31b4632a7bc178f3dd636f7e68dfb5c8ae4",
+        "type": "github"
+      }
+    },
+    "mixar-blender-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1783956011,
+        "narHash": "sha256-4+ghHgZBgyKQihLgU8McIYkiT1bmjWtLdCmb9os+fmA=",
+        "owner": "blender",
+        "repo": "blender",
+        "rev": "fbe6228777e7d9afefcd61a413844e790ae75db7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "blender",
+        "repo": "blender",
+        "rev": "fbe6228777e7d9afefcd61a413844e790ae75db7",
+        "type": "github"
+      }
+    },
+    "mixar-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790772940,
+        "narHash": "sha256-Ff8Dux5cQ2jxq8/9kE+epR+JFyiLmiA/e9wZzZ/CzZY=",
+        "owner": "Mixar-AI",
+        "repo": "mixar-app",
+        "rev": "37d27ad5dc43da95e8c82c87835b8d51fe3203f7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mixar-AI",
+        "ref": "v4.1.4",
+        "repo": "mixar-app",
+        "type": "github"
+      }
+    },
     "nix": {
       "inputs": {
         "flake-parts": "flake-parts",
@@ -840,6 +891,9 @@
         "import-tree": "import-tree",
         "llm-agents": "llm-agents",
         "m365-tui": "m365-tui",
+        "mcp-for-blender-src": "mcp-for-blender-src",
+        "mixar-blender-src": "mixar-blender-src",
+        "mixar-src": "mixar-src",
         "nix-index-database": "nix-index-database",
         "nix-on-droid": "nix-on-droid",
         "nixpkgs": "nixpkgs_5",

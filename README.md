@@ -30,6 +30,13 @@ For a local checkout, use `path:/home/vir/git-repos/dotfiles-nix` instead of the
 
 # Additional setup
 
+## Hyprland desktop
+
+All Linux desktop users (`vir`, `capcu`, and `guest`) use Hyprland with UWSM.
+See [the migration guide](modules/hm-features/hyprland/README.md) for building
+each node, the Wayland replacements, VNC ports, and required hardware tests.
+Nix-on-Droid remains terminal-only.
+
 ## Blender MCP (vir)
 
 The configuration installs MCP for Blender and its matching add-on, and registers

@@ -159,11 +159,6 @@
           '')
         ];
       };
-      xsessionInitExtra = ''
-        xset -dpms
-        xset s off
-        xset s noblank
-      '';
     in
     {
       imports = [
@@ -274,16 +269,5 @@
         requires = [ "hermes-agent.service" ];
       };
 
-      home-manager.users = builtins.listToAttrs (
-        map
-          (username: {
-            name = username;
-            value.xsession.initExtra = xsessionInitExtra;
-          })
-          [
-            "vir"
-            "capcu"
-          ]
-      );
     };
 }

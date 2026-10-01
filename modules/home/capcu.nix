@@ -100,7 +100,10 @@
         "/home/capcu/mounts/f" = cifsMount "//ccuficsapp.capcu.org/FICS";
       };
 
-      imports = [ self.nixosModules.xorg ] ++ lib.optional secretsEnabled self.nixosModules.work_sops;
+      imports = [
+        self.nixosModules.hyprlandDesktop
+      ]
+      ++ lib.optional secretsEnabled self.nixosModules.work_sops;
 
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
@@ -122,6 +125,7 @@
           "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAG8NzNAYDdt66g3YlH9/JpemTq87v5auOVQMJ128U78Kwyc9Dq8vYELxpglHWg4ILwmNp8mgAC9tDnmNI24PY1RgQG7Mq2cIciPPf8B8ebR3v0nMi5KHRR5cCf7FXpPqbPMAuqzz748gnCkpGypdquz2Psywxe02b/jwLDNrhoKORmJiA== vir@nixos"
         ];
         extraGroups = [
+          config.programs.ydotool.group
           "networkmanager"
           "wheel"
           "dialout"
@@ -203,7 +207,7 @@
         {
           imports = [
             inputs.nix-index-database.homeModules.nix-index
-            self.homeModules.i3
+            self.homeModules.hyprland
             self.homeModules.browsers
             self.homeModules.zathura
             self.homeModules.terminal
@@ -234,7 +238,6 @@
 
           home.packages = with pkgs; [
             age
-            arandr
             ast-grep
             audacity
             azure-cli
@@ -245,7 +248,6 @@
             bun
             dunst
             fd
-            feh
             fzf
             gemini-cli
             git
@@ -276,7 +278,6 @@
             ripgrep-all
             rofi
             scli
-            scrot
             sops
             sshfs
             sshpass
@@ -284,10 +285,7 @@
             vlc
             webexWrapped
             wireguard-tools
-            xclip
-            xdotool
             xournalpp
-            xss-lock
             zbar
             zenity
             zip
@@ -371,8 +369,9 @@
 
           programs.home-manager.enable = true;
 
-          xsession.windowManager.i3.config.keybindings."Mod4+Shift+g" =
-            "exec ${lib.getExe pkgs.keepmenu} -C -c $HOME/.config/keepmenu/config.ini";
+          xdg.configFile."hypr/user.lua".text = lib.optionalString secretsEnabled ''
+            hl.bind("SUPER + SHIFT + G", hl.dsp.exec_cmd("${lib.getExe pkgs.keepmenu} -C -c $HOME/.config/keepmenu/config.ini"))
+          '';
 
           systemd.user.services.handy = {
             Unit = {
@@ -382,21 +381,6 @@
             };
             Service = {
               ExecStart = "${llm-agents.packages.${system}.handy}/bin/handy --start-hidden";
-              Restart = "on-failure";
-            };
-            Install = {
-              WantedBy = [ "graphical-session.target" ];
-            };
-          };
-
-          systemd.user.services.x0vncserver = {
-            Unit = {
-              Description = "Share the active X11 display over VNC";
-              After = [ "graphical-session.target" ];
-              PartOf = [ "graphical-session.target" ];
-            };
-            Service = {
-              ExecStart = "${pkgs.tigervnc}/bin/x0vncserver -display :0 -localhost yes -SecurityTypes None";
               Restart = "on-failure";
             };
             Install = {
@@ -514,7 +498,7 @@
               [database]
               database_1 = ~/mounts/t/IT/ITDept.kdbx
               password_cmd_1 = ${lib.getExe' pkgs.coreutils "cat"} ${config.sops.secrets.keepass.path}
-              type_library = xdotool
+              type_library = wtype
             '';
           };
 

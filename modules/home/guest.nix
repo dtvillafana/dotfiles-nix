@@ -1,12 +1,14 @@
 { self, inputs, ... }:
 {
   flake.nixosModules.guestHome =
-    { pkgs, ... }:
+    { config, pkgs, ... }:
     {
+      imports = [ self.nixosModules.hyprlandDesktop ];
       users.users.guest = {
         isNormalUser = true;
         description = "guest";
         extraGroups = [
+          config.programs.ydotool.group
           "networkmanager"
           "wheel"
           "dialout"
@@ -21,13 +23,13 @@
       };
       users.groups.guest = { };
 
-      services.desktopManager.plasma6.enable = true;
-      systemd.user.services."drkonqi-coredump-launcher@".unitConfig.ConditionEnvironment = "DISPLAY";
       home-manager.users.guest =
         { pkgs, ... }:
         {
           imports = [
             inputs.nix-index-database.homeModules.nix-index
+            self.homeModules.hyprland
+            self.homeModules.launcher
             self.homeModules.browsers
             self.homeModules.monitors
             self.homeModules.zathura
@@ -57,7 +59,6 @@
 
           home.packages = with pkgs; [
             age
-            arandr
             audacity
             bc
             blueman
@@ -77,7 +78,6 @@
             sops
             vlc
             wireguard-tools
-            xdotool
             xournalpp
             zathura
             zbar
@@ -93,12 +93,6 @@
 
           programs.zsh = {
             enable = true;
-          };
-
-          xsession = {
-            enable = true;
-            scriptPath = ".xinitrc";
-            windowManager.command = "exec startplasma-x11";
           };
 
           home.stateVersion = "25.11";

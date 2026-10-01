@@ -89,6 +89,7 @@
               inherit (inputs) mixar-src mixar-blender-src;
             };
             open-browser-use = pkgs.callPackage ./packages/open-browser-use.nix { };
+            scriberr = pkgs.callPackage ./packages/scriberr.nix { };
           };
 
           treefmt = {

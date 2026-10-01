@@ -1,75 +1,31 @@
 { ... }:
 {
   flake.homeModules.monitors =
-    { ... }:
+    { osConfig, ... }:
     {
-      services.autorandr.enable = true;
-      programs.autorandr = {
-        enable = true;
-        profiles = {
-          "thinkpad" = {
-            fingerprint = {
-              eDP-1 = "00ffffffffffff0030e4900500000000001b010495221378eaa1c59459578f27205054000000010101010101010101010101010101012e3680a070381f403020350058c21000001ab62c80f4703816403020350058c21000001a000000fe004c4720446973706c61790a2020000000fe004c503135365746362d53504b360041";
-              HDMI-1 = "00ffffffffffff000472f3061e0600000c1e0103805021782a8195a355539f250a5054bfef80d1c0e1c0d100b300a940a9c0818081004ed470a0d0a0465030203400204f3100001a000000ff005448514141303031334530300a000000fd0030900fd93c000a202020202020000000fc005856333430434b20500a202020017b020346f04e101f0413031202110514013f6061230907078301000067030c001000383c681a000001013090ed67d85dc401788001e200eae3056000e30f0030e60607018b6011ef5170e0d4a0355000703a50204f3100001c6fc200a0a0a0555030203500204f3100001a3c41b8a060a0295030203a00204f3100001a000000c0";
-            };
-            config = {
-              eDP-1.enable = true;
-              HDMI-1.enable = true;
-              HDMI-1.primary = true;
-              DP-1.enable = false;
-              DP-2.enable = false;
-              HDMI-2.enable = false;
-              HDMI-1.mode = "2048x1152";
-              HDMI-1.position = "0x0";
-              eDP-1.mode = "1920x1080";
-              eDP-1.position = "2048x403";
-            };
-          };
-          "rogdesktop" = {
-            fingerprint = {
-              HDMI-1 = "00ffffffffffff000472f3061e0600000c1e0103805021782a8195a355539f250a5054bfef80d1c0e1c0d100b300a940a9c0818081004ed470a0d0a0465030203400204f3100001a000000ff005448514141303031334530300a000000fd0030900fd93c000a202020202020000000fc005856333430434b20500a202020017b020346f04e101f0413031202110514013f6061230907078301000067030c001000383c681a000001013090ed67d85dc401788001e200eae3056000e30f0030e60607018b6011ef5170e0d4a0355000703a50204f3100001c6fc200a0a0a0555030203500204f3100001a3c41b8a060a0295030203a00204f3100001a000000c0";
-            };
-            config = {
-              DVI-D-1.enable = false;
-              DP-1.enable = false;
-              DP-2.enable = false;
-              DP-3.enable = false;
-              HDMI-1.enable = true;
-              HDMI-1.crtc = 0;
-              HDMI-1.mode = "3440x1440";
-              HDMI-1.position = "0x0";
-              HDMI-1.primary = true;
-              HDMI-1.rate = "99.98";
-            };
-          };
-          "capcuoffice" = {
-            fingerprint = {
-              DP-2 = "00ffffffffffff001e6d545b51a40100042101036c301b78ea3135a5554ea1260c5054a54b00714f81809500b300a9c0810081c09040023a801871382d40582c4500e00e1100001e000000fd00384b1e530f000a202020202020000000fc004c472046554c4c2048440a2020000000ff003330344d58544333353630310a002e";
-              DP-1-7 = "00ffffffffffff001e6d555b01010101011a010380301b78ea3135a5554ea1260c5054a54b00714f81809500b300a9c0810081c09040023a801871382d40582c4500e00e1100001e000000fd00384b1e5512000a202020202020000000fc004c472046554c4c2048440a2020000000ff000a202020202020202020202020016102031bf14890040301121f1013230907078301000065030c001000023a801871382d40582c4500e00e1100001e2a4480a07038274030203500e00e1100001e011d007251d01e206e285500e00e1100001e8c0ad08a20e02d10103e9600e00e11000018000000000000000000000000000000000000000000000000000000004b";
-              HDMI-1 = "00ffffffffffff001e6d555b01010101011a010380301b78ea3135a5554ea1260c5054a54b00714f81809500b300a9c0810081c09040023a801871382d40582c4500e00e1100001e000000fd00384b1e5512000a202020202020000000fc004c472046554c4c2048440a2020000000ff000a202020202020202020202020016102031bf14890040301121f1013230907078301000065030c001000023a801871382d40582c4500e00e1100001e2a4480a07038274030203500e00e1100001e011d007251d01e206e285500e00e1100001e8c0ad08a20e02d10103e9600e00e11000018000000000000000000000000000000000000000000000000000000004b";
-            };
-            config = {
-              DP-1.enable = false;
-              DP-1-7.enable = true;
-              DP-1-7.mode = "1920x1080";
-              DP-1-7.position = "3000x672";
-              DP-1-7.rate = "60.00";
-              DP-2.enable = true;
-              DP-2.mode = "1920x1080";
-              DP-2.position = "0x672";
-              DP-2.primary = true;
-              DP-2.rate = "60.00";
-              HDMI-1.enable = true;
-              HDMI-1.mode = "1920x1080";
-              HDMI-1.position = "1920x0";
-              HDMI-1.rate = "60.00";
-              HDMI-1.rotate = "left";
-              HDMI-2.enable = false;
-              DP-3.enable = false;
-              DP-4.enable = false;
-            };
-          };
-        };
-      };
+      # Hyprland applies these rules on hotplug; unknown outputs stay enabled.
+      # Confirm dock connector names with `hyprctl monitors all` after migration.
+      xdg.configFile."hypr/monitors.lua".text = ''
+        hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
+      ''
+      + (
+        if osConfig.networking.hostName == "rogdesktop" then
+          ''
+            hl.monitor({ output = "HDMI-A-1", mode = "3440x1440@100", position = "0x0", scale = 1 })
+          ''
+        else if osConfig.networking.hostName == "thinkpad" then
+          ''
+            hl.monitor({ output = "HDMI-A-1", mode = "2048x1152", position = "0x0", scale = 1 })
+            hl.monitor({ output = "eDP-1", mode = "1920x1080", position = "2048x403", scale = 1 })
+          ''
+        else if osConfig.networking.hostName == "capcuDell" then
+          ''
+            hl.monitor({ output = "DP-2", mode = "1920x1080@60", position = "0x672", scale = 1 })
+            hl.monitor({ output = "HDMI-A-1", mode = "1920x1080@60", position = "1920x0", scale = 1, transform = 1 })
+            hl.monitor({ output = "DP-1-7", mode = "1920x1080@60", position = "3000x672", scale = 1 })
+          ''
+        else
+          ""
+      );
     };
 }

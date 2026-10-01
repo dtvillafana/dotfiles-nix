@@ -27,7 +27,7 @@
     in
     {
       imports = [
-        self.nixosModules.xorg
+        self.nixosModules.hyprlandDesktop
       ];
 
       home-manager.useGlobalPkgs = true;
@@ -45,6 +45,7 @@
         isNormalUser = true;
         description = "vir";
         extraGroups = [
+          config.programs.ydotool.group
           "networkmanager"
           "wheel"
           "dialout"
@@ -90,7 +91,7 @@
         {
           imports = [
             inputs.nix-index-database.homeModules.nix-index
-            self.homeModules.i3
+            self.homeModules.hyprland
             self.homeModules.browsers
             self.homeModules.zathura
             self.homeModules.terminal
@@ -111,7 +112,6 @@
 
           home.packages = with pkgs; [
             age
-            arandr
             ast-grep
             audacity
             bc
@@ -122,7 +122,6 @@
             bun
             dunst
             fd
-            feh
             fzf
             gemini-cli
             git
@@ -146,13 +145,13 @@
             nixfmt-tree
             nvtopPackages.full
             obs-studio
+            self.packages.${system}.scriberr
             pwgen-secure
             python313
             ripgrep
             ripgrep-all
             rofi
             scli
-            scrot
             signal-cli
             signal-desktop
             sops
@@ -160,9 +159,7 @@
             telegram-desktop
             vlc
             wireguard-tools
-            xdotool
             xournalpp
-            xss-lock
             zbar
             zenity
             zip

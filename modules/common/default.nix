@@ -197,7 +197,6 @@
         tailscale
         unzip
         wget
-        xdotool
         (pkgs.writeShellApplication {
           name = "headscale-toggle";
           runtimeInputs = [

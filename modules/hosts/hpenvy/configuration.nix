@@ -6,11 +6,9 @@
       ...
     }:
     {
-      services.xserver.windowManager.i3 = {
-        extraPackages = with pkgs; [
-          linuxKernel.packages.linux_hardened.broadcom_sta
-        ];
-      };
+      environment.systemPackages = with pkgs; [
+        linuxKernel.packages.linux_hardened.broadcom_sta
+      ];
 
     };
 }

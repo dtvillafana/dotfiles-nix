@@ -74,7 +74,7 @@
                 --run 'export M365_PRESENCE_WRITE=1' \
                 --run 'export M365_PRESENCE_READ=1' \
                 --run 'export M365_CALENDAR_NOTIFY=all' \
-                --run 'export M365_TEAMS_IMAGE_CACHE_DIR=/home/capcu/.config/m365-tui'
+                --run 'export M365_CACHE_DIR=/home/capcu/.config/m365-tui'
             '';
           }
         else

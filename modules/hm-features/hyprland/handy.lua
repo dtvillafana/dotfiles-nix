@@ -7,7 +7,7 @@ local function handy_stop()
 		return
 	end
 	handy_held = false
-	handy_toggle()
+	hl.dispatch(handy_toggle)
 end
 
 hl.bind("ALT + space", function()
@@ -15,7 +15,7 @@ hl.bind("ALT + space", function()
 		return
 	end
 	handy_held = true
-	handy_toggle()
+	hl.dispatch(handy_toggle)
 end, { description = "Hold to dictate with Handy" })
 
 -- Ignore modifiers so releasing Alt before Space still stops recording.

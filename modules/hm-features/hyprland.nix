@@ -110,10 +110,10 @@
               case "$target_class" in
                 *[Rr]emmina*)
                   # Use the configured US layout and pace events for remote sessions.
-                  printf '%s' "$value" | ydotool type --key-delay=40 --key-hold=40 --file=-
+                  printf '%s' "$value" | ydotool type --key-delay=20 --key-hold=20 --file=-
                   ;;
                 *[Bb]rave*|*[Cc]hromium*|*[Cc]hrome*|*[Ff]irefox*|*qutebrowser*)
-                  printf '%s' "$value" | ydotool type --key-delay=20 --key-hold=20 --file=-
+                  printf '%s' "$value" | ydotool type --key-delay=10 --key-hold=10 --file=-
                   ;;
                 *) printf '%s' "$value" | wtype - ;;
               esac

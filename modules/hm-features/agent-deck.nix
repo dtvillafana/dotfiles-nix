@@ -9,6 +9,10 @@
         default_tool = "claude"
         theme = "dark"
 
+        [tools.terminal]
+        command = "zsh"
+        icon = "⌨"
+
         [claude]
         dangerous_mode = false
 

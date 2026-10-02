@@ -10,7 +10,11 @@
           set -g status off
           set -g default-terminal "screen-256color"
           set -ga terminal-overrides ",*256col*:Tc"
-          set -ga update-environment "KITTY_WINDOW_ID KITTY_LISTEN_ON"
+          # DISPLAY is forwarded by default, so on Xorg Neovim's xclip reached the
+          # system clipboard. On Hyprland the clipboard is WAYLAND_DISPLAY; without
+          # it Neovim still sees DISPLAY=:0 and writes an XWayland selection that
+          # Hyprland does not publish.
+          set -ga update-environment "KITTY_WINDOW_ID KITTY_LISTEN_ON WAYLAND_DISPLAY"
           set -sg escape-time 0
           set -g allow-passthrough on
           unbind s

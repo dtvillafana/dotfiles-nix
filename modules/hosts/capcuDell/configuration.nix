@@ -31,7 +31,8 @@
       greeterConfig = pkgs.writeText "sddm-hyprland.lua" ''
         hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
         hl.config({
-          input = { kb_layout = "us", kb_options = "ctrl:swapcaps" },
+          # Caps/Ctrl are swapped in udev hwdb. Do not swap again here.
+          input = { kb_layout = "us" },
           misc = { disable_hyprland_logo = true, disable_splash_rendering = true, force_default_wallpaper = -1 },
           animations = { enabled = false },
         })
@@ -251,6 +252,29 @@
           RestartSec = 5;
         };
       };
+
+      # spice-gtk sends evdev scancodes, so Hyprland's ctrl:swapcaps never
+      # reaches a VM console from a keyboard plugged into this machine.
+      # Swap Caps Lock and Left Ctrl in the kernel, and do not also set that
+      # XKB option here or the desktop would swap twice. Remmina is unchanged:
+      # the VNC client applies its own swap and sends keysyms, which skip hwdb.
+      services.udev.extraHwdb = ''
+        evdev:atkbd:*
+          KEYBOARD_KEY_3a=leftctrl
+          KEYBOARD_KEY_1d=capslock
+        evdev:input:b0003v*p*
+          KEYBOARD_KEY_70039=leftctrl
+          KEYBOARD_KEY_700e0=capslock
+        evdev:input:b0005v*p*
+          KEYBOARD_KEY_70039=leftctrl
+          KEYBOARD_KEY_700e0=capslock
+        evdev:input:b0018v*p*
+          KEYBOARD_KEY_70039=leftctrl
+          KEYBOARD_KEY_700e0=capslock
+      '';
+      services.xserver.xkb.options = lib.mkForce "";
+      home-manager.users.capcu.wayland.windowManager.hyprland.settings.config.input.kb_options =
+        lib.mkForce "";
 
       programs.virt-manager.enable = true;
 

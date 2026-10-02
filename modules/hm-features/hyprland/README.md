@@ -252,8 +252,8 @@ screenshot/OCR shortcuts carry over. Notable differences:
 All three desktop users can access ydotool's input-simulation socket. This
 allows input injection, not access to raw physical input events. Gopass secrets
 are passed through stdin, not process arguments: normally to wtype, but to
-ydotool with slower key events for browsers and Remmina to avoid virtual-keymap
-translation and dropped characters. The ydotool path assumes a US
+ydotool with slower key events for browsers, Remmina, and virt-manager to avoid
+virtual-keymap translation and dropped characters. The ydotool path assumes a US
 keyboard layout and ASCII credentials. There are no idle screen-off timers,
 preserving the previous rogdesktop behavior.
 

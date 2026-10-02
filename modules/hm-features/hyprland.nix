@@ -95,8 +95,8 @@
                 done
               ;;
             password|username|otp)
-              # Capture the target before fuzzel takes focus. Browsers and Remmina
-              # do not consistently honor wtype's temporary virtual keymap.
+              # Capture the target before fuzzel takes focus. Browsers, Remmina, and
+              # virt-manager do not consistently honor wtype's temporary virtual keymap.
               target_class="$(hyprctl -j activewindow | jq -r '.class // ""')"
               entry="$(gopass ls --flat | sort | fuzzel_menu credentials --only-match --prompt 'Select credential… ')" || exit 0
               [ -n "$entry" ] || exit 0
@@ -108,8 +108,8 @@
               # Let the shortcut modifiers be released before injecting text.
               sleep 0.2
               case "$target_class" in
-                *[Rr]emmina*)
-                  # Use the configured US layout and pace events for remote sessions.
+                *[Rr]emmina*|*virt-manager*|*virt-viewer*|*remote-viewer*)
+                  # spice-gtk and Remmina want evdev scancodes, not wtype's keymap.
                   printf '%s' "$value" | ydotool type --key-delay=20 --key-hold=20 --file=-
                   ;;
                 *[Bb]rave*|*[Cc]hromium*|*[Cc]hrome*|*[Ff]irefox*|*qutebrowser*)

@@ -1,5 +1,22 @@
 {
   "nodes": {
+    "agent-deck-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790978358,
+        "narHash": "sha256-qkNjLLFuZyjk4C5uJuPMpMNVfwAaBoehaDyCStJ9otI=",
+        "owner": "dtvillafana",
+        "repo": "agent-deck",
+        "rev": "99e21bdd206a0e752140defa64d31690f0c422db",
+        "type": "github"
+      },
+      "original": {
+        "owner": "dtvillafana",
+        "ref": "fix/shell-tool-detection",
+        "repo": "agent-deck",
+        "type": "github"
+      }
+    },
     "bdwgc": {
       "flake": false,
       "locked": {
@@ -918,6 +935,7 @@
     },
     "root": {
       "inputs": {
+        "agent-deck-src": "agent-deck-src",
         "determinate": "determinate",
         "flake-parts": "flake-parts_2",
         "hermes-agent": "hermes-agent",

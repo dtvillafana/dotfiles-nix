@@ -108,6 +108,14 @@
         "mistral-small3.2:24b"
       ];
 
+      # Idle input is reported by Hyprland. loginctl runs hypridle's lock_cmd.
+      home-manager.users.capcu.services.hypridle.settings.listener = [
+        {
+          timeout = 600;
+          on-timeout = "loginctl lock-session";
+        }
+      ];
+
       home-manager.users.capcu.opencode.settings = {
         "$schema" = "https://opencode.ai/config.json";
         providers = {

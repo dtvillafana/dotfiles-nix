@@ -9,6 +9,7 @@
         xwayland.enable = true;
       };
       programs.hyprlock.enable = true;
+      security.pam.services.quickshell-lock = { };
       programs.ydotool.enable = true;
       xdg.portal = {
         extraPortals = [ pkgs.xdg-desktop-portal-gtk ];

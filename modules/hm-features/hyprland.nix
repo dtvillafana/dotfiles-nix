@@ -166,6 +166,7 @@
       home.packages = with pkgs; [
         desktopAction
         hyprwhichkey
+        quickshell
         grim
         slurp
         wl-clipboard
@@ -266,10 +267,11 @@
         enable = true;
         systemdTarget = "graphical-session.target";
         settings.general = {
-          lock_cmd = "pidof hyprlock || hyprlock";
+          lock_cmd = "${lib.getExe pkgs.quickshell} --path ${config.xdg.configHome}/quickshell/lock --no-duplicate";
           before_sleep_cmd = "loginctl lock-session";
         };
       };
+      xdg.configFile."quickshell/lock/shell.qml".source = ./hyprland/lock.qml;
       programs.hyprlock = {
         enable = true;
         settings = {

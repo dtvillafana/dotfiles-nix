@@ -1,0 +1,111 @@
+--- a/quickshell/Modules/Greetd/GreeterState.qml
++++ b/quickshell/Modules/Greetd/GreeterState.qml
+@@ -15,6 +15,34 @@
+     property string pamState: ""
+     property bool unlocking: false
+
++    // Matches capcu's lock screen. Rapid flashing can trigger photosensitive seizures.
++    readonly property var failureColors: ["#ff0000", "#ff8000", "#ffff00", "#80ff00", "#00ff00", "#00ff80", "#00ffff", "#0080ff", "#0000ff", "#8000ff", "#ff00ff", "#ff0080"]
++    property real failureAngle: 0
++    readonly property bool failing: failureAnimation.running
++    readonly property color failureColor: failureColors[Math.floor(failureAngle / 30) % failureColors.length]
++
++    onPamStateChanged: {
++        if (pamState === "fail" || pamState === "max")
++            failureAnimation.restart();
++    }
++
++    SequentialAnimation {
++        id: failureAnimation
++        NumberAnimation {
++            target: root
++            property: "failureAngle"
++            from: 0
++            to: 1080
++            duration: 3000
++            easing.type: Easing.Linear
++        }
++        PropertyAction {
++            target: root
++            property: "failureAngle"
++            value: 0
++        }
++    }
++
+     property var sessionList: []
+     property var sessionExecs: []
+     property var sessionPaths: []
+--- a/quickshell/Modules/Greetd/GreeterContent.qml
++++ b/quickshell/Modules/Greetd/GreeterContent.qml
+@@ -509,6 +509,8 @@
+     }
+
+     function startAuthSession(submitPassword) {
++        if (GreeterState.failing)
++            return;
+         submitPassword = submitPassword === true;
+         if (!GreeterState.showPasswordInput || !GreeterState.username)
+             return;
+@@ -742,6 +744,12 @@
+         opacity: 0.4
+     }
+
++    Rectangle {
++        anchors.fill: parent
++        visible: GreeterState.failing
++        color: GreeterState.failureColor
++    }
++
+     SystemClock {
+         id: systemClock
+         precision: SystemClock.Seconds
+@@ -914,6 +922,8 @@
+
+                     Rectangle {
+                         property bool showPassword: false
++                        rotation: GreeterState.failureAngle
++                        enabled: !GreeterState.failing
+
+                         Layout.fillWidth: true
+                         Layout.preferredHeight: 60
+--- a/quickshell/Modules/Greetd/assets/dms-greeter
++++ b/quickshell/Modules/Greetd/assets/dms-greeter
+@@ -310,27 +310,20 @@
+             echo "Error: neither 'start-hyprland' nor 'Hyprland' was found in PATH" >&2
+             exit 1
+         fi
+-        if [[ -z "$COMPOSITOR_CONFIG" ]]; then
+-            TEMP_CONFIG=$(mktemp)
++        TEMP_CONFIG=$(mktemp --suffix=.lua)
++        if [[ -n "$COMPOSITOR_CONFIG" ]]; then
++            cat "$COMPOSITOR_CONFIG" > "$TEMP_CONFIG"
++        else
+             cat > "$TEMP_CONFIG" << HYPRLAND_EOF
+-env = DMS_RUN_GREETER,1
+-
+-misc {
+-    disable_hyprland_logo = true
+-}
+-
+-exec-once = sh -c "$QS_CMD; hyprctl dispatch exit"
++hl.config({ misc = { disable_hyprland_logo = true } })
+ HYPRLAND_EOF
+-            COMPOSITOR_CONFIG="$TEMP_CONFIG"
+-        else
+-            TEMP_CONFIG=$(mktemp)
+-            cat "$COMPOSITOR_CONFIG" > "$TEMP_CONFIG"
+-            cat >> "$TEMP_CONFIG" << HYPRLAND_EOF
+-
+-exec-once = sh -c "$QS_CMD; hyprctl dispatch exit"
++        fi
++        cat >> "$TEMP_CONFIG" << HYPRLAND_EOF
++hl.on("hyprland.start", function()
++    hl.exec_cmd("$QS_CMD; hyprctl dispatch 'hl.dsp.exit()'")
++end)
+ HYPRLAND_EOF
+-            COMPOSITOR_CONFIG="$TEMP_CONFIG"
+-        fi
++        COMPOSITOR_CONFIG="$TEMP_CONFIG"
+         if command -v start-hyprland >/dev/null 2>&1; then
+             exec_compositor "hyprland" start-hyprland -- --config "$COMPOSITOR_CONFIG"
+         else

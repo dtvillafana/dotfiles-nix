@@ -28,26 +28,25 @@
       '';
       # Run a minimal Hyprland greeter so WayVNC also works before login.
       # Its server exits with the greeter; capcu's user service takes over 5901.
-      greeterConfig = pkgs.writeText "sddm-hyprland.lua" ''
+      greeterConfig = ''
         hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
         hl.config({
-          # Caps/Ctrl are swapped in udev hwdb. Do not swap again here.
+          -- Caps/Ctrl are swapped in udev hwdb. Do not swap again here.
           input = { kb_layout = "us" },
           misc = { disable_hyprland_logo = true, disable_splash_rendering = true, force_default_wallpaper = -1 },
           animations = { enabled = false },
         })
-        hl.window_rule({ match = { class = "sddm-greeter.*" }, fullscreen = true })
         hl.on("hyprland.start", function()
           hl.exec_cmd("${lib.getExe greeterVnc}")
         end)
       '';
-      greeterVncConfig = pkgs.writeText "sddm-wayvnc.conf" ''
+      greeterVncConfig = pkgs.writeText "greeter-wayvnc.conf" ''
         address=127.0.0.1 ::1
         port=5901
         enable_auth=false
       '';
       greeterVnc = pkgs.writeShellApplication {
-        name = "sddm-wayvnc";
+        name = "greeter-wayvnc";
         runtimeInputs = [
           pkgs.coreutils
           pkgs.wayvnc
@@ -66,12 +65,21 @@
       services.xserver.videoDrivers = [ "nvidia" ];
 
       services.displayManager = {
-        sddm = {
+        dms-greeter = {
           enable = true;
-          wayland = {
-            enable = true;
-            compositorCommand = "${lib.getExe config.programs.hyprland.package} --config ${greeterConfig}";
+          compositor = {
+            name = "hyprland";
+            customConfig = greeterConfig;
           };
+          # Keep the stock login/authentication flow, adding the lock screen's
+          # failure animation and Lua support for this host's Hyprland version.
+          package = pkgs.dms-shell.overrideAttrs (old: {
+            # Patch src itself: dms-shell installs QML directly from src.
+            src = pkgs.applyPatches {
+              src = old.src;
+              patches = [ ../../../packages/dms-greeter-capcuDell.patch ];
+            };
+          });
         };
         defaultSession = "hyprland-uwsm";
       };
@@ -262,12 +270,15 @@
         evdev:atkbd:*
           KEYBOARD_KEY_3a=leftctrl
           KEYBOARD_KEY_1d=capslock
+
         evdev:input:b0003v*p*
           KEYBOARD_KEY_70039=leftctrl
           KEYBOARD_KEY_700e0=capslock
+
         evdev:input:b0005v*p*
           KEYBOARD_KEY_70039=leftctrl
           KEYBOARD_KEY_700e0=capslock
+
         evdev:input:b0018v*p*
           KEYBOARD_KEY_70039=leftctrl
           KEYBOARD_KEY_700e0=capslock

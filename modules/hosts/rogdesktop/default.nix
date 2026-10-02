@@ -13,6 +13,7 @@ let
         self.nixosModules.rogdesktopConfig
         self.nixosModules.rogdesktopHardware
         self.nixosModules.virHome
+        self.nixosModules.blender
         self.nixosModules.capcuHome
         self.nixosModules.guestHome
         self.nixosModules.experiment

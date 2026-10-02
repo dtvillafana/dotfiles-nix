@@ -116,7 +116,6 @@
             ast-grep
             audacity
             bc
-            blender
             blueman
             brightnessctl
             btop
@@ -138,8 +137,6 @@
             llm-agents.packages.${system}.openclaw
             llm-agents.packages.${system}.opencode2
             llm-agents.packages.${system}.workmux
-            self.packages.${system}.mcp-for-blender
-            self.packages.${system}.mixar
             networkmanager
             networkmanagerapplet
             nixfmt-tree
@@ -175,16 +172,6 @@
             HERMES_HOME = "/var/lib/hermes/.hermes";
           };
 
-          opencode.settings.mcp.servers.blender = {
-            type = "local";
-            command = [ "${self.packages.${system}.mcp-for-blender}/bin/mcp-for-blender" ];
-            environment = {
-              BLENDER_HOST = "localhost";
-              BLENDER_PORT = "9876";
-              DISABLE_TELEMETRY = "true";
-            };
-          };
-
           programs.home-manager.enable = true;
 
           systemd.user.services.handy = {
@@ -203,8 +190,6 @@
           };
 
           home.file = {
-            ".config/blender/${lib.versions.majorMinor pkgs.blender.version}/scripts/addons/blender_mcp.py".source =
-              inputs.mcp-for-blender-src + /addon.py;
             ".ssh/id_ecdsa.pub".text =
               "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAG8NzNAYDdt66g3YlH9/JpemTq87v5auOVQMJ128U78Kwyc9Dq8vYELxpglHWg4ILwmNp8mgAC9tDnmNI24PY1RgQG7Mq2cIciPPf8B8ebR3v0nMi5KHRR5cCf7FXpPqbPMAuqzz748gnCkpGypdquz2Psywxe02b/jwLDNrhoKORmJiA== vir@nixos";
             ".local/share/gopass/stores/.keep" = {

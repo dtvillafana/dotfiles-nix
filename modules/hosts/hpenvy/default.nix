@@ -12,6 +12,7 @@ let
         self.nixosModules.hpenvyConfig
         self.nixosModules.hpenvyHardware
         self.nixosModules.virHome
+        self.nixosModules.blender
         self.nixosModules.capcuHome
       ];
       specialArgs = {

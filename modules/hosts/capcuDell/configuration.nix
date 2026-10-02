@@ -30,11 +30,10 @@
       # Its server exits with the greeter; capcu's user service takes over 5901.
       greeterConfig = ''
         hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
-        hl.config({
-          -- Caps/Ctrl are swapped in udev hwdb. Do not swap again here.
-          input = { kb_layout = "us" },
-          misc = { disable_hyprland_logo = true, disable_splash_rendering = true, force_default_wallpaper = -1 },
-          animations = { enabled = false },
+        -- Reuse desktop options and host overrides, not shortcuts or session startup.
+        hl.config(${
+          lib.generators.toLua { }
+            config.home-manager.users.capcu.wayland.windowManager.hyprland.settings.config
         })
         hl.on("hyprland.start", function()
           hl.exec_cmd("${lib.getExe greeterVnc}")

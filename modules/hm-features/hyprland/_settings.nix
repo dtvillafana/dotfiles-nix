@@ -179,6 +179,7 @@ in
         }
       ];
       config = {
+        ecosystem.no_update_news = true;
         general = {
           layout = "dwindle";
           gaps_in = 0;

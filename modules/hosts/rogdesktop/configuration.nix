@@ -178,6 +178,39 @@
 
       hardware.graphics.enable = true;
 
+      services.pipewire = {
+        # Give OBS capture streams extra buffering without slowing every client.
+        extraConfig.pipewire-pulse."60-obs-recording" = {
+          "pulse.rules" = [
+            {
+              matches = [
+                { "application.name" = "OBS"; }
+                { "application.process.binary" = "~(obs|\\.obs-wrapped)"; }
+              ];
+              actions.update-props = {
+                "pulse.min.req" = "1024/48000";
+                "pulse.min.frag" = "2048/48000";
+                "pulse.min.quantum" = "1024/48000";
+              };
+            }
+          ];
+        };
+
+        wireplumber.extraConfig."60-usb-microphones" = {
+          "monitor.alsa.rules" = [
+            {
+              matches = [ { "node.name" = "~alsa_input.usb-.*"; } ];
+              actions.update-props = {
+                # Larger USB capture periods/headroom tolerate scheduling jitter.
+                "api.alsa.period-size" = 1024;
+                "api.alsa.headroom" = 1024;
+                "session.suspend-timeout-seconds" = 0;
+              };
+            }
+          ];
+        };
+      };
+
       programs.steam.enable = true;
 
       services.inputplumber = {

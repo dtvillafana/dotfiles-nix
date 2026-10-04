@@ -771,11 +771,11 @@
         "nixvim": "nixvim_2"
       },
       "locked": {
-        "lastModified": 1790974186,
-        "narHash": "sha256-LLG06gTSl7Am8rrZoC+c5cMzgAHiX+4Tf6x1EcCryJY=",
+        "lastModified": 1791028929,
+        "narHash": "sha256-kWon7Z0HPH9zLBAuJMJQlUcZPHiq2WdJQNgDc5IcgcI=",
         "owner": "dtvillafana",
         "repo": "nixvim",
-        "rev": "22bbe336883ecec744e51a013f968c0f3b1ba50a",
+        "rev": "a628c71fa53bb1b45e4c185c388023e492d145f1",
         "type": "github"
       },
       "original": {

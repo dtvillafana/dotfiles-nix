@@ -271,12 +271,6 @@
             keepmenu
             krita
             lazygit
-            llm-agents.packages.${system}.claude-code
-            llm-agents.packages.${system}.grok
-            llm-agents.packages.${system}.handy
-            llm-agents.packages.${system}.openclaw
-            llm-agents.packages.${system}.opencode2
-            llm-agents.packages.${system}.workmux
             m365Wrapped
             networkmanager
             networkmanagerapplet
@@ -395,6 +389,8 @@
               PartOf = [ "graphical-session.target" ];
             };
             Service = {
+              # WebKitGTK's DMA-BUF renderer leaves Handy's settings window blank.
+              Environment = [ "WEBKIT_DISABLE_DMABUF_RENDERER=1" ];
               ExecStartPre = pkgs.writeShellScript "handy-wayland-settings" ''
                 set -eu
                 settings="''${XDG_DATA_HOME:-$HOME/.local/share}/com.pais.handy/settings_store.json"

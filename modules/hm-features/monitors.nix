@@ -1,11 +1,16 @@
 { ... }:
 {
   flake.homeModules.monitors =
-    { osConfig, ... }:
+    {
+      osConfig,
+      config,
+      lib,
+      ...
+    }:
     {
       # Hyprland applies these rules on hotplug; unknown outputs stay enabled.
       # Confirm dock connector names with `hyprctl monitors all` after migration.
-      xdg.configFile."hypr/monitors.lua".text = ''
+      xdg.configFile."hypr/monitor-defaults.lua".text = ''
         hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
       ''
       + (
@@ -27,5 +32,13 @@
         else
           ""
       );
+
+      # Seed a writable layout once; nwg-displays owns subsequent changes.
+      home.activation.initializeHyprlandMonitors = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+        if [ ! -e ${lib.escapeShellArg "${config.xdg.configHome}/hypr/monitors.lua"} ]; then
+          run cp ${lib.escapeShellArg "${config.xdg.configHome}/hypr/monitor-defaults.lua"} ${lib.escapeShellArg "${config.xdg.configHome}/hypr/monitors.lua"}
+          run chmod u+w ${lib.escapeShellArg "${config.xdg.configHome}/hypr/monitors.lua"}
+        fi
+      '';
     };
 }

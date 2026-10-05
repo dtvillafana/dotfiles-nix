@@ -1,5 +1,13 @@
 -- Custom callbacks complement Home Manager's declarative settings/bindings.
-require("monitors")
+-- The writable nwg-displays layout may not exist yet during activation.
+local config_home = os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.config")
+local monitors = io.open(config_home .. "/hypr/monitors.lua", "r")
+if monitors then
+    monitors:close()
+    require("monitors")
+else
+    require("monitor-defaults")
+end
 require("user")
 
 hl.on("hyprland.start", function()

@@ -173,6 +173,7 @@
         swaybg
         dunst
         networkmanagerapplet
+        nwg-displays
         wtype
         wdisplays
         wayvnc

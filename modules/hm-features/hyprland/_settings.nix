@@ -52,7 +52,7 @@ let
     }
     {
       name = "documents";
-      class = "(org\\.pwmt\\.zathura|[Zz]athura|libreoffice.*|kolourpaint|[Ss]office|ONLYOFFICE|DesktopEditors)";
+      class = "(org\\.pwmt\\.zathura|[Zz]athura|libreoffice.*|kolourpaint|[Ss]office)";
     }
     {
       name = "media";

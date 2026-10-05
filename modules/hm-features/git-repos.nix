@@ -1,184 +1,113 @@
 { ... }:
 {
+  # Shared options and commands; repository modules contribute to the same list.
   flake.homeModules.git-repos =
     {
       config,
-      osConfig,
       lib,
       pkgs,
       ...
     }:
     let
-      githubSecret = osConfig.sops.secrets."git_github_${config.home.username}".path;
-      gitlabSecret = osConfig.sops.secrets."git_gitlab_pat_${config.home.username}".path;
-      codebergSecret = osConfig.sops.secrets."git_codeberg_${config.home.username}".path;
-      dvillaSecret = osConfig.sops.secrets."git_dvilla_${config.home.username}".path;
-      external_git_repos = [
-        {
-          name = "NDRL-notes";
-          url = "https://david:$(cat ${dvillaSecret})@git.dvilla.me/david/NDRL-notes";
-          path = "$HOME/git-repos/NDRL-notes";
-          secret = codebergSecret;
-        }
-        {
-          name = "m365-tui";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/m365-tui";
-          path = "$HOME/git-repos/m365-tui";
-          secret = githubSecret;
-        }
-        {
-          name = "opencode-nvim";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/opencode.nvim";
-          path = "$HOME/git-repos/opencode-nvim";
-          secret = githubSecret;
-        }
-        {
-          name = "CIS-300-UMary";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/CIS-300-UMary";
-          path = "$HOME/git-repos/CIS-300-UMary";
-          secret = githubSecret;
-        }
-        {
-          name = "n8n";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/n8n";
-          path = "$HOME/git-repos/n8n";
-          secret = githubSecret;
-        }
-        {
-          name = "resumes";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/resumes";
-          path = "$HOME/git-repos/resumes";
-          secret = githubSecret;
-        }
-        {
-          name = "nixvim";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/nixvim";
-          path = "$HOME/git-repos/nixvim";
-          secret = githubSecret;
-        }
-        {
-          name = "nixvim-for-pr";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/nixvim-for-pr";
-          path = "$HOME/git-repos/nixvim-for-pr";
-          secret = githubSecret;
-        }
-        {
-          name = "orgmode";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/orgmode";
-          path = "$HOME/git-repos/orgmode";
-          secret = githubSecret;
-        }
-        {
-          name = "orgfiles";
-          url = "https://dvillafanaiv:$(cat ${gitlabSecret})@gitlab.com/personal2673713/org.git";
-          path = "$HOME/git-repos/orgfiles";
-          secret = gitlabSecret;
-        }
-        {
-          name = "spectrum-orgfiles";
-          url = "https://dvillafanaiv:$(cat ${gitlabSecret})@gitlab.com/spectrum-it-solutions/orgfiles.git";
-          path = "$HOME/git-repos/spectrum-orgfiles";
-          secret = gitlabSecret;
-        }
-        {
-          name = "homelab-nixos-generators";
-          url = "https://dvillafanaiv:$(cat ${gitlabSecret})@gitlab.com/spectrum-it-solutions/nixos-generators.git";
-          path = "$HOME/git-repos/homelab-nixos-generators";
-          secret = gitlabSecret;
-        }
-        {
-          name = "chaseballots";
-          url = "https://dvillafanaiv:$(cat ${gitlabSecret})@gitlab.com/spectrum-it-solutions/chaseballots.git";
-          path = "$HOME/git-repos/chaseballots";
-          secret = gitlabSecret;
-        }
-        {
-          name = "ca-gotv";
-          url = "https://dvillafanaiv:$(cat ${gitlabSecret})@gitlab.com/spectrum-it-solutions/ca-gotv.git";
-          path = "$HOME/git-repos/ca-gotv";
-          secret = gitlabSecret;
-        }
-        {
-          name = "i-got-a-buddy-web";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/i-got-a-buddy-web";
-          path = "$HOME/git-repos/i-got-a-buddy-web";
-          secret = githubSecret;
-        }
-        {
-          name = "org-notifier";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/org-notifier";
-          path = "$HOME/git-repos/org-notifier";
-          secret = githubSecret;
-        }
-        {
-          name = "liber-usualis";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/mkbertrand/liber-usualis";
-          path = "$HOME/git-repos/liber-usualis";
-          secret = githubSecret;
-        }
-        {
-          name = "finances";
-          url = "https://david:$(cat ${dvillaSecret})@git.dvilla.me/david/finances";
-          path = "$HOME/git-repos/finances";
-          secret = dvillaSecret;
-        }
-        {
-          name = "dotfiles-nix";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/dotfiles-nix";
-          path = "$HOME/git-repos/dotfiles-nix";
-          secret = githubSecret;
-        }
-        {
-          name = "cand-data-interface-api-service";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/spectrum-it-solutions/cand-data-interface-api-service";
-          path = "$HOME/git-repos/cand-data-interface-api-service";
-          secret = githubSecret;
-        }
-        {
-          name = "cand-data-interface-sql";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/spectrum-it-solutions/cand-data-interface-sql";
-          path = "$HOME/git-repos/cand-data-interface-sql";
-          secret = githubSecret;
-        }
-        {
-          name = "charachorder-config";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/charachorder-config";
-          path = "$HOME/git-repos/charachorder-config";
-          secret = githubSecret;
-        }
-        {
-          name = "django-supabase-storage";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/django-supabase-storage";
-          path = "$HOME/git-repos/django-supabase-storage";
-          secret = githubSecret;
-        }
-      ];
+      syncRepo =
+        repo:
+        if repo.discovery == "gitea" then
+          ''
+            if [ -r "${repo.secret}" ]; then
+              GITEA_TOKEN=$(cat "${repo.secret}")
+              GITEA_URL="${repo.url}"
+              REPOS_DIR="${repo.path}"
+              mkdir -p "$REPOS_DIR"
 
-      syncRepo = repo: ''
-        echo "Syncing ${repo.name}..."
-        if [ ! -d "${repo.path}" ]; then
-            if ${if repo ? secret then ''[ -r "${repo.secret}" ]'' else "true"}; then
-                mkdir -p "$(${pkgs.coreutils}/bin/dirname "${repo.path}")"
-                export GIT_SSH="${pkgs.openssh}/bin/ssh"
-                ${pkgs.git}/bin/git clone "${repo.url}" "${repo.path}" || true
+              page=1
+              while true; do
+                repos=$(${pkgs.curl}/bin/curl -fsS -H "Authorization: token $GITEA_TOKEN" \
+                  "$GITEA_URL/api/v1/user/repos?page=$page&limit=50" | ${pkgs.jq}/bin/jq -r '.[] | select(.mirror != true) | .full_name')
+
+                if [ -z "$repos" ]; then
+                  break
+                fi
+
+                for repo in $repos; do
+                  repo_path="$REPOS_DIR/$repo"
+                  echo "Syncing $repo..."
+                  if [ ! -d "$repo_path" ]; then
+                    mkdir -p "$(${pkgs.coreutils}/bin/dirname "$repo_path")"
+                    ${pkgs.git}/bin/git clone "$GITEA_URL/$repo" "$repo_path" || true
+                  else
+                    (cd "$repo_path" && ${pkgs.git}/bin/git pull) || true
+                  fi
+                done
+
+                page=$((page + 1))
+              done
             else
-                echo "Skipping ${repo.name}: cannot read ${
-                  if repo ? secret then repo.secret else "required secret"
-                }."
+              echo "Skipping ${repo.name}: cannot read ${repo.secret}."
             fi
+          ''
         else
-            (cd "${repo.path}" && ${pkgs.git}/bin/git pull) || true
-        fi
-      '';
+          ''
+            echo "Syncing ${repo.name}..."
+            if [ ! -d "${repo.path}" ]; then
+              if ${if repo.secret != null then ''[ -r "${repo.secret}" ]'' else "true"}; then
+                mkdir -p "$(${pkgs.coreutils}/bin/dirname "${repo.path}")"
+                ${pkgs.git}/bin/git clone "${repo.url}" "${repo.path}" || true
+              else
+                echo "Skipping ${repo.name}: cannot read ${
+                  if repo.secret != null then repo.secret else "required secret"
+                }."
+              fi
+            else
+              (cd "${repo.path}" && ${pkgs.git}/bin/git pull) || true
+            fi
+          '';
 
+      syncScript =
+        name: repos:
+        pkgs.writeShellScriptBin name ''
+          set -u
+          export GIT_SSH="${pkgs.openssh}/bin/ssh"
+
+          ${lib.concatMapStringsSep "\n" syncRepo repos}
+        '';
     in
     {
-      home.packages = [
-        (pkgs.writeShellScriptBin "sync-repos" ''
-          set -u
+      key = "dotfiles-nix-git-repos";
 
-          ${lib.concatMapStringsSep "\n" syncRepo external_git_repos}
-        '')
+      options.gitRepos.repositories = lib.mkOption {
+        description = "Merged repository list used by sync-repos and sync-work-repos.";
+        default = [ ];
+        type = lib.types.listOf (
+          lib.types.submodule {
+            options = {
+              name = lib.mkOption { type = lib.types.str; };
+              url = lib.mkOption { type = lib.types.str; };
+              path = lib.mkOption { type = lib.types.str; };
+              secret = lib.mkOption {
+                type = lib.types.nullOr lib.types.str;
+                default = null;
+              };
+              work = lib.mkOption {
+                type = lib.types.bool;
+                default = false;
+              };
+              discovery = lib.mkOption {
+                type = lib.types.enum [
+                  "none"
+                  "gitea"
+                ];
+                default = "none";
+                description = "Clone one repository, or discover non-mirror repositories from Gitea.";
+              };
+            };
+          }
+        );
+      };
+
+      config._module.args.gitReposSyncScript = syncScript;
+
+      config.home.packages = [
+        (syncScript "sync-repos" config.gitRepos.repositories)
       ];
     };
 }

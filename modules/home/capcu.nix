@@ -234,9 +234,9 @@
           ]
           ++ lib.optionals secretsEnabled [
             self.homeModules.ssh
-            self.homeModules.git-repos
+            self.homeModules.git-repos-work
+            self.homeModules.git-repos-all
             self.homeModules.capcuGit
-            self.homeModules.capcuGitRepos
           ];
 
           home.username = "capcu";
@@ -582,7 +582,12 @@
     };
 
   flake.homeModules.capcuGit =
-    { pkgs, osConfig, ... }:
+    {
+      pkgs,
+      osConfig,
+      lib,
+      ...
+    }:
     let
       giteaCredentialHelper = "store --file=${osConfig.sops.templates."git-credentials-gitea".path}";
     in
@@ -623,55 +628,7 @@
           };
         };
       };
+      programs.zsh.shellAliases.kp = "${lib.getExe pkgs.keepassxc} ~/mounts/t/IT/ITDept.kdbx";
     };
 
-  flake.homeModules.capcuGitRepos =
-    {
-      pkgs,
-      osConfig,
-      lib,
-      ...
-    }:
-    {
-      home.file.".local/bin/sync-work-repos" = {
-        executable = true;
-        text = ''
-          #!/bin/sh
-          GITEA_TOKEN=$(cat ${osConfig.sops.secrets.gitea_token.path})
-          GITEA_URL="https://ccugitea.capcu.org"
-          REPOS_DIR="$HOME/capcu-git-repos"
-
-          mkdir -p "$REPOS_DIR"
-
-          page=1
-          while true; do
-            repos=$(${pkgs.curl}/bin/curl -s -H "Authorization: token $GITEA_TOKEN" \
-              "$GITEA_URL/api/v1/user/repos?page=$page&limit=50" | ${pkgs.jq}/bin/jq -r '[.[] | select(.mirror != true)] | .[].full_name // empty')
-
-            if [ -z "$repos" ]; then
-              break
-            fi
-
-            for repo in $repos; do
-              repo_path="$REPOS_DIR/$repo"
-              if [ ! -d "$repo_path" ]; then
-                echo "Cloning $repo..."
-                mkdir -p "$(dirname "$repo_path")"
-                ${pkgs.git}/bin/git clone "$GITEA_URL/$repo" "$repo_path" || true
-              else
-                echo "Pulling $repo..."
-                (cd "$repo_path" && ${pkgs.git}/bin/git pull) || true
-              fi
-            done
-
-            page=$((page + 1))
-          done
-        '';
-      };
-
-      programs.zsh.shellAliases = {
-        sync-work-repos = "$HOME/.local/bin/sync-work-repos";
-        kp = "${lib.getExe pkgs.keepassxc} ~/mounts/t/IT/ITDept.kdbx";
-      };
-    };
 }

@@ -105,7 +105,8 @@
           ]
           ++ lib.optionals secretsEnabled [
             self.homeModules.ssh
-            self.homeModules.git-repos
+            self.homeModules.git-repos-personal
+            self.homeModules.git-repos-all
           ];
 
           home.username = "vir";

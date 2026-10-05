@@ -46,6 +46,32 @@
         type = "stdio";
         allowed_origins = [ "chrome-extension://bgjoihaepiejlfjinojjfgokghnodnhd/" ];
       };
+      # OpenCode invokes the configured shell as `shell -c <command>`, which is
+      # non-interactive and skips ~/.zshrc. This wrapper loads that startup so
+      # `!` and shell-tool commands see the same aliases, functions, PATH, and
+      # direnv environment as an interactive zsh.
+      opencodeZsh = pkgs.writeShellScriptBin "opencode-zsh" ''
+        set -eu
+        zsh=${lib.getExe pkgs.zsh}
+        if [ "''${1-}" != -c ]; then
+          exec "$zsh" "$@"
+        fi
+        shift
+        exec "$zsh" -c '
+          emulate -L zsh
+          setopt aliases
+          export POWERLEVEL9K_INSTANT_PROMPT=off
+          export POWERLEVEL9K_DISABLE_INSTANT_PROMPT=true
+          {
+            source "''${ZDOTDIR:-$HOME}/.zshrc"
+          } >/dev/null 2>&1
+          if (( $+commands[direnv] )); then
+            direnv_export=$(direnv export zsh || true)
+            [[ -n $direnv_export ]] && eval "$direnv_export"
+          fi
+          eval "$1"
+        ' -- "''${1-}"
+      '';
     in
     {
       options.opencode.settings = lib.mkOption {
@@ -352,6 +378,7 @@
                 lib.recursiveUpdate {
                   "$schema" = "https://opencode.ai/config.json";
                   update = "disable";
+                  shell = "${opencodeZsh}/bin/opencode-zsh";
                   agents = {
                     explore = {
                       model = "openai/gpt-6-luna#medium";

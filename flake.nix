@@ -27,7 +27,7 @@
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
     agent-deck-src = {
-      url = "github:dtvillafana/agent-deck/fix/shell-tool-detection";
+      url = "github:dtvillafana/agent-deck/main";
       flake = false;
     };
     hyprwhichkey-src = {

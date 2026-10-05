@@ -19,11 +19,6 @@
         command = "zsh"
         icon = "⌨"
 
-        [tools.opencode2]
-        command = "opencode2"
-        icon = "🌐"
-        resume_flag = "--session"
-
         [claude]
         dangerous_mode = false
 

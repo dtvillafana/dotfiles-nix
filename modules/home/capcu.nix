@@ -55,6 +55,21 @@
           exec hypr-desktop-action menu keepmenu "$@"
         '';
       };
+      workCredential = pkgs.writeShellApplication {
+        name = "hypr-work-credential";
+        runtimeInputs = with pkgs; [
+          coreutils
+          jq
+          keepassxc
+          libnotify
+          config.programs.hyprland.package
+        ];
+        text = ''
+          database="$HOME/mounts/t/IT/David_Villafana.kdbx"
+          password_file="${config.sops.secrets.keepass_capcu.path}"
+        ''
+        + builtins.readFile ../hm-features/hyprland/work-credential.sh;
+      };
       servicedeskMcp =
         if secretsEnabled then
           pkgs.writeShellScript "servicedesk-mcp-server" ''
@@ -163,6 +178,7 @@
         git_dvilla_capcu = mkSharedSecret "git_dvilla";
         git_vps_capcu = mkPrivateSecret "git_vps";
         ssh_nix_key_capcu = mkPrivateSecret "ssh_nix_key";
+        keepass_capcu = mkPrivateSecret "keepass_capcu";
       };
 
       environment.etc = {
@@ -251,117 +267,120 @@
             ];
           };
 
-          home.packages = with pkgs; [
-            age
-            ast-grep
-            audacity
-            azure-cli
-            bc
-            blueman
-            brightnessctl
-            btop
-            bun
-            dunst
-            fd
-            fzf
-            gemini-cli
-            git
-            gopass
-            jq
-            keepmenu
-            krita
-            lazygit
-            m365Wrapped
-            networkmanager
-            networkmanagerapplet
-            nixfmt-tree
-            nvtopPackages.full
-            openfortivpn
-            openfortivpn-webview
-            powershell
-            pwgen-secure
-            python313
-            remmina
-            ripgrep
-            ripgrep-all
-            scli
-            sops
-            sshfs
-            sshpass
-            teams-for-linux
-            vlc
-            webexWrapped
-            wireguard-tools
-            xournalpp
-            zbar
-            zenity
-            zip
-            (pkgs.writeShellScriptBin "forti-sso-toggle" ''
-              set -euo pipefail
+          home.packages =
+            with pkgs;
+            [
+              age
+              ast-grep
+              audacity
+              azure-cli
+              bc
+              blueman
+              brightnessctl
+              btop
+              bun
+              dunst
+              fd
+              fzf
+              gemini-cli
+              git
+              gopass
+              jq
+              keepmenu
+              krita
+              lazygit
+              m365Wrapped
+              networkmanager
+              networkmanagerapplet
+              nixfmt-tree
+              nvtopPackages.full
+              openfortivpn
+              openfortivpn-webview
+              powershell
+              pwgen-secure
+              python313
+              remmina
+              ripgrep
+              ripgrep-all
+              scli
+              sops
+              sshfs
+              sshpass
+              teams-for-linux
+              vlc
+              webexWrapped
+              wireguard-tools
+              xournalpp
+              zbar
+              zenity
+              zip
+              (pkgs.writeShellScriptBin "forti-sso-toggle" ''
+                set -euo pipefail
 
-              if [ "$#" -ne 0 ]; then
-                echo "Usage: forti-sso-toggle"
-                exit 1
-              fi
-
-              gateway="ra.capcu.org:4433"
-              config="$HOME/.config/openfortivpn/capcu.conf"
-
-              if sudo pgrep -f -- "^openfortivpn -c $config" >/dev/null; then
-                echo "Disconnecting VPN..."
-                sudo pkill -TERM -f -- "^openfortivpn -c $config"
-                echo "VPN disconnected."
-                exit 0
-              fi
-
-              echo "Opening browser for SSO login..."
-              echo "URL: https://$gateway"
-              cookie="$(openfortivpn-webview "$gateway" | grep '^SVPNCOOKIE=' | sed 's/^SVPNCOOKIE=//')"
-              if [ -z "$cookie" ]; then
-                echo "No cookie found in webview output. Aborting."
-                exit 1
-              fi
-
-              state_dir="''${XDG_STATE_HOME:-$HOME/.local/state}/forti-sso-connect"
-              mkdir -p "$state_dir"
-              log="$state_dir/capcu.log"
-              cookie_file="$(mktemp "''${TMPDIR:-/tmp}/forti-sso-cookie.XXXXXX")"
-              chmod 600 "$cookie_file"
-              trap 'rm -f "$cookie_file"' EXIT
-
-              printf '%s\n' "$cookie" >"$cookie_file"
-              : >"$log"
-
-              (
-                sudo openfortivpn -c "$config" --persistent=30 --cookie-on-stdin <"$cookie_file" >"$log" 2>&1
-                rm -f "$cookie_file"
-              ) &
-              vpn_pid="$!"
-              trap - EXIT
-
-              echo "Starting VPN in background..."
-              echo "Log: $log"
-
-              attempt=0
-              while [ "$attempt" -lt 60 ]; do
-                if grep -q 'Tunnel is up and running' "$log"; then
-                  echo "VPN connected. Background PID: $vpn_pid"
-                  exit 0
-                fi
-
-                if ! kill -0 "$vpn_pid" 2>/dev/null; then
-                  echo "VPN process exited before connecting. Log: $log"
+                if [ "$#" -ne 0 ]; then
+                  echo "Usage: forti-sso-toggle"
                   exit 1
                 fi
 
-                attempt="$((attempt + 1))"
-                sleep 1
-              done
+                gateway="ra.capcu.org:4433"
+                config="$HOME/.config/openfortivpn/capcu.conf"
 
-              echo "Timed out waiting for VPN connection. Process is still running as PID $vpn_pid. Log: $log"
-              exit 1
-            '')
-          ];
+                if sudo pgrep -f -- "^openfortivpn -c $config" >/dev/null; then
+                  echo "Disconnecting VPN..."
+                  sudo pkill -TERM -f -- "^openfortivpn -c $config"
+                  echo "VPN disconnected."
+                  exit 0
+                fi
+
+                echo "Opening browser for SSO login..."
+                echo "URL: https://$gateway"
+                cookie="$(openfortivpn-webview "$gateway" | grep '^SVPNCOOKIE=' | sed 's/^SVPNCOOKIE=//')"
+                if [ -z "$cookie" ]; then
+                  echo "No cookie found in webview output. Aborting."
+                  exit 1
+                fi
+
+                state_dir="''${XDG_STATE_HOME:-$HOME/.local/state}/forti-sso-connect"
+                mkdir -p "$state_dir"
+                log="$state_dir/capcu.log"
+                cookie_file="$(mktemp "''${TMPDIR:-/tmp}/forti-sso-cookie.XXXXXX")"
+                chmod 600 "$cookie_file"
+                trap 'rm -f "$cookie_file"' EXIT
+
+                printf '%s\n' "$cookie" >"$cookie_file"
+                : >"$log"
+
+                (
+                  sudo openfortivpn -c "$config" --persistent=30 --cookie-on-stdin <"$cookie_file" >"$log" 2>&1
+                  rm -f "$cookie_file"
+                ) &
+                vpn_pid="$!"
+                trap - EXIT
+
+                echo "Starting VPN in background..."
+                echo "Log: $log"
+
+                attempt=0
+                while [ "$attempt" -lt 60 ]; do
+                  if grep -q 'Tunnel is up and running' "$log"; then
+                    echo "VPN connected. Background PID: $vpn_pid"
+                    exit 0
+                  fi
+
+                  if ! kill -0 "$vpn_pid" 2>/dev/null; then
+                    echo "VPN process exited before connecting. Log: $log"
+                    exit 1
+                  fi
+
+                  attempt="$((attempt + 1))"
+                  sleep 1
+                done
+
+                echo "Timed out waiting for VPN connection. Process is still running as PID $vpn_pid. Log: $log"
+                exit 1
+              '')
+            ]
+            ++ lib.optional secretsEnabled workCredential;
 
           home.sessionPath = [
             "$HOME/.nix-profile/bin"
@@ -380,6 +399,8 @@
             builtins.readFile ../hm-features/hyprland/handy.lua
             + lib.optionalString secretsEnabled ''
               hl.bind("SUPER + SHIFT + G", hl.dsp.exec_cmd("${lib.getExe pkgs.keepmenu} -C -c $HOME/.config/keepmenu/config.ini"))
+              hl.bind("SUPER + S", hl.dsp.exec_cmd("${lib.getExe workCredential} password"), { description = "Type work password" })
+              hl.bind("SUPER + A", hl.dsp.exec_cmd("${lib.getExe workCredential} username"), { description = "Type work username" })
             '';
 
           systemd.user.services.handy = {
@@ -629,6 +650,7 @@
         };
       };
       programs.zsh.shellAliases.kp = "${lib.getExe pkgs.keepassxc} ~/mounts/t/IT/ITDept.kdbx";
+      programs.zsh.shellAliases.kpw = "${lib.getExe pkgs.keepassxc} ~/mounts/t/IT/David_Villafana.kdbx";
     };
 
 }

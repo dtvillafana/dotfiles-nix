@@ -239,8 +239,14 @@ screenshot/OCR shortcuts carry over. Notable differences:
   repeats and repeating shortcuts also begin after one second.
   Bindings have descriptions so upstream can list them.
 - Super+B/V preselect the next split right/down.
-- Super+W/S toggle a tabbed group, not i3's arbitrary container tree or stacks.
-- Super+A focuses the previous window; Super+Space cycles windows.
+- Super+W tabs workspace windows, not i3's arbitrary container tree or stacks.
+- For capcu, Super+S/A select and type a work password/username through Fuzzel
+  and `keepassxc-cli`. The database is `~/mounts/t/IT/David_Villafana.kdbx`;
+  update `workCredential` in `modules/home/capcu.nix` when moving it.
+  The master password comes from the private SOPS `keepass_capcu` runtime file
+  via stdin. Empty Username fields fall back to the entry's last path component,
+  matching the gopass username shortcut. Super+G and Super+Shift+G are unchanged.
+  Super+Space cycles windows.
 - Super+Shift+H/K moves a tab earlier; Super+Shift+J/L moves it later.
   Shifted arrow keys behave the same; ungrouped windows move normally.
 - Super+Shift+C/R reload the configuration, not restart the compositor.

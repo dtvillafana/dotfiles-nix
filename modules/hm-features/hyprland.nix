@@ -44,6 +44,20 @@
             (umask 077; exec fuzzel --dmenu --match-mode=fzf --cache="$cache_dir/fuzzel-$cache_name" "$@")
           }
 
+          type_credential() {
+            # Let the shortcut modifiers be released before injecting stdin.
+            sleep 0.2
+            case "$1" in
+              *[Rr]emmina*|*virt-manager*|*virt-viewer*|*remote-viewer*)
+                ydotool type --key-delay=20 --key-hold=20 --file=-
+                ;;
+              *[Bb]rave*|*[Cc]hromium*|*[Cc]hrome*|*[Ff]irefox*|*qutebrowser*)
+                ydotool type --key-delay=10 --key-hold=10 --file=-
+                ;;
+              *) wtype - ;;
+            esac
+          }
+
           case "''${1:-}" in
             menu)
               shift
@@ -105,18 +119,10 @@
                 username) value="''${entry##*/}" ;;
                 otp) value="$(gopass otp -o "$entry")" ;;
               esac
-              # Let the shortcut modifiers be released before injecting text.
-              sleep 0.2
-              case "$target_class" in
-                *[Rr]emmina*|*virt-manager*|*virt-viewer*|*remote-viewer*)
-                  # spice-gtk and Remmina want evdev scancodes, not wtype's keymap.
-                  printf '%s' "$value" | ydotool type --key-delay=20 --key-hold=20 --file=-
-                  ;;
-                *[Bb]rave*|*[Cc]hromium*|*[Cc]hrome*|*[Ff]irefox*|*qutebrowser*)
-                  printf '%s' "$value" | ydotool type --key-delay=10 --key-hold=10 --file=-
-                  ;;
-                *) printf '%s' "$value" | wtype - ;;
-              esac
+              printf '%s' "$value" | type_credential "$target_class"
+              ;;
+            type-credential)
+              type_credential "''${2:-}"
               ;;
             screenshot|ocr)
               geometry="$(slurp)" || exit 0

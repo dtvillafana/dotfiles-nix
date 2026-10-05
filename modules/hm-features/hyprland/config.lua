@@ -68,7 +68,6 @@ local function tab_workspace()
     hl.dispatch(hl.dsp.focus({ window = window }))
 end
 hl.bind("SUPER + W", tab_workspace, { description = "Tab workspace windows" })
-hl.bind("SUPER + S", tab_workspace, { description = "Tab workspace windows" })
 
 for _, pair in ipairs({
     { "H", "left" },

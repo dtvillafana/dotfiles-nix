@@ -248,6 +248,8 @@ screenshot/OCR shortcuts carry over. Notable differences:
 - Super+Shift+T uses noninteractive sudo to stop matching processes across users
   (SIGTERM, like Super+T). It requires sudo permission; failures show a notification.
 - Super+P/Shift+P disable/enable devices whose names contain `touchpad`.
+- Super+- lowers brightness by 5%; Super+= or Super+Shift+= (Super++) raises it
+  by 5%. Holding the shortcut repeats the adjustment.
 
 All three desktop users can access ydotool's input-simulation socket. This
 allows input injection, not access to raw physical input events. Gopass secrets

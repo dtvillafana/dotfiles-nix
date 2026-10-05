@@ -261,7 +261,9 @@ in
           (exec "SUPER + SHIFT + S" "hypr-desktop-action screenshot" { release = true; })
           (exec "SUPER + ALT + S" "hypr-desktop-action ocr" { release = true; })
           (exec "SUPER + minus" "brightnessctl set 5%-" { repeating = true; })
-          (exec "SUPER + plus" "brightnessctl set +5%" { repeating = true; })
+          # Use the unshifted keysym: '+' is Shift+'=' on the US laptop keyboard.
+          (exec "SUPER + equal" "brightnessctl set +5%" { repeating = true; })
+          (exec "SUPER + SHIFT + equal" "brightnessctl set +5%" { repeating = true; })
           (exec "SUPER + SHIFT + E" "hypr-desktop-action logout" { })
           (bind "SUPER + SHIFT + Q" "hl.dsp.window.close()")
           (bind "SUPER + F" "hl.dsp.window.fullscreen()")

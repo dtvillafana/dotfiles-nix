@@ -86,12 +86,6 @@
           path = "$HOME/git-repos/charachorder-config";
           secret = githubSecret;
         }
-        {
-          name = "django-supabase-storage";
-          url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/django-supabase-storage";
-          path = "$HOME/git-repos/django-supabase-storage";
-          secret = githubSecret;
-        }
       ];
     };
 }

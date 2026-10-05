@@ -16,7 +16,7 @@
       external_git_repos = [
         {
           name = "NDRL-notes";
-          url = "https://dvillafanaiv:$(cat ${codebergSecret})@codeberg.org/dvillafanaiv/NDRL-notes";
+          url = "https://david:$(cat ${dvillaSecret})@git.dvilla.me/david/NDRL-notes";
           path = "$HOME/git-repos/NDRL-notes";
           secret = codebergSecret;
         }

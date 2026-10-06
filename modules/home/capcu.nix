@@ -401,6 +401,7 @@
               hl.bind("SUPER + SHIFT + G", hl.dsp.exec_cmd("${lib.getExe pkgs.keepmenu} -C -c $HOME/.config/keepmenu/config.ini"))
               hl.bind("SUPER + S", hl.dsp.exec_cmd("${lib.getExe workCredential} password"), { description = "Type work password" })
               hl.bind("SUPER + A", hl.dsp.exec_cmd("${lib.getExe workCredential} username"), { description = "Type work username" })
+              hl.bind("SUPER + SHIFT + O", hl.dsp.exec_cmd("${lib.getExe workCredential} otp"), { description = "Type work OTP" })
             '';
 
           # Both startup paths need the workarounds: Handy is single-instance,

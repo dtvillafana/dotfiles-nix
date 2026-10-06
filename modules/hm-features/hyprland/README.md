@@ -245,7 +245,8 @@ screenshot/OCR shortcuts carry over. Notable differences:
 - Super+B/V preselect the next split right/down.
 - Super+W tabs workspace windows, not i3's arbitrary container tree or stacks.
 - For capcu, Super+S/A select and type a work password/username through Fuzzel
-  and `keepassxc-cli`. The database is `~/mounts/t/IT/David_Villafana.kdbx`;
+  and `keepassxc-cli`. Super+Shift+O selects and types a KeePass TOTP;
+  Super+O remains gopass OTP. The database is `~/mounts/t/IT/David_Villafana.kdbx`;
   update `workCredential` in `modules/home/capcu.nix` when moving it.
   The master password comes from the private SOPS `keepass_capcu` runtime file
   via stdin. Empty Username fields fall back to the entry's last path component,

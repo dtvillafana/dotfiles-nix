@@ -3,9 +3,16 @@ database="${database:?}"
 password_file="${password_file:?}"
 
 case "${1:-}" in
-  password | username) attribute="$1" ;;
+  password | username)
+    attribute="$1"
+    show_options=(--attributes "$attribute")
+    ;;
+  otp)
+    attribute=otp
+    show_options=(--totp)
+    ;;
   *)
-    echo 'Expected password or username' >&2
+    echo 'Expected password, username, or otp' >&2
     exit 1
     ;;
 esac
@@ -37,7 +44,7 @@ entry="$(
 [ -n "$entry" ] || exit 0
 
 # Redirect the SOPS file to stdin: no master password in argv, env, or logs.
-if ! value="$(keepassxc-cli show --quiet --attributes "$attribute" "$database" "$entry" <"$password_file" 2>/dev/null)"; then
+if ! value="$(keepassxc-cli show --quiet "${show_options[@]}" "$database" "$entry" <"$password_file" 2>/dev/null)"; then
   fail 'Could not read the selected credential.'
 fi
 if [ "$attribute" = username ] && [ -z "$value" ]; then

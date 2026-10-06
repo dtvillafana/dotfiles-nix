@@ -403,6 +403,22 @@
               hl.bind("SUPER + A", hl.dsp.exec_cmd("${lib.getExe workCredential} username"), { description = "Type work username" })
             '';
 
+          # Both startup paths need the workarounds: Handy is single-instance,
+          # and its XDG autostart can run before handy.service.
+          xdg.configFile."autostart/Handy.desktop" = {
+            force = true;
+            text = ''
+              [Desktop Entry]
+              Type=Application
+              Name=Handy
+              Exec=${pkgs.coreutils}/bin/env GDK_BACKEND=x11 WEBKIT_DISABLE_DMABUF_RENDERER=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 ${
+                llm-agents.packages.${system}.handy
+              }/bin/handy --start-hidden
+              StartupNotify=false
+              Terminal=false
+            '';
+          };
+
           systemd.user.services.handy = {
             Unit = {
               Description = "Handy background service";
@@ -410,8 +426,13 @@
               PartOf = [ "graphical-session.target" ];
             };
             Service = {
-              # WebKitGTK's DMA-BUF renderer leaves Handy's settings window blank.
-              Environment = [ "WEBKIT_DISABLE_DMABUF_RENDERER=1" ];
+              # Native Wayland leaves Handy's webview confined to the top-left
+              # corner; use XWayland and avoid WebKitGTK's NVIDIA rendering bugs.
+              Environment = [
+                "GDK_BACKEND=x11"
+                "WEBKIT_DISABLE_DMABUF_RENDERER=1"
+                "WEBKIT_DISABLE_COMPOSITING_MODE=1"
+              ];
               ExecStartPre = pkgs.writeShellScript "handy-wayland-settings" ''
                 set -eu
                 settings="''${XDG_DATA_HOME:-$HOME/.local/share}/com.pais.handy/settings_store.json"

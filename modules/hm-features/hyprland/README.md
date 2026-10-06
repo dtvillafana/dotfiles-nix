@@ -196,6 +196,10 @@ the viewer; seamless login/logout continuity is not promised.
 - Handy starts in the UWSM graphical session. For capcu, Hyprland owns
   Alt+Space hold-to-talk: pressing starts recording, releasing Space or either
   Alt key stops it. Ordinary Space/Alt releases do not toggle recording.
+  For capcu, both Handy's XDG autostart and its service set `GDK_BACKEND=x11`,
+  `WEBKIT_DISABLE_DMABUF_RENDERER=1`, and `WEBKIT_DISABLE_COMPOSITING_MODE=1`.
+  XWayland fixes the webview rendering only in the top-left corner; the WebKit
+  overrides avoid NVIDIA rendering issues. Dictation still uses `wtype` on Wayland.
   The Handy service selects `wtype` for direct text insertion on Wayland,
   preserving the rest of its saved settings. Test dictation in your target app;
   some browsers and remote-desktop clients may need a different typing backend.

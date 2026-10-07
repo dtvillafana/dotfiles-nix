@@ -30,6 +30,12 @@
         self.nixosModules.hyprlandDesktop
       ];
 
+      hardware.graphics = {
+        enable = true;
+        enable32Bit = true;
+      };
+      hardware.steam-hardware.enable = true;
+
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
       home-manager.backupFileExtension = "hm-bak";
@@ -147,6 +153,9 @@
             signal-desktop
             sops
             sshfs
+            # Install Steam only for vir, not in the system profile.
+            config.programs.steam.package
+            config.programs.steam.package.run
             telegram-desktop
             vlc
             wireguard-tools

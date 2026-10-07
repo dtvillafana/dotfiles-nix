@@ -211,8 +211,6 @@
         };
       };
 
-      programs.steam.enable = true;
-
       services.inputplumber = {
         enable = true;
         package = inputplumber;

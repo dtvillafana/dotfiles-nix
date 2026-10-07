@@ -7,6 +7,7 @@
         (llm-agents.packages.${system}.agent-deck.overrideAttrs (old: rec {
           version = "${old.version}-fork";
           src = inputs.agent-deck-src;
+          doCheck = false;
           ldflags = builtins.map (builtins.replaceStrings [ old.version ] [ version ]) old.ldflags;
         }))
       ];

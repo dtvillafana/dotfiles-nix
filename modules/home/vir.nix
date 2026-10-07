@@ -142,7 +142,7 @@
             networkmanagerapplet
             nixfmt-tree
             nvtopPackages.full
-            obs-studio
+            obs-studio # PipeWire display capture and windowed projectors.
             self.packages.${system}.scriberr
             pwgen-secure
             python313

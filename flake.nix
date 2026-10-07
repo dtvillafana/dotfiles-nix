@@ -34,6 +34,11 @@
       url = "github:Juhan280/hyprwhichkey/6f4408e456bbd6b33f43845d797b92407037ae74";
       flake = false;
     };
+    hyprmon-src = {
+      # Backport Lua monitor support to the packaged release.
+      url = "github:erans/hyprmon/43f06d7e6d144df2d200914fdc695d74f11ed721";
+      flake = false;
+    };
     m365-tui = {
       url = "github:dtvillafana/m365-tui";
       inputs.nixpkgs.follows = "nixpkgs";

@@ -352,6 +352,23 @@
         "type": "github"
       }
     },
+    "hyprmon-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1781064849,
+        "narHash": "sha256-D4g/32DQ6u+n5jhoNiSL36wmw84QrqOif7jtewHBWEs=",
+        "owner": "erans",
+        "repo": "hyprmon",
+        "rev": "43f06d7e6d144df2d200914fdc695d74f11ed721",
+        "type": "github"
+      },
+      "original": {
+        "owner": "erans",
+        "repo": "hyprmon",
+        "rev": "43f06d7e6d144df2d200914fdc695d74f11ed721",
+        "type": "github"
+      }
+    },
     "hyprwhichkey-src": {
       "flake": false,
       "locked": {
@@ -393,11 +410,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1791290323,
-        "narHash": "sha256-TReQAY/j9qBy4p3ctKbMfeGBaG3AkeJXAyg/G7mygII=",
+        "lastModified": 1791352800,
+        "narHash": "sha256-3exhcZ9ebN8cVVP+RJe2omsc0l6Mb6ju/kmqCwJJQpo=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "dd4c5b6a2ab072a51b350562e02cb520038ac068",
+        "rev": "c9ef0fb47c91abf5c637218b69a018d3b37bb8d9",
         "type": "github"
       },
       "original": {
@@ -771,11 +788,11 @@
         "nixvim": "nixvim_2"
       },
       "locked": {
-        "lastModified": 1791297412,
-        "narHash": "sha256-3ZbtdJpgE7LBTi6vNlGQZN/bz3YNU+xv3EC73cO8pVQ=",
+        "lastModified": 1791374552,
+        "narHash": "sha256-8Y7D0gKmJpBEJXJSaz/tEOk1JrwPq8YdSTsG1Z+Rlfg=",
         "owner": "dtvillafana",
         "repo": "nixvim",
-        "rev": "31f3678573da6b61dbb7f1ae4ce15e5da30b09d2",
+        "rev": "9337acae73f06527aca6b16e882b4a19b587d678",
         "type": "github"
       },
       "original": {
@@ -941,6 +958,7 @@
         "hermes-agent": "hermes-agent",
         "hermes-webui": "hermes-webui",
         "home-manager": "home-manager_2",
+        "hyprmon-src": "hyprmon-src",
         "hyprwhichkey-src": "hyprwhichkey-src",
         "import-tree": "import-tree",
         "llm-agents": "llm-agents",

@@ -11,6 +11,18 @@
       ...
     }:
     let
+      hyprmon = pkgs.hyprmon.overrideAttrs (old: {
+        # Keep the release's pinned dependencies; backport only Lua support and tests.
+        postPatch = (old.postPatch or "") + ''
+          cp ${inputs.hyprmon-src}/hyprland.go hyprland.go
+          cp ${inputs.hyprmon-src}/hyprland_test.go hyprland_test.go
+        '';
+      });
+      hyprmonLauncher = pkgs.writeShellScriptBin "hyprmon" ''
+        # HyprMon writes its entrypoint even when the include is already present.
+        export HYPRLAND_CONFIG=${lib.escapeShellArg "${config.xdg.configHome}/hypr/hyprmon-config.lua"}
+        exec ${lib.getExe hyprmon} "$@"
+      '';
       hyprwhichkey = pkgs.callPackage ../../packages/hyprwhichkey.nix {
         inherit (inputs) hyprwhichkey-src;
       };
@@ -179,7 +191,7 @@
         swaybg
         dunst
         networkmanagerapplet
-        nwg-displays
+        hyprmonLauncher
         wtype
         wdisplays
         wayvnc

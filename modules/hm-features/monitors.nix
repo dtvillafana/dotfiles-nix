@@ -33,11 +33,24 @@
           ""
       );
 
-      # Seed a writable layout once; nwg-displays owns subsequent changes.
+      xdg.configFile."hypr/hyprmon-config-default.lua".text = ''
+        require("hyprmon")
+      '';
+
+      # Preserve the old layout; HyprMon owns subsequent changes to its sidecar.
+      # Its writable entrypoint keeps saves away from Home Manager's configuration.
       home.activation.initializeHyprlandMonitors = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-        if [ ! -e ${lib.escapeShellArg "${config.xdg.configHome}/hypr/monitors.lua"} ]; then
-          run cp ${lib.escapeShellArg "${config.xdg.configHome}/hypr/monitor-defaults.lua"} ${lib.escapeShellArg "${config.xdg.configHome}/hypr/monitors.lua"}
-          run chmod u+w ${lib.escapeShellArg "${config.xdg.configHome}/hypr/monitors.lua"}
+        if [ ! -e ${lib.escapeShellArg "${config.xdg.configHome}/hypr/hyprmon.lua"} ]; then
+          if [ -e ${lib.escapeShellArg "${config.xdg.configHome}/hypr/monitors.lua"} ]; then
+            run cp ${lib.escapeShellArg "${config.xdg.configHome}/hypr/monitors.lua"} ${lib.escapeShellArg "${config.xdg.configHome}/hypr/hyprmon.lua"}
+          else
+            run cp ${lib.escapeShellArg "${config.xdg.configHome}/hypr/monitor-defaults.lua"} ${lib.escapeShellArg "${config.xdg.configHome}/hypr/hyprmon.lua"}
+          fi
+          run chmod u+w ${lib.escapeShellArg "${config.xdg.configHome}/hypr/hyprmon.lua"}
+        fi
+        if [ ! -e ${lib.escapeShellArg "${config.xdg.configHome}/hypr/hyprmon-config.lua"} ]; then
+          run cp ${lib.escapeShellArg "${config.xdg.configHome}/hypr/hyprmon-config-default.lua"} ${lib.escapeShellArg "${config.xdg.configHome}/hypr/hyprmon-config.lua"}
+          run chmod u+w ${lib.escapeShellArg "${config.xdg.configHome}/hypr/hyprmon-config.lua"}
         fi
       '';
     };

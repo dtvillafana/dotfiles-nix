@@ -28,6 +28,9 @@
         tier = "auto"
         recent_days = 90
 
+        [recall]
+        enabled = true
+
         [instances]
         allow_multiple = true
       '';

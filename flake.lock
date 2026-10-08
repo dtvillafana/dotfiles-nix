@@ -3,11 +3,11 @@
     "agent-deck-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1791178584,
-        "narHash": "sha256-Q7EdobjKEWCUIVsSxaecJuXJ7kCOLKMkfpONmnU81is=",
+        "lastModified": 1791479210,
+        "narHash": "sha256-2UA1pr01N5QVQt5KEAv9e1TsofsFqWobDcbHP1Bseuw=",
         "owner": "dtvillafana",
         "repo": "agent-deck",
-        "rev": "16f3aa06751be04d9cf7388263ad9adfbb5e7719",
+        "rev": "3ac932f1bd0ffd3415270c7623d386e17eac34b9",
         "type": "github"
       },
       "original": {
@@ -788,11 +788,11 @@
         "nixvim": "nixvim_2"
       },
       "locked": {
-        "lastModified": 1791374552,
-        "narHash": "sha256-8Y7D0gKmJpBEJXJSaz/tEOk1JrwPq8YdSTsG1Z+Rlfg=",
+        "lastModified": 1791461013,
+        "narHash": "sha256-u9aICHOz+uKBh2y6gn777mcPJqKxgpImIssQ2gM86uM=",
         "owner": "dtvillafana",
         "repo": "nixvim",
-        "rev": "9337acae73f06527aca6b16e882b4a19b587d678",
+        "rev": "306a89e649415102d69e551a40e2504c3a902481",
         "type": "github"
       },
       "original": {

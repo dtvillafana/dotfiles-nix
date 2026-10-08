@@ -179,6 +179,8 @@
         git_vps_capcu = mkPrivateSecret "git_vps";
         ssh_nix_key_capcu = mkPrivateSecret "ssh_nix_key";
         keepass_capcu = mkPrivateSecret "keepass_capcu";
+        awx_api_refresh_token = mkPrivateSecret "awx_api_refresh_token";
+        awx_api_token = mkPrivateSecret "awx_api_token";
       };
 
       environment.etc = {
@@ -257,6 +259,12 @@
 
           home.username = "capcu";
           home.homeDirectory = "/home/capcu";
+
+          # Paths are rendered from sops into the Claude and OpenCode global configs.
+          agentRuntimeSecrets = lib.mkIf secretsEnabled [
+            "awx_api_refresh_token"
+            "awx_api_token"
+          ];
 
           programs.chromium = {
             enable = true;

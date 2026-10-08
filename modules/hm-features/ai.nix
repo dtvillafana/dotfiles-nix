@@ -72,12 +72,34 @@
           eval "$1"
         ' -- "''${1-}"
       '';
+      # Appended to the shared global instructions. Claude imports that file, so
+      # both tools see the sops paths under /run/secrets, like the Gitea token.
+      agentRuntimeSecrets = lib.genAttrs config.agentRuntimeSecrets (
+        name: osConfig.sops.secrets.${name}.path
+      );
+      runtimeSecretsText =
+        let
+          lines = lib.mapAttrsToList (name: path: "- `${name}`: `${path}`") agentRuntimeSecrets;
+        in
+        ''
+          # Runtime secrets
+
+          These secrets are decrypted for this user and readable at runtime under `/run/secrets`, the same way as other secrets such as the Gitea token. Read a file only when the task needs that credential. Do not print, log, copy, or commit the secret value.
+
+          ${lib.concatStringsSep "\n" lines}
+        '';
     in
     {
       options.opencode.settings = lib.mkOption {
         type = lib.types.attrs;
         default = { };
         description = "Additional OpenCode V2 configuration settings.";
+      };
+
+      options.agentRuntimeSecrets = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        description = "SOPS secret names this user can read. Their runtime paths are merged into the Claude and OpenCode global instructions.";
       };
 
       config = lib.mkMerge [
@@ -161,7 +183,12 @@
                     gitea_llm_token = osConfig.sops.secrets.gitea_llm_token.path;
                   };
                 };
-            home.file.".config/opencode/AGENTS.md".source = ./ai/opencode/AGENTS.md;
+            home.file.".config/opencode/AGENTS.md".text =
+              builtins.readFile ./ai/opencode/AGENTS.md
+              + lib.optionalString (config.agentRuntimeSecrets != [ ]) ''
+
+                ${runtimeSecretsText}
+              '';
             home.file.".config/opencode/cli.json" = {
               force = true;
               text = builtins.toJSON {

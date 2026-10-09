@@ -24,6 +24,7 @@ let
         self.nixosModules.guestHome
         self.nixosModules.experiment
         self.nixosModules.ollama
+        self.nixosModules.sheepit
       ];
       specialArgs = {
         inherit secretsEnabled;

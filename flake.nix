@@ -103,6 +103,7 @@
             };
             open-browser-use = pkgs.callPackage ./packages/open-browser-use.nix { };
             scriberr = pkgs.callPackage ./packages/scriberr.nix { };
+            sheepit-client = pkgs.callPackage ./packages/sheepit-client.nix { };
           };
 
           treefmt = {

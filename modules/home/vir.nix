@@ -119,7 +119,7 @@
             bc
             blueman
             brightnessctl
-            btop
+            (btop.override { cudaSupport = true; })
             bun
             dunst
             fd

@@ -177,6 +177,10 @@
       };
 
       hardware.graphics.enable = true;
+      services.sheepit = {
+        enable = true;
+        memoryGiB = 16;
+      };
 
       services.pipewire = {
         # Give OBS capture streams extra buffering without slowing every client.

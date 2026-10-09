@@ -161,6 +161,7 @@
       };
 
       nix.settings = {
+        trusted-users = [ "root" ] ++ profileUsers;
         experimental-features = [
           "nix-command"
           "flakes"

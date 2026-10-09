@@ -30,7 +30,10 @@
             Port = 22;
           };
           "*" = lib.hm.dag.entryAfter [ "org" ] {
-            IdentityFile = "${sshNixKey}";
+            IdentityFile = [
+              "~/.ssh/id_ed25519"
+              "${sshNixKey}"
+            ];
           };
         };
       };

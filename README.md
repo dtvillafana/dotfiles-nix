@@ -14,7 +14,7 @@ sudo nixos-rebuild switch \
 ```
 
 Available bootstrap configurations are `rogdesktopBootstrap`, `capcuDellBootstrap`,
-`thinkpadBootstrap`, `hpenvynixBootstrap`, and `cap765Bootstrap`.
+`thinkpadBootstrap`, `hpenvynixBootstrap`, `cap765Bootstrap`, and `hp-xeonBootstrap`.
 
 Set the profile user's password if needed, then install the existing recipient SSH private key at
 `/home/USERNAME/.ssh/id_ed25519`. The key must be owned by that user and have mode `0600`. A newly
@@ -91,6 +91,21 @@ The `default` output is under `nixOnDroidConfigurations`; use
 Manager modules.
 
 ## Secrets
+
+### SSH access between NixOS hosts
+
+`secrets/ssh-public-keys.nix` lists the users' generated SSH public keys by host and
+username. Every NixOS host (including bootstrap configurations) authorizes all listed
+keys for its existing `vir` and `capcu` accounts; root and guest are unchanged.
+SSH clients offer `~/.ssh/id_ed25519` as well as the existing SOPS-managed key.
+Private keys stay on their originating machines.
+
+To enroll another key, copy that user's `~/.ssh/id_ed25519.pub` into the registry
+and rebuild every destination host. The registry currently includes `vir` and `capcu`
+on `rogdesktop`, `capcu` on `capcuDell`, and `vir` on `hp-xeon` and `thinkpad`.
+The keys for `capcu` on `thinkpad`, `vir` and `capcu` on `hpenvynix`, and `capcu`
+on `cap765` still need to be added.
+Do not overwrite existing private keys: they may also be needed to decrypt SOPS secrets.
 
 `~/.config/sops/age/keys.txt` may be populated from gopass for interactive SOPS use. NixOS secret
 activation uses `/home/USERNAME/.ssh/id_ed25519`.

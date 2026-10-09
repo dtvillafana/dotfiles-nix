@@ -31,7 +31,7 @@ hl.bind("SUPER + E", function()
     end
 end, { description = "Toggle split / toggle window group" })
 
-hl.bind("CTRL + M", function()
+hl.bind("SUPER + CTRL + M", function()
     local zoom = hl.get_config("cursor.zoom_factor")
     hl.config({ cursor = { zoom_factor = zoom > 1 and 1 or 2 } })
 end, { description = "Toggle cursor magnifier" })

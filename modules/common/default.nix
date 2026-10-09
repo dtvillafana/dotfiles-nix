@@ -144,6 +144,8 @@
       networking.networkmanager.enable = true;
       services.tailscale = {
         enable = true;
+        openFirewall = true;
+        useRoutingFeatures = "client";
       }
       // lib.optionalAttrs secretsEnabled {
         authKeyFile = config.sops.secrets.headscale_preauth_key.path;
@@ -156,6 +158,26 @@
           "--exit-node="
           "--accept-dns=false"
         ];
+      };
+
+      systemd.services.tailscaled-autoconnect =
+        lib.mkIf (secretsEnabled && config.services.tailscale.enable)
+          {
+            wants = [ "network-online.target" ];
+            after = [ "network-online.target" ];
+            unitConfig.StartLimitIntervalSec = 0;
+            serviceConfig = {
+              Restart = "on-failure";
+              RestartSec = "10s";
+            };
+          };
+
+      systemd.services.tailscaled-set = lib.mkIf (secretsEnabled && config.services.tailscale.enable) {
+        unitConfig.StartLimitIntervalSec = 0;
+        serviceConfig = {
+          Restart = "on-failure";
+          RestartSec = "10s";
+        };
       };
 
       systemd.services.headscale-git-dns = lib.mkIf (secretsEnabled && config.services.tailscale.enable) {

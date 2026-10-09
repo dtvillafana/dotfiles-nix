@@ -61,10 +61,19 @@ only when needed.
 ## Headscale
 
 Normal NixOS hosts connect to `https://ts.dvilla.me` automatically (the connection is
-shared by all users). Replace the encrypted `headscale_preauth_key` placeholder in
-`secrets/secrets.json` with a valid, reusable Headscale preauth key using
-`sops secrets/secrets.json` before switching configurations. Bootstrap configurations
-do not connect automatically.
+shared by all users), except `capcuDell`, where Tailscale is disabled because the
+office firewall blocks Headscale. The tunnel UDP port is open, exit-node client
+routing is enabled, and failed enrollment/settings attempts retry automatically.
+`secrets/secrets.json` must contain a valid, reusable `headscale_preauth_key`, and
+each host must have a user SSH key that can decrypt that file. When adding a new
+recipient to `.sops.yaml`, run `sops updatekeys secrets/secrets.json` to update the
+encrypted file too. Bootstrap configurations do not connect automatically.
+
+After switching, check `tailscale status` and
+`systemctl status tailscaled-autoconnect`. `hpenvynix` still needs its user public
+key enrolled as a SOPS recipient before automatic enrollment can work with its own key.
+On Nix-on-Droid, use the native Android Tailscale app with `https://ts.dvilla.me`
+as its alternate coordination server; the NixOS systemd service does not apply there.
 
 `headscale-toggle` switches the exit node and DNS, but keeps the host connected to
 Headscale in both states. On uses `nixos-headscale-linode` as the exit node and

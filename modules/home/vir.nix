@@ -75,12 +75,6 @@
         git_dvilla_vir = mkSharedSecret "git_dvilla";
         git_vps_vir = mkPrivateSecret "git_vps";
         ssh_nix_key_vir = mkPrivateSecret "ssh_nix_key";
-        "hermes-env" = {
-          sopsFile = self + /secrets/hermes-rog.yaml;
-          format = "yaml";
-          owner = "vir";
-          group = "vir";
-        };
       };
 
       sops.templates = lib.mkIf secretsEnabled {

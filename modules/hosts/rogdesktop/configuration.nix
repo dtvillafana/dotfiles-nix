@@ -221,6 +221,10 @@
       services.ollama.loadModels = lib.mkForce [ "qwen3.5:9b" ];
 
       sops.secrets."hermes-env" = lib.mkIf secretsEnabled {
+        sopsFile = self + /secrets/hermes-rog.yaml;
+        format = "yaml";
+        owner = "vir";
+        group = "vir";
         restartUnits = [
           "hermes-agent.service"
           "hermes-webui.service"

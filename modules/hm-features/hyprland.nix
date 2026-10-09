@@ -234,13 +234,13 @@
       '';
 
       # Distinct ports allow different users' sessions to coexist on one host.
-      # Keep the Dell's existing SSH-tunnel endpoint (5901) for capcu.
-      xdg.configFile."wayvnc/config".text = ''
+      # Hosts can override this default to preserve an existing tunnel endpoint.
+      xdg.configFile."wayvnc/config".text = lib.mkDefault ''
         address=127.0.0.1 ::1
         port=${
           toString (
             if config.home.username == "capcu" then
-              (if osConfig.networking.hostName == "capcuDell" then 5901 else 5900)
+              5900
             else if config.home.username == "vir" then
               5902
             else

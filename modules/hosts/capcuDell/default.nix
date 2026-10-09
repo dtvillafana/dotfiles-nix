@@ -9,8 +9,14 @@ let
         inputs.hermes-webui.nixosModules.default
         inputs.home-manager.nixosModules.home-manager
         inputs.sops-nix.nixosModules.sops
-        self.nixosModules.common
+        self.nixosModules.baseSystem
+        self.nixosModules.nixPolicy
+        self.nixosModules.systemSecrets
+        self.nixosModules.headscale
+        self.nixosModules.desktopServices
+        self.nixosModules.office
         self.nixosModules.capcuDellConfig
+        self.nixosModules.capcuDellDesktop
         self.nixosModules.capcuDellHardware
         self.nixosModules.capcuHome
         self.nixosModules.hermesM365Email

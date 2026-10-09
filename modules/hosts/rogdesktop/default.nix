@@ -9,8 +9,14 @@ let
         inputs.hermes-agent.nixosModules.default
         inputs.hermes-webui.nixosModules.default
         inputs.sops-nix.nixosModules.sops
-        self.nixosModules.common
+        self.nixosModules.baseSystem
+        self.nixosModules.nixPolicy
+        self.nixosModules.systemSecrets
+        self.nixosModules.headscale
+        self.nixosModules.desktopServices
+        self.nixosModules.office
         self.nixosModules.rogdesktopConfig
+        self.nixosModules.rogdesktopMonitors
         self.nixosModules.rogdesktopHardware
         self.nixosModules.virHome
         self.nixosModules.blender

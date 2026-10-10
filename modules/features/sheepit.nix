@@ -15,7 +15,7 @@
     in
     {
       options.services.sheepit = {
-        enable = lib.mkEnableOption "idle-only SheepIt GPU rendering";
+        enable = lib.mkEnableOption "idle-only SheepIt CPU and GPU rendering";
         idleSeconds = lib.mkOption {
           type = lib.types.ints.positive;
           default = 900;
@@ -49,7 +49,7 @@
         };
         systemd.tmpfiles.rules = [ "d /var/lib/sheepit 0700 sheepit sheepit -" ];
         systemd.services.sheepit = {
-          description = "SheepIt legacy GPU worker (managed by sheepit-idle)";
+          description = "SheepIt legacy CPU/GPU worker (managed by sheepit-idle)";
           after = [ "network-online.target" ];
           wants = [ "network-online.target" ];
           unitConfig.ConditionPathExists = credentialsFile;
@@ -61,7 +61,7 @@
             LoadCredential = "client.conf:${credentialsFile}";
             ExecStart = "${
               lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.sheepit-client
-            } -config %d/client.conf -ui oneLine --headless --no-systray -compute-method GPU -gpu OPTIX_0 -cores 2 -memory ${toString cfg.memoryGiB}G -priority 19 -hostname ${config.networking.hostName} -cache-dir /var/lib/sheepit/cache";
+            } -config %d/client.conf -ui oneLine --headless --no-systray -compute-method CPU_GPU -gpu OPTIX_0 -cores 2 -memory ${toString cfg.memoryGiB}G -priority 19 -hostname ${config.networking.hostName} -cache-dir /var/lib/sheepit/cache";
             Environment = "HOME=/var/lib/sheepit";
             Nice = 19;
             CPUWeight = 1;

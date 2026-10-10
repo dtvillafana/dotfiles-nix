@@ -44,6 +44,8 @@ require or decrypt this secret.
 
 ## Policy
 
+- Accept both CPU and GPU jobs (`CPU_GPU`), one at a time rather than
+  simultaneously. CPU renders retain the two-thread limit; GPU jobs use `OPTIX_0`.
 - Wait 15 minutes with no keyboard/mouse/gamepad activity. Covers multiple local
   users, TTYs, and logged-out seats without compositor-specific idle hints.
 - A small **root** controller reads input event types only and discards their

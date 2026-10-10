@@ -117,20 +117,26 @@
               exit 1
             fi
 
-            if ! tailscale status --json --peers=false | jq -e '.BackendState == "Running"' >/dev/null; then
-              echo "Headscale is not connected; check tailscaled-autoconnect.service." >&2
-              exit 1
-            fi
-
-            # Preferences describe the selected exit node even when it is offline
-            # or the runtime status has not caught up yet.
+            # Preferences retain the selected exit node even when it is offline.
             exit_node_enabled="$(tailscale debug prefs | jq -r '(.ExitNodeID // "") != "" or (.ExitNodeIP // "") != ""')"
             if [ "$exit_node_enabled" = true ]; then
-              /run/wrappers/bin/sudo ${lib.getExe pkgs.tailscale} set --exit-node= --accept-dns=false
+              exit_node=""
+              accept_dns=false
+            else
+              exit_node=nixos-headscale-linode
+              accept_dns=true
+            fi
+
+            /run/wrappers/bin/sudo ${lib.getExe pkgs.tailscale} set --exit-node="$exit_node" --accept-dns="$accept_dns"
+            /run/wrappers/bin/sudo ${lib.getExe pkgs.tailscale} up \
+              --login-server=https://ts.dvilla.me \
+              --hostname=${config.networking.hostName} \
+              --exit-node="$exit_node" \
+              --accept-dns="$accept_dns"
+            if [ "$accept_dns" = false ]; then
               /run/wrappers/bin/sudo ${lib.getExe headscaleGitDns}
               echo "Headscale exit node and general DNS disabled; hostnames and Git remain on Headscale."
             else
-              /run/wrappers/bin/sudo ${lib.getExe pkgs.tailscale} set --exit-node=nixos-headscale-linode --accept-dns=true
               echo "Headscale exit node and DNS enabled."
             fi
           '';

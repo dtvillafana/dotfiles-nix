@@ -75,16 +75,18 @@ key enrolled as a SOPS recipient before automatic enrollment can work with its o
 On Nix-on-Droid, use the native Android Tailscale app with `https://ts.dvilla.me`
 as its alternate coordination server; the NixOS systemd service does not apply there.
 
-`headscale-toggle` switches the exit node and DNS, but keeps the host connected to
-Headscale in both states. On uses `nixos-headscale-linode` as the exit node and
-Headscale-managed DNS. Off uses the normal default route and DNS, except that
-`git.dvilla.me` still resolves through Headscale and connects over the tailnet.
-The toggle requires sudo access. After a reboot or configuration switch, it defaults
-to off. Check `tailscaled-autoconnect.service` if Headscale is not connected.
+`headscale-toggle` switches between mesh-only mode and using
+`nixos-headscale-linode` as the exit node with Headscale-managed DNS.
+Mesh-only mode uses the normal default route and DNS, except that hostnames and
+`git.dvilla.me` still resolve through Headscale and connect over the tailnet.
+Tailnet devices remain accessible in both modes. The command requires sudo access
+and brings Tailscale up if it is disconnected, explicitly using `https://ts.dvilla.me`.
+After a reboot or configuration switch, it defaults to mesh-only mode.
+Check `tailscaled-autoconnect.service` if Headscale is not connected.
 The toggle reads the configured exit-node preference, not peer reachability.
-It waits for `tailscale set` to finish; if this takes many seconds, check
+It waits for `tailscale set` and `tailscale up` to finish; if this takes many seconds, check
 `journalctl -u tailscaled` for daemon/control-server errors. A configuration
-switch can reapply the off defaults through `tailscaled-set.service`.
+switch can reapply the mesh-only defaults through `tailscaled-set.service`.
 
 ## Nix-on-Droid
 

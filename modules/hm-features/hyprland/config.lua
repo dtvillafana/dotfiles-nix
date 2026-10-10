@@ -31,9 +31,21 @@ hl.bind("SUPER + E", function()
     end
 end, { description = "Toggle split / toggle window group" })
 
+local magnifier_damage_tracking
 hl.bind("SUPER + CTRL + M", function()
     local zoom = hl.get_config("cursor.zoom_factor")
-    hl.config({ cursor = { zoom_factor = zoom > 1 and 1 or 2 } })
+    if zoom > 1 then
+        hl.config({
+            cursor = { zoom_factor = 1 },
+            debug = { damage_tracking = magnifier_damage_tracking or hl.get_config("debug.damage_tracking") },
+        })
+        magnifier_damage_tracking = nil
+    else
+        magnifier_damage_tracking = hl.get_config("debug.damage_tracking")
+        -- Redraw the whole monitor while zooming to avoid stale groupbar regions.
+        -- Keep on-demand frame scheduling; restore normal damage tracking on exit.
+        hl.config({ cursor = { zoom_factor = 2 }, debug = { damage_tracking = 1 } })
+    end
 end, { description = "Toggle cursor magnifier" })
 
 -- Dwindle has no i3 parent containers: tab the workspace's tiled windows.

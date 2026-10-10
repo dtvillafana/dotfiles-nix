@@ -202,6 +202,8 @@ in
         cursor = {
           no_warps = true;
           enable_hyprcursor = false;
+          zoom_detached_camera = false;
+          zoom_rigid = true;
         };
         dwindle.preserve_split = true;
         binds.workspace_back_and_forth = true;

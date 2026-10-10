@@ -5,8 +5,12 @@
     {
       boot.loader.grub = {
         enable = true;
-        device = "/dev/sda";
+        device = "/dev/disk/by-id/ata-Samsung_SSD_840_EVO_250GB_S1DBNSAFA40140X";
       };
+
+      services.fstrim.enable = true;
+
+      powerManagement.cpuFreqGovernor = "performance";
 
       services.xserver.videoDrivers = [ "nvidia" ];
 

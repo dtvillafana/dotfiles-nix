@@ -163,8 +163,10 @@
     {
       imports = [
         self.nixosModules.androidTools
-        self.nixosModules.rogdesktopHardware
       ];
+
+      # Latest supported kernel series here that builds with NVIDIA 580 unpatched.
+      boot.kernelPackages = pkgs.linuxPackages_6_18;
 
       services.xserver.videoDrivers = [ "nvidia" ];
 

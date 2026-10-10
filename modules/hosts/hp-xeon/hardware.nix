@@ -28,8 +28,19 @@
       boot.extraModulePackages = [ ];
 
       fileSystems."/" = {
+        device = "/dev/disk/by-uuid/a78070df-7e21-4b21-8b6e-a2cf8d27dad5";
+        fsType = "ext4";
+        options = [ "noatime" ];
+      };
+
+      fileSystems."/mnt/storage" = {
         device = "/dev/disk/by-uuid/fbfd3e08-ae46-4a04-9da6-a01affe34958";
         fsType = "ext4";
+        options = [
+          "nofail"
+          "noatime"
+          "x-systemd.automount"
+        ];
       };
 
       swapDevices = [ ];

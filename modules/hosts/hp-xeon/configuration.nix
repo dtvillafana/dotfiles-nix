@@ -24,6 +24,11 @@
       services.sheepit = {
         enable = true;
         memoryGiB = 8;
+        # The connected controller continuously emits absolute-axis events at rest.
+        ignoredInputDevices = [
+          "Sony Interactive Entertainment Wireless Controller"
+          "Sony Interactive Entertainment Wireless Controller Touchpad"
+        ];
       };
     };
 }

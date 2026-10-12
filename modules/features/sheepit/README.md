@@ -51,7 +51,13 @@ require or decrypt this secret.
 - A small **root** controller reads input event types only and discards their
   contents. It never grabs devices, stores keystrokes, or gives renderers input access.
 - No input devices or a device inventory change resets/inhibits idle eligibility.
-- Remote login sessions and other NVIDIA compute processes inhibit rendering.
+- `services.sheepit.ignoredInputDevices` excludes exact evdev device names from
+  idle detection. hp-xeon excludes its Sony wireless controller and touchpad,
+  which emit continuous axis events at rest. Controller-only use will not stop
+  rendering; keyboard and mouse activity still will. Disconnects are handled
+  without crashing the controller.
+- Remote login sessions (except disconnected sessions in the `closing` state)
+  and other NVIDIA compute processes inhibit rendering.
   This is conservative: an idle SSH login or loaded Ollama model can block work.
 - Not every non-compute GPU workload is detected (e.g. unattended games).
   Disable manually for those or add a workload-specific exclusion later.

@@ -24,6 +24,11 @@
           type = lib.types.ints.positive;
           default = 8;
         };
+        ignoredInputDevices = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ ];
+          description = "Exact evdev device names excluded from idle detection. Activity on these devices will not stop rendering.";
+        };
         sopsFile = lib.mkOption {
           type = lib.types.path;
           default = self + /secrets/sheepit.yaml;
@@ -87,6 +92,7 @@
           environment = {
             SHEEPIT_IDLE_SECONDS = toString cfg.idleSeconds;
             SHEEPIT_CREDENTIALS = credentialsFile;
+            SHEEPIT_IGNORED_INPUT_DEVICES = builtins.toJSON cfg.ignoredInputDevices;
           };
           serviceConfig = {
             ExecStart = "${python}/bin/python ${./sheepit/idle.py}";

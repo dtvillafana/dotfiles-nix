@@ -5,12 +5,13 @@ No input devices, remote sessions, failed GPU checks, or missing credentials
 all inhibit rendering. A controller exit also stops the entire worker cgroup.
 """
 
+import json
 import os
-from pathlib import Path
 import select
 import shutil
 import subprocess
 import time
+from pathlib import Path
 
 from evdev import InputDevice, ecodes, list_devices
 
@@ -36,19 +37,40 @@ def gpu_busy() -> bool:
 
 def remote_session() -> bool:
     for session in command("loginctl", "list-sessions", "--no-legend").splitlines():
-        if (
-            command(
+        properties = dict(
+            line.split("=", 1)
+            for line in command(
                 "loginctl",
                 "show-session",
                 session.split()[0],
                 "-p",
                 "Remote",
-                "--value",
-            )
-            == "yes"
-        ):
+                "-p",
+                "State",
+            ).splitlines()
+        )
+        if properties.get("Remote") == "yes" and properties.get("State") != "closing":
             return True
     return False
+
+
+def input_devices(paths: set[str], ignored_names: set[str]) -> dict[str, InputDevice]:
+    devices = {}
+    for path in paths:
+        device = None
+        try:
+            device = InputDevice(path)
+            if (
+                device.name not in ignored_names
+                and ecodes.EV_KEY in device.capabilities()
+            ):
+                devices[path] = device
+            else:
+                device.close()
+        except OSError:
+            if device is not None:
+                device.close()
+    return devices
 
 
 def can_render(
@@ -74,6 +96,9 @@ def can_render(
 def main() -> None:
     idle_seconds = int(os.environ["SHEEPIT_IDLE_SECONDS"])
     credentials = Path(os.environ["SHEEPIT_CREDENTIALS"])
+    ignored_names = set(
+        json.loads(os.environ.get("SHEEPIT_IGNORED_INPUT_DEVICES", "[]"))
+    )
     devices: dict[str, InputDevice] = {}
     observed_paths: set[str] = set()
     last_activity = time.monotonic()
@@ -92,19 +117,21 @@ def main() -> None:
             observed_paths = paths
             for device in devices.values():
                 device.close()
-            devices = {}
-            for path in paths:
-                device = InputDevice(path)
-                if ecodes.EV_KEY in device.capabilities():
-                    devices[path] = device
-                else:
-                    device.close()
+            devices = input_devices(paths, ignored_names)
             last_activity = now
         readable, _, _ = select.select(list(devices.values()), [], [], 2)
         for device in readable:
-            for event in device.read():
-                if event.type in (ecodes.EV_KEY, ecodes.EV_REL, ecodes.EV_ABS):
-                    last_activity = time.monotonic()
+            try:
+                for event in device.read():
+                    if event.type in (ecodes.EV_KEY, ecodes.EV_REL, ecodes.EV_ABS):
+                        last_activity = time.monotonic()
+            except BlockingIOError:
+                continue
+            except OSError:
+                device.close()
+                del devices[device.path]
+                observed_paths.discard(device.path)
+                last_activity = time.monotonic()
         try:
             blocked = gpu_busy() or remote_session()
         except (OSError, ValueError, subprocess.SubprocessError):

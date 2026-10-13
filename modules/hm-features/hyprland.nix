@@ -47,13 +47,19 @@
           ydotool
         ];
         text = ''
-          fuzzel_menu() {
+          fuzzel_cached() {
             local cache_name="$1"
             shift
             local cache_dir="''${XDG_CACHE_HOME:-$HOME/.cache}"
             mkdir -p "$cache_dir"
             # Menu labels may include credential names; keep newly written caches private.
-            (umask 077; exec fuzzel --dmenu --match-mode=fzf --cache="$cache_dir/fuzzel-$cache_name" "$@")
+            (umask 077; exec fuzzel --match-mode=fzf --cache="$cache_dir/fuzzel-$cache_name" "$@")
+          }
+
+          fuzzel_menu() {
+            local cache_name="$1"
+            shift
+            fuzzel_cached "$cache_name" --dmenu "$@"
           }
 
           type_credential() {
@@ -71,6 +77,9 @@
           }
 
           case "''${1:-}" in
+            apps)
+              fuzzel_cached apps
+              ;;
             menu)
               shift
               fuzzel_menu "$@"
@@ -99,10 +108,10 @@
               action="$(printf '%s\n' 'Lock screen' 'Log out' 'Suspend' 'Reboot' 'Power off' | fuzzel_menu system --only-match --prompt 'System actions… ')" || exit 0
               case "$action" in
                 'Lock screen') exec loginctl lock-session ;;
-                'Log out') exec hypr-desktop-action logout ;;
+                'Log out') exec hypr-desktop-action logout palette ;;
                 'Suspend') exec systemctl suspend ;;
                 'Reboot'|'Power off')
-                  answer="$(printf '%s\n' 'Cancel' "$action" | fuzzel_menu confirm-power --only-match --select Cancel --prompt "$action? ")" || exit 0
+                  answer="$(printf '%s\n' 'Cancel' "$action" | fuzzel_menu "confirm-power-$action" --only-match --select Cancel --prompt "$action? ")" || exit 0
                   [ "$answer" = "$action" ] || exit 0
                   if [ "$action" = Reboot ]; then
                     exec systemctl reboot
@@ -124,7 +133,7 @@
               # Capture the target before fuzzel takes focus. Browsers, Remmina, and
               # virt-manager do not consistently honor wtype's temporary virtual keymap.
               target_class="$(hyprctl -j activewindow | jq -r '.class // ""')"
-              entry="$(gopass ls --flat | sort | fuzzel_menu credentials --only-match --prompt 'Select credential… ')" || exit 0
+              entry="$(gopass ls --flat | sort | fuzzel_menu "credentials-$1" --only-match --prompt 'Select credential… ')" || exit 0
               [ -n "$entry" ] || exit 0
               case "$1" in
                 password) value="$(gopass show -o "$entry")" ;;
@@ -159,7 +168,7 @@
               fi
               ;;
             logout)
-              answer="$(printf 'Cancel\nLog out\n' | fuzzel_menu confirm-logout --only-match --select Cancel --prompt 'Exit Hyprland? ')" || exit 0
+              answer="$(printf 'Cancel\nLog out\n' | fuzzel_menu "confirm-logout-''${2:-binding}" --only-match --select Cancel --prompt 'Exit Hyprland? ')" || exit 0
               if [ "$answer" = 'Log out' ]; then
                 if uwsm check is-active hyprland; then
                   exec uwsm stop

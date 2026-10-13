@@ -416,9 +416,9 @@
                       mode = "subagent";
                     };
                     "grok-explore" = mkExplore "xai/grok-build-0.1";
-                    "grok-general" = mkGeneral "xai/grok-4.7#low";
+                    "grok-general" = mkGeneral "xai/grok-4.7#medium";
                     "openai-explore" = mkExplore "openai/gpt-6-luna#medium";
-                    "openai-general" = mkGeneral "openai/gpt-6-luna#max";
+                    "openai-general" = mkGeneral "openai/gpt-6.1-sol#medium";
                     "grok-build" = mkBuild {
                       model = "xai/grok-4.7#high";
                       explore = "grok-explore";
@@ -443,7 +443,7 @@
                     };
                   };
                   providers.openai = {
-                    websocket = true;
+                    settings.transport = "websocket";
                     compaction.mode = "provider";
                   };
                   permissions = [

@@ -34,11 +34,14 @@ The old i3, startx, autorandr, and Plasma session definitions are removed.
   matching; Super+Shift+D selects a PATH executable or enters a shell command.
   Fuzzel also handles credential, system-action, process, and keepmenu
   selections without Wofi's GTK redraw/layout behavior. App launches use
-  Fuzzel's default frequency cache; shell commands use a separate
+  `$XDG_CACHE_HOME/fuzzel-apps`; shell commands use a separate
   `$XDG_CACHE_HOME/fuzzel-commands` cache (normally `~/.cache/fuzzel-commands`).
-  All searchable menus have separate frequency caches: credentials, keepmenu,
-  process lists, system actions, and confirmations use `fuzzel-<menu>` files
-  in the same cache directory. Credential caches contain labels and counts,
+  Each Fuzzel shortcut has its own frequency cache: gopass and work credentials
+  use separate `fuzzel-credentials-<field>` and `fuzzel-work-credentials-<field>`
+  files for password, username, and OTP. Keepmenu, process lists, system actions,
+  and confirmations use distinct `fuzzel-<menu>` files in the same cache directory;
+  palette confirmations do not share the logout shortcut's cache.
+  Credential caches contain labels and counts,
   not passwords; newly created menu caches are private to the user. Ranking
   uses launch counts, not recency-weighted frecency. Credential menus accept
   only existing entries, and confirmations initially select Cancel. Keepmenu's

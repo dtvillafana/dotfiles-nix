@@ -253,7 +253,7 @@ in
           (exec "SUPER + F1" "hypr-desktop-action bindings" { description = "Toggle bindings help"; })
           (exec "SUPER + Return" "ghostty" { })
           (exec "SUPER + SHIFT + Return" "hypr-neovide" { })
-          (exec "SUPER + D" "fuzzel" { })
+          (exec "SUPER + D" "hypr-desktop-action apps" { })
           (exec "SUPER + SHIFT + D" "hypr-desktop-action run" { })
           (exec "SUPER + T" "hypr-desktop-action kill-user" { })
           (exec "SUPER + SHIFT + T" "hypr-desktop-action kill-root" { })

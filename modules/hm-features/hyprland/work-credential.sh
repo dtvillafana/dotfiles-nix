@@ -39,7 +39,7 @@ entry="$(
     fi
   done <<<"$entries" |
     sort |
-    hypr-desktop-action menu work-credentials --only-match --prompt 'Select work credential… '
+    hypr-desktop-action menu "work-credentials-$attribute" --only-match --prompt 'Select work credential… '
 )" || exit 0
 [ -n "$entry" ] || exit 0
 

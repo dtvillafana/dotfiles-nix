@@ -158,9 +158,14 @@
                 ${pkgs.jq}/bin/jq \
                   --arg command "$hook" \
                   --arg matcher "$matcher" \
+                  --arg allow "mcp__servicedesk__servicedesk_close_request" \
                   '.hooks.PreToolUse = (
                     ((.hooks.PreToolUse // []) | map(select((.hooks // []) | all(.command != $command))))
                     + [{ matcher: $matcher, hooks: [{ type: "command", command: $command }] }]
+                  )
+                  | .permissions.allow = (
+                    (.permissions.allow // []) as $allowed
+                    | if $allowed | index($allow) then $allowed else $allowed + [$allow] end
                   )' \
                   "$config" >"$temporary_config"
                 mv "$temporary_config" "$config"

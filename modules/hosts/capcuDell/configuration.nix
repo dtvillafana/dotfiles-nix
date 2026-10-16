@@ -117,12 +117,21 @@
       ];
 
       # Idle input is reported by Hyprland. loginctl runs hypridle's lock_cmd.
-      home-manager.users.capcu.services.hypridle.settings.listener = [
-        {
-          timeout = 600;
-          on-timeout = "loginctl lock-session";
-        }
-      ];
+      home-manager.users.capcu.services.hypridle = {
+        # Teams can leave its D-Bus inhibitor active after a call ends.
+        settings.general.ignore_dbus_inhibit = true;
+        settings.listener = [
+          {
+            timeout = 540;
+            on-timeout = ''${pkgs.dunst}/bin/dunstify --app-name=hypridle --replace-id=94521 --urgency=critical --expire-time=60000 "Screen locking in 1 minute" "Move the mouse or press a key to cancel automatic locking."'';
+            on-resume = "${pkgs.dunst}/bin/dunstify --close=94521";
+          }
+          {
+            timeout = 600;
+            on-timeout = "loginctl lock-session";
+          }
+        ];
+      };
 
       home-manager.users.capcu.opencode.settings = {
         "$schema" = "https://opencode.ai/config.json";

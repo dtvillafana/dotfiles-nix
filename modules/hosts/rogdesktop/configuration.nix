@@ -257,8 +257,8 @@
           platforms.api_server.enabled = true;
           model = {
             provider = "custom";
-            base_url = "http://127.0.0.1:11434/v1";
-            default = "qwen3.5:9b";
+            base_url = "http://127.0.0.1:${toString config.services.llama-cpp.port}/v1";
+            default = "darkstar-nemotron-3.5-lightning:30b";
             context_length = 65536;
           };
           max_turns = 100;
@@ -292,8 +292,8 @@
       };
 
       systemd.services.hermes-agent = lib.mkIf secretsEnabled {
-        after = [ "ollama-model-loader.service" ];
-        requires = [ "ollama-model-loader.service" ];
+        after = [ "llama-cpp.service" ];
+        requires = [ "llama-cpp.service" ];
         environment.HOME = lib.mkForce "/home/vir";
         restartTriggers = [
           (pkgs.writeText "hermes-agent-gateway-config" (

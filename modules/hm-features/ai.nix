@@ -441,14 +441,8 @@
                   update = "disable";
                   shell = "${opencodeZsh}/bin/opencode-zsh";
                   agents = {
-                    explore = {
-                      model = "openai/gpt-6-luna#medium";
-                      mode = "subagent";
-                    };
-                    general = {
-                      model = "openai/gpt-6-luna#max";
-                      mode = "subagent";
-                    };
+                    build.permissions = mkFamilySubagentPerms "explore" "general";
+                    plan.permissions = mkPlanSubagentPerms "explore";
                     "grok-explore" = mkExplore "xai/grok-build-0.1";
                     "grok-general" = mkGeneral "xai/grok-4.7#medium";
                     "openai-explore" = mkExplore "openai/gpt-6-luna#medium";

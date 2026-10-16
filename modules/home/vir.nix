@@ -179,8 +179,25 @@
               PartOf = [ "graphical-session.target" ];
             };
             Service = {
-              # WebKitGTK's DMA-BUF renderer leaves Handy's settings window blank.
-              Environment = [ "WEBKIT_DISABLE_DMABUF_RENDERER=1" ];
+              # Native Wayland leaves Handy's webview confined to the top-left
+              # corner; use XWayland and avoid WebKitGTK's NVIDIA rendering bugs.
+              # The packaged binary is also wrapped, but this unit executes the
+              # unwrapped store path.
+              Environment = [
+                "GDK_BACKEND=x11"
+                "WEBKIT_DISABLE_DMABUF_RENDERER=1"
+                "WEBKIT_DISABLE_COMPOSITING_MODE=1"
+              ];
+              ExecStartPre = pkgs.writeShellScript "handy-wayland-settings" ''
+                set -eu
+                settings="''${XDG_DATA_HOME:-$HOME/.local/share}/com.pais.handy/settings_store.json"
+                if [ -f "$settings" ]; then
+                  temporary_settings=$(${pkgs.coreutils}/bin/mktemp "$settings.XXXXXX")
+                  trap '${pkgs.coreutils}/bin/rm -f "$temporary_settings"' EXIT
+                  ${pkgs.jq}/bin/jq '.settings.typing_tool = "wtype"' "$settings" > "$temporary_settings"
+                  ${pkgs.coreutils}/bin/mv "$temporary_settings" "$settings"
+                fi
+              '';
               ExecStart = "${llm-agents.packages.${system}.handy}/bin/handy --start-hidden";
               Restart = "on-failure";
             };

@@ -57,6 +57,7 @@
           moe = false;
         };
       };
+      contextSizeFor = name: cfg.modelContextSizes.${name} or cfg.contextSize;
       fetch =
         model: file: hash:
         pkgs.fetchurl {
@@ -98,8 +99,10 @@
             };
           }
           // lib.mapAttrs (
-            _: model:
+            name: model:
             {
+              ctx-size = contextSizeFor name;
+              fit-ctx = contextSizeFor name;
               model = toString (fetch model model.file model.hash);
               mmproj = toString (fetch model model.projector model.projectorHash);
             }
@@ -115,7 +118,12 @@
         contextSize = lib.mkOption {
           type = lib.types.ints.positive;
           default = 32768;
-          description = "Context per model, shared with the OpenCode model limits.";
+          description = "Fallback context for models without a modelContextSizes override, shared with OpenCode.";
+        };
+        modelContextSizes = lib.mkOption {
+          type = lib.types.attrsOf (lib.types.ints.between 8193 262144);
+          default = { };
+          description = "Per-model context overrides, shared by llama.cpp fitting and OpenCode model limits.";
         };
         cpuExpertLayers = lib.mkOption {
           type = lib.types.nullOr (lib.types.ints.between 0 40);
@@ -129,6 +137,13 @@
       };
 
       config = {
+        # Long-input decoding, not just an allocated but empty cache, must
+        # meet the 15 token/s target. The 27B has no qualifying profile.
+        services.local-qwen.modelContextSizes = {
+          "qwen3.5-9b-abliterated" = lib.mkDefault 30720;
+          "qwen3.6-35b-a3b-abliterated" = lib.mkDefault 24576;
+        };
+
         environment.systemPackages = [
           (pkgs.writeShellScriptBin "local-qwen-check" ''
             exec ${pkgs.python3}/bin/python3 ${./local-qwen/check.py} "$@"
@@ -139,6 +154,10 @@
           {
             assertion = cfg.contextSize > 8192;
             message = "local-qwen needs contextSize > 8192 to leave room for input and output.";
+          }
+          {
+            assertion = lib.all (name: builtins.hasAttr name models) (builtins.attrNames cfg.modelContextSizes);
+            message = "local-qwen modelContextSizes contains an unknown model ID.";
           }
         ];
 
@@ -238,7 +257,7 @@
             headerTimeout = 3600000;
             chunkTimeout = 3600000;
           };
-          models = lib.mapAttrs (_: model: {
+          models = lib.mapAttrs (name: model: {
             inherit (model) name;
             capabilities = {
               tools = true;
@@ -250,7 +269,7 @@
             };
             compatibility.reasoningField = "reasoning_content";
             limit = {
-              context = cfg.contextSize;
+              context = contextSizeFor name;
               output = 8192;
             };
             cost = {

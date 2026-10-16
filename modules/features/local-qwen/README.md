@@ -10,7 +10,7 @@ Both normal and bootstrap host configurations import this feature.
 | --- | --- | --- |
 | Qwen3.8 27B Abliterated | UD-DW Q4_K_M, 16.55 GB | Automatically fit as many whole layers as possible on GPU; remaining layers execute on CPU from system RAM |
 | Qwen3.6 35B-A3B Abliterated | Q4_K, 21.71 GB | Routed experts execute on CPU from RAM; automatically fit remaining tensors/layers on GPU |
-| Qwen3.5 9B Abliterated | Q4_K_M, 5.63 GB | Prefer GPU layers, automatically spilling layers to CPU/RAM if the 32K cache leaves insufficient VRAM |
+| Qwen3.5 9B Abliterated | Q4_K_M, 5.63 GB | Prefer GPU layers, automatically spilling layers to CPU/RAM if the configured cache leaves insufficient VRAM |
 
 The vision encoders (0.90–0.93 GB each) run on CPU, with images capped at 1,024
 tokens. This protects VRAM from transient encoder allocations. Six CPU threads,
@@ -19,13 +19,18 @@ defaults. CPU weights use llama.cpp's default memory mapping; RAM is where those
 weights reside, not a third compute device. Swap is disabled for this service.
 
 Automatic fitting reserves a **1,536 MiB margin relative to available GPU
-memory**, and cannot reduce the explicitly configured **32,768-token context**.
+memory**, and cannot reduce each model's explicitly configured context.
 The exact split is computed at model load, not guessed from file sizes. OpenCode
 advertises the same context and an 8,192-token output limit. Prompt snapshot RAM
 caching and recurrent checkpoints are disabled to avoid additional RAM growth.
 Only **one model** can be loaded at a time; selecting another evicts the previous
 one. Long prefill and CPU vision encoding will still be slow on the Ryzen 2600X.
 MTP/speculative decoding is not enabled, even for files containing MTP tensors.
+
+The tuned context defaults are **30,720 tokens for 9B** and **24,576 for the MoE**.
+The 27B retains the **32,768-token fallback**, but does **not** meet the 15 token/s
+target. See the long-input measurements below; the original 32K short-prompt
+benchmark did not establish sustained speed at long input lengths.
 
 These are conservative profiles, **not exhaustively optimized placements**.
 Check actual allocation and peak usage with text, images, tools, and long prompts
@@ -83,8 +88,8 @@ In OpenCode, open `/models` and choose:
 - `local-qwen/qwen3.6-35b-a3b-abliterated`
 - `local-qwen/qwen3.5-9b-abliterated`
 
-Use a fresh session if the existing conversation exceeds the 32K context. Models
-load on the first request, so the first turn and switches take longer. The local
+Use a fresh session if the existing conversation exceeds the selected model's
+context. Models load on the first request, so the first turn and switches take longer. The local
 provider allows up to an hour for response headers and streamed chunk gaps.
 Run `model-unload` in Zsh to release loaded Qwen models from RAM/VRAM without
 stopping the router. The next model request loads it again.
@@ -112,7 +117,13 @@ To tune after measurement, set these in the host configuration and rebuild:
 
 ```nix
 services.local-qwen = {
+  # Fallback for models without a per-model override:
   contextSize = 32768;
+  # Runtime allocation, minimum fitting context, and OpenCode limits stay aligned:
+  modelContextSizes = {
+    "qwen3.5-9b-abliterated" = 30720;
+    "qwen3.6-35b-a3b-abliterated" = 24576;
+  };
   # null (default) keeps all routed experts on CPU. Try progressively smaller
   # block counts only after checking VRAM and latency, e.g. 36, then 32.
   cpuExpertLayers = null;
@@ -125,14 +136,55 @@ end-to-end latency, not just offloaded layer counts. Abliteration/quantization
 can degrade tool use and reasoning; the base models' benchmarks do not establish
 these variants' quality.
 
-## Measured results (2026-10-16)
+Increasing allocated context alone does not demonstrate long-context speed.
+For throughput acceptance, separately measure short-prompt decoding and decoding
+after prefilling the usable input budget (configured context minus the 8,192-token
+output budget). Report prefill time separately; a 15 generated-token/s result does
+not imply fast processing of a fresh long prompt. Synthetic throughput tests also
+do not establish long-context retrieval or tool-use quality.
+
+## Context tuning (2026-10-16)
+
+Using the same installed runtime, GGUFs, and conservative settings, the tuning
+loop checked 32K first, searched downward when it failed, and refined the passing
+boundary in 2,048-token steps. Each candidate got a 64-token warm-up and three
+uncached 837-token prompts generating 128 tokens each. Candidates passing 15
+token/s in all three short trials then processed an uncached synthetic token-array
+prompt of `context - 8192` tokens and generated 512 tokens. Actual allocated
+context and processed token counts were verified; fitting could not shrink them.
+
+| Model | Persisted context | Long input tokens | Long-input generation tok/s | Prefill time | Next larger tested failure |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Qwen3.5 9B | 30,720 | 22,528 | 16.47 | 68.5 s | 32,768: 14.68 tok/s |
+| Qwen3.6 35B-A3B | 24,576 | 16,384 | 15.46 | 411.6 s | 26,624: 14.42 tok/s |
+| Qwen3.8 27B | 32,768 (unchanged; no passing profile) | Not tested | Failed short-prompt screening | — | 16K/24K/32K all about 1.9 tok/s even on short prompts |
+
+9B also passed at 24,576 (18.56 tok/s), 26,624 (17.83), and 28,672 (17.10).
+The MoE failed at 32,768 (12.97 tok/s). These are the largest **tested** passing
+contexts, not exact mathematical limits or a guarantee that every generated
+token/workload remains above 15 tok/s. In particular, the MoE has little margin,
+and the test did not generate the entire 8,192-token output allowance. More
+generation, images, different prompts, or competing desktop load can be slower.
+No cache quantization, flash-attention changes, or expert-placement changes were
+used. The initial loop and refinement took about 59 minutes; the initial loop's
+cgroup peaked at 34.7 GiB with no swap use.
+
+Both selected profiles subsequently passed the router's text, tool-call and
+follow-up, image-color, actual-context, and single-resident-model checks. The 27B
+was not removed or falsely classified as meeting the speed floor.
+
+Raw JSON results, per-context logs, and the benchmark script are preserved under
+`~/.cache/opencode-local-qwen/context-tuning-2026-10-16/` (`initial/` and
+`refinement/`). These measurements do not establish retrieval or agent quality.
+
+## Initial 32K short-prompt measurements (2026-10-16)
 
 Tested on the GTX 1070 / Ryzen 2600X machine with the installed CUDA 12
 llama.cpp 0.6.0 runtime, one model resident and the full 32K context allocated.
 After a 64-token warm-up, each model ran three uncached 837-token prompts with
 256 generated tokens. The table reports median llama.cpp timings, excluding
 model loading; these are short-text throughput measurements, not long-context
-agent benchmarks. All use the unchanged conservative profiles above.
+agent benchmarks. These are historical 32K results, before per-model context tuning.
 
 | Model | Generation tok/s | Prefill tok/s | Peak total GPU memory | Actual placement |
 | --- | ---: | ---: | ---: | --- |

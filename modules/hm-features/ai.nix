@@ -12,6 +12,18 @@
       ...
     }:
     let
+      fastBrowserMcp = pkgs.callPackage ../../packages/fast-browser-mcp.nix {
+        inherit (inputs) fast-browser-mcp-src;
+      };
+      fastBrowserLaunch = pkgs.writeShellScriptBin "fast-browser-launch" ''
+        exec ${lib.getExe pkgs.brave} \
+          --remote-debugging-address=127.0.0.1 \
+          --remote-debugging-port=9222 \
+          --user-data-dir="''${XDG_DATA_HOME:-$HOME/.local/share}/fast-browser-mcp/brave" \
+          --no-first-run \
+          --no-default-browser-check \
+          "$@"
+      '';
       openBrowserUse = pkgs.callPackage ../../packages/open-browser-use.nix { };
       socketDir = "$XDG_RUNTIME_DIR/open-browser-use";
       openBrowserUseCommand = ''
@@ -125,6 +137,8 @@
             handyWrapped
             llm-agents.packages.${system}.herdr
             llm-agents.packages.${system}.opencode2
+            fastBrowserMcp
+            fastBrowserLaunch
             openBrowserUseCli
           ];
 
@@ -475,6 +489,30 @@
                     compaction.mode = "provider";
                   };
                   permissions = [
+                    # Avoid exposing all upstream DevTools tools to fast models.
+                    {
+                      action = "fast_browser_*";
+                      resource = "*";
+                      effect = "deny";
+                    }
+                  ]
+                  ++
+                    map
+                      (tool: {
+                        action = "fast_browser_${tool}";
+                        resource = "*";
+                        effect = "allow";
+                      })
+                      [
+                        "browser_list_tabs"
+                        "browser_select_tab"
+                        "browser_new_tab"
+                        "browser_close_tab"
+                        "browser_snapshot"
+                        "browser_batch"
+                        "browser_screenshot"
+                      ]
+                  ++ [
                     {
                       action = "read";
                       resource = "*.env";
@@ -511,8 +549,20 @@
                     description = "NixOS and home-manager flake for this machine: hosts, home modules, OpenCode/AI config, packages, and secrets layout. Use when changing system or user config.";
                   };
                   mcp.servers = {
+                    fast_browser = {
+                      type = "local";
+                      command = [
+                        (lib.getExe fastBrowserMcp)
+                        "--host"
+                        "127.0.0.1"
+                        "--port"
+                        "9222"
+                      ];
+                      codemode = false;
+                    };
                     open_browser_use = {
                       type = "local";
+                      disabled = true;
                       command = [
                         "${openBrowserUseCli}/bin/obu"
                         "mcp"

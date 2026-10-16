@@ -15,6 +15,7 @@ let
         self.nixosModules.office
         self.nixosModules.hpXeonConfig
         self.nixosModules.sheepit
+        self.nixosModules.signalIdle
         self.nixosModules.hpXeonHardware
         self.nixosModules.virHome
         self.nixosModules.guestHome

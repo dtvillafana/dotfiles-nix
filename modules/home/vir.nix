@@ -96,6 +96,7 @@
             self.homeModules.zathura
             self.homeModules.terminal
             self.homeModules.monitors
+            self.homeModules.obs-zoom
             self.homeModules.launcher
             self.homeModules.git
             self.homeModules.ai
@@ -136,7 +137,6 @@
             networkmanagerapplet
             nixfmt-tree
             nvtopPackages.full
-            obs-studio # PipeWire display capture and windowed projectors.
             self.packages.${system}.scriberr
             pwgen-secure
             python313

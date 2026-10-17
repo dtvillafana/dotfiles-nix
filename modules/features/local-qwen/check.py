@@ -9,11 +9,6 @@ import urllib.request
 import zlib
 
 BASE_URL = "http://127.0.0.1:18082"
-MODELS = (
-    "qwen3.5-9b-abliterated",
-    "qwen3.6-35b-a3b-abliterated",
-    "qwen3.8-27b-abliterated",
-)
 
 
 def request(path: str, body: dict | None = None) -> dict:
@@ -130,7 +125,7 @@ def check_model(model: str) -> None:
 
 if __name__ == "__main__":
     try:
-        for model in MODELS:
+        for model in sorted(item["id"] for item in request("/v1/models")["data"]):
             check_model(model)
     except (urllib.error.URLError, TimeoutError, ValueError, KeyError, IndexError) as error:
         raise SystemExit(f"FAIL: {error}") from error

@@ -1,5 +1,7 @@
 # Local Qwen options for OpenCode (rogdesktop)
 
+For CapCUDell's separate Blackwell profiles, see [BLACKWELL.md](BLACKWELL.md).
+
 `../local-qwen.nix` adds three models under the `local-qwen` provider, without
 changing OpenCode's default model or the existing Nemotron/Hermes configuration.
 Both normal and bootstrap host configurations import this feature.

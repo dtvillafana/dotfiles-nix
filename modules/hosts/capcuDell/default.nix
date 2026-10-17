@@ -21,6 +21,7 @@ let
         self.nixosModules.capcuHome
         self.nixosModules.hermesM365Email
         self.nixosModules.ollama
+        self.nixosModules.localQwenBlackwell
       ];
       specialArgs = {
         inherit secretsEnabled;

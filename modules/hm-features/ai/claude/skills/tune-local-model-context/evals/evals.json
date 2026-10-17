@@ -1,0 +1,42 @@
+{
+  "skill_name": "tune-local-model-context",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Offline dry run only; do not run benchmarks, rebuild, or change configuration. We want the biggest context on capcuDell at minimum 15 tok/s. For the dense 27B, 45,056 context passed two 44,288-input, 512-output trials at 15.78 and 15.83 tok/s, with 1,700 MiB free VRAM before and after. At 47,104, short prompts reach 19 tok/s but near-full prompts reach 14.14. The files currently still say 47,104. Give the selected context, acceptance decision, and remaining steps before claiming this is applied.",
+      "expected_output": "Select 45,056, reject the short-only evidence at 47,104, restore only this model's override, rebuild if authorized in an actual run, and verify runtime/client limits before claiming activation. Do not perform real operations in this dry run.",
+      "files": [],
+      "expectations": [
+        "Selects 45,056 instead of accepting 47,104 from short-prompt speed.",
+        "Requires restoring the model override and successful rebuild before claiming application.",
+        "Requires runtime context, fit floor, and client limits to agree.",
+        "Keeps this evaluation a dry run rather than performing real operations."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Offline scenario; no system changes or GPU calls. The Qwen MoE gets 53 tok/s at context 147,456, with memory.free=1,516 MiB. At 143,360 its two near-full 512-token runs were 30.68/31.01 tok/s and memory.free was 1,596 MiB both times. The configured reserve is 1,536 MiB; nvidia total-used reports 1,976 MiB at the larger setting. fit=on is enabled but llama.cpp says tensor_buft_overrides already set by user, abort. Which profile should we keep and why? Should we lower the reserve or move experts?",
+      "expected_output": "Keep 143,360; use memory.free rather than total-used, recognize fitting is skipped with expert overrides, reject 147,456 on headroom despite high speed, and do not lower reserve or move experts without separate authorization.",
+      "files": [],
+      "expectations": [
+        "Selects 143,360 and rejects 147,456 because 1,516 MiB is below the reserve.",
+        "Uses memory.free rather than total minus used for headroom.",
+        "Recognizes that tensor overrides prevent automatic fitting despite fit=on.",
+        "Does not lower the reserve or change expert placement without separate authorization."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review this simulated final validation without executing anything. Candidate A has two server decode rates 16.2 and 14.8; the benchmark summary says PASS at 15.5. Candidate B reports 30 tok/s but prompt_n is 1,000 for a requested 44,288-token uncached input. An nr attempt exited 4; /models still shows the old ctx-size and OpenCode's context limit differs from fit-ctx. Can either be called a validated and applied result? List what to do next, including how to handle a competing Ollama startup and the decode-versus-wall-time distinction.",
+      "expected_output": "Reject A because one raw sample is below target and B because full input was not evaluated; neither is applied. Investigate failed activation and backend readiness/competition, preserve last good settings, repeat valid near-full trials, rebuild only with authorization, reconcile actual context/fit/client limits, and report prefill separately from decode.",
+      "files": [],
+      "expectations": [
+        "Rejects candidate A despite its aggregate PASS because a raw sample is below 15.",
+        "Rejects candidate B because the full requested input was not evaluated.",
+        "Does not claim activation after nr exited 4 and runtime/client limits disagree.",
+        "Diagnoses the competing Ollama startup without permanently disabling unrelated services.",
+        "Separates decode speed from prefill and end-to-end wall time."
+      ]
+    }
+  ]
+}

@@ -67,6 +67,8 @@
       users.groups.vir = { };
       users.groups.git-secrets.members = [ "vir" ];
 
+      sops.age.sshKeyPaths = lib.mkIf secretsEnabled [ "/home/vir/.ssh/id_ed25519" ];
+
       sops.secrets = lib.mkIf secretsEnabled {
         git_github_vir = mkSharedSecret "git_github";
         git_codeberg_vir = mkSharedSecret "git_codeberg";
@@ -112,6 +114,8 @@
 
           home.username = "vir";
           home.homeDirectory = "/home/vir";
+
+          wayvnc.port = lib.mkDefault 5902;
 
           home.packages = with pkgs; [
             age

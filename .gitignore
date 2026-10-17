@@ -1,3 +1,8 @@
-.worktrees
+.worktrees/
 .codegraph
-.omo
+.omo/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+result
+result-*

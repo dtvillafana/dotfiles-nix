@@ -13,10 +13,6 @@
   flake.nixosModules.capcuDellDesktop = {
     home-manager.sharedModules = [ self.homeModules.capcuDellMonitors ];
     # Preserve capcu's existing SSH-tunnel endpoint and greeter handoff.
-    home-manager.users.capcu.xdg.configFile."wayvnc/config".text = ''
-      address=127.0.0.1 ::1
-      port=5901
-      enable_auth=false
-    '';
+    home-manager.users.capcu.wayvnc.port = 5901;
   };
 }

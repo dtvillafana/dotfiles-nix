@@ -25,7 +25,7 @@
         "hermes-agent.service"
         "hermes-webui.service"
       ];
-      models = {
+      models = lib.recursiveUpdate {
         "qwen3.8-27b-abliterated" = {
           name = "Qwen3.8 27B Abliterated (quality, CPU/GPU)";
           repo = "huihui-ai/Huihui-Qwen3.8-27B-abliterated-GGUF";
@@ -56,8 +56,9 @@
           projectorHash = "56f07ff42fc9ab24fc06a93dce5a48fb2dbe08bff1a1c6e519d50af450820148";
           moe = false;
         };
-      };
-      contextSizeFor = name: cfg.modelContextSizes.${name} or cfg.contextSize;
+      } cfg.modelOverrides;
+      contextSizeFor =
+        name: models.${name}.contextSize or (cfg.modelContextSizes.${name} or cfg.contextSize);
       fetch =
         model: file: hash:
         pkgs.fetchurl {
@@ -70,8 +71,8 @@
             "*" = {
               ctx-size = cfg.contextSize;
               parallel = 1;
-              threads = 6;
-              threads-batch = 6;
+              threads = cfg.threads;
+              threads-batch = cfg.threads;
               batch-size = 512;
               ubatch-size = 64;
               # Fit model layers, not a silently smaller context. CPU weights
@@ -79,14 +80,14 @@
               gpu-layers = "auto";
               fit = "on";
               fit-ctx = cfg.contextSize;
-              fit-target = 1536;
-              flash-attn = "off";
+              fit-target = cfg.fitTarget;
+              flash-attn = cfg.flashAttention;
               cache-type-k = "f16";
               cache-type-v = "f16";
               cache-ram = 0;
               ctx-checkpoints = 0;
               # The fitter does not budget all transient vision allocations.
-              # Keep the encoder and its scratch buffers off this 8 GiB GPU.
+              # Keep the encoder and its scratch buffers in system RAM.
               mmproj-offload = 0;
               image-max-tokens = 1024;
               jinja = 1;
@@ -115,6 +116,50 @@
     in
     {
       options.services.local-qwen = {
+        competingServices = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = competingServices;
+          description = "Services stopped before this router starts; exclude clients using this backend.";
+        };
+        user = lib.mkOption {
+          type = lib.types.str;
+          default = "vir";
+          description = "Home Manager user receiving the local provider and unload alias.";
+        };
+        providerName = lib.mkOption {
+          type = lib.types.str;
+          default = "Local Qwen (GTX 1070 + RAM)";
+          description = "Display name for the local OpenCode provider.";
+        };
+        package = lib.mkOption {
+          type = lib.types.package;
+          default = llama;
+          description = "CUDA-enabled llama.cpp runtime; select a toolkit compatible with the GPU.";
+        };
+        threads = lib.mkOption {
+          type = lib.types.ints.positive;
+          default = 6;
+          description = "CPU generation and batch threads, including CPU experts.";
+        };
+        fitTarget = lib.mkOption {
+          type = lib.types.ints.positive;
+          default = 1536;
+          description = "GPU fitting headroom in MiB relative to available VRAM.";
+        };
+        flashAttention = lib.mkOption {
+          type = lib.types.enum [
+            "off"
+            "on"
+            "auto"
+          ];
+          default = "off";
+          description = "Flash attention policy for this GPU/runtime.";
+        };
+        modelOverrides = lib.mkOption {
+          type = lib.types.attrsOf lib.types.attrs;
+          default = { };
+          description = "Recursive model metadata overrides and additional pinned model definitions; contextSize overrides the shared context per model.";
+        };
         contextSize = lib.mkOption {
           type = lib.types.ints.positive;
           default = 32768;
@@ -123,7 +168,7 @@
         modelContextSizes = lib.mkOption {
           type = lib.types.attrsOf (lib.types.ints.between 8193 262144);
           default = { };
-          description = "Per-model context overrides, shared by llama.cpp fitting and OpenCode model limits.";
+          description = "Per-model context overrides, shared by llama.cpp fitting and OpenCode model limits; modelOverrides contextSize takes precedence.";
         };
         cpuExpertLayers = lib.mkOption {
           type = lib.types.nullOr (lib.types.ints.between 0 40);
@@ -131,7 +176,8 @@
           description = ''
             Qwen3.6 MoE blocks whose experts stay on CPU in system RAM.
             Null keeps all routed experts on CPU. Lower counts consume more
-            VRAM; automatic whole-layer fitting remains enabled as a guard.
+            VRAM. llama.cpp may skip automatic fitting when expert tensor
+            overrides are set; validate context/cache memory on the hardware.
           '';
         };
       };
@@ -148,6 +194,9 @@
           (pkgs.writeShellScriptBin "local-qwen-check" ''
             exec ${pkgs.python3}/bin/python3 ${./local-qwen/check.py} "$@"
           '')
+          (pkgs.writeShellScriptBin "local-qwen-bench" ''
+            exec ${pkgs.python3}/bin/python3 ${./local-qwen/benchmark.py} "$@"
+          '')
         ];
 
         assertions = [
@@ -159,7 +208,11 @@
             assertion = lib.all (name: builtins.hasAttr name models) (builtins.attrNames cfg.modelContextSizes);
             message = "local-qwen modelContextSizes contains an unknown model ID.";
           }
-        ];
+        ]
+        ++ lib.mapAttrsToList (id: model: {
+          assertion = contextSizeFor id > 8192;
+          message = "local-qwen model ${id} needs contextSize > 8192.";
+        }) models;
 
         # Only the public socket starts at boot. The proxy starts the router on
         # the first connection, retaining Nemotron/Hermes defaults until then.
@@ -184,11 +237,11 @@
         systemd.services.local-qwen = {
           description = "On-demand Qwen vision/tool model router for OpenCode";
           # Ordering as well as conflicts: wait for old GPU workers to exit.
-          after = [ "network.target" ] ++ competingServices;
-          conflicts = competingServices;
+          after = [ "network.target" ] ++ cfg.competingServices;
+          conflicts = cfg.competingServices;
           serviceConfig = {
             ExecStart = lib.escapeShellArgs [
-              "${llama}/bin/llama-server"
+              "${cfg.package}/bin/llama-server"
               "--host"
               "127.0.0.1"
               "--port"
@@ -232,51 +285,53 @@
           };
         };
 
-        home-manager.users.vir.programs.zsh.shellAliases.model-unload = toString (
-          pkgs.writeShellScript "model-unload" ''
-            set -euo pipefail
-            models=$(${pkgs.curl}/bin/curl --fail --silent --show-error \
-              http://127.0.0.1:18082/models | \
-              ${pkgs.jq}/bin/jq -r '.data[] | select(.status.value == "loaded") | .id')
-            while IFS= read -r model; do
-              [ -n "$model" ] || continue
-              ${pkgs.jq}/bin/jq -n --arg model "$model" '{model: $model}' | \
-                ${pkgs.curl}/bin/curl --fail --silent --show-error \
-                  --header 'Content-Type: application/json' --data-binary @- \
-                  http://127.0.0.1:18082/models/unload
-              printf '\nUnloaded %s\n' "$model"
-            done <<< "$models"
-          ''
-        );
+        home-manager.users.${cfg.user} = {
+          programs.zsh.shellAliases.model-unload = toString (
+            pkgs.writeShellScript "model-unload" ''
+              set -euo pipefail
+              models=$(${pkgs.curl}/bin/curl --fail --silent --show-error \
+                http://127.0.0.1:18082/models | \
+                ${pkgs.jq}/bin/jq -r '.data[] | select(.status.value == "loaded") | .id')
+              while IFS= read -r model; do
+                [ -n "$model" ] || continue
+                ${pkgs.jq}/bin/jq -n --arg model "$model" '{model: $model}' | \
+                  ${pkgs.curl}/bin/curl --fail --silent --show-error \
+                    --header 'Content-Type: application/json' --data-binary @- \
+                    http://127.0.0.1:18082/models/unload
+                printf '\nUnloaded %s\n' "$model"
+              done <<< "$models"
+            ''
+          );
 
-        home-manager.users.vir.opencode.settings.providers.local-qwen = {
-          name = "Local Qwen (GTX 1070 + RAM)";
-          package = "@opencode/ai/providers/openai-compatible";
-          settings = {
-            baseURL = "http://127.0.0.1:18082/v1";
-            headerTimeout = 3600000;
-            chunkTimeout = 3600000;
+          opencode.settings.providers.local-qwen = {
+            name = cfg.providerName;
+            package = "@opencode/ai/providers/openai-compatible";
+            settings = {
+              baseURL = "http://127.0.0.1:18082/v1";
+              headerTimeout = 3600000;
+              chunkTimeout = 3600000;
+            };
+            models = lib.mapAttrs (name: model: {
+              inherit (model) name;
+              capabilities = {
+                tools = true;
+                input = [
+                  "text"
+                  "image"
+                ];
+                output = [ "text" ];
+              };
+              compatibility.reasoningField = "reasoning_content";
+              limit = {
+                context = contextSizeFor name;
+                output = 8192;
+              };
+              cost = {
+                input = 0;
+                output = 0;
+              };
+            }) models;
           };
-          models = lib.mapAttrs (name: model: {
-            inherit (model) name;
-            capabilities = {
-              tools = true;
-              input = [
-                "text"
-                "image"
-              ];
-              output = [ "text" ];
-            };
-            compatibility.reasoningField = "reasoning_content";
-            limit = {
-              context = contextSizeFor name;
-              output = 8192;
-            };
-            cost = {
-              input = 0;
-              output = 0;
-            };
-          }) models;
         };
       };
     };

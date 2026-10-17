@@ -15,7 +15,6 @@
     in
     {
       options.services.sheepit = {
-        enable = lib.mkEnableOption "idle-only SheepIt CPU and GPU rendering";
         idleSeconds = lib.mkOption {
           type = lib.types.ints.positive;
           default = 900;
@@ -35,7 +34,7 @@
           description = "Encrypted YAML file with a sheepit-config key containing login and password (render key) as Java properties.";
         };
       };
-      config = lib.mkIf (cfg.enable && secretsEnabled) {
+      config = lib.mkIf secretsEnabled {
         users.groups.sheepit = { };
         users.users.sheepit = {
           isSystemUser = true;

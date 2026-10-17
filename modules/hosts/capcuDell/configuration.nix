@@ -26,6 +26,7 @@
       tailscaleCaBundle = pkgs.runCommand "tailscale-ca-bundle.crt" { } ''
         cat ${config.security.pki.caBundle} ${./Fortinet_CA_SSL.cer} >"$out"
       '';
+      localQwenProvider = config.home-manager.users.capcu.opencode.settings.providers.local-qwen;
       # Run a minimal Hyprland greeter so WayVNC also works before login.
       # Its server exits with the greeter; capcu's user service takes over 5901.
       greeterConfig = ''
@@ -183,11 +184,22 @@
           toolsets = [ "all" ];
           platforms.api_server.enabled = true;
           model = {
-            provider = "ollama";
-            base_url = "http://127.0.0.1:11434/v1";
-            default = "nemotron-3.5-lightning:30b";
-            context_length = 65536;
+            provider = "custom:local-qwen";
+            base_url = localQwenProvider.settings.baseURL;
+            default = "qwen3.8-27b-abliterated";
+            context_length = localQwenProvider.models."qwen3.8-27b-abliterated".limit.context;
           };
+          custom_providers = [
+            {
+              name = "Local Qwen";
+              base_url = localQwenProvider.settings.baseURL;
+              api_key = "local-no-auth";
+              model = "qwen3.8-27b-abliterated";
+              models = lib.mapAttrs (_: model: {
+                context_length = model.limit.context;
+              }) localQwenProvider.models;
+            }
+          ];
           max_turns = 100;
           agent = {
             max_turns = 60;
@@ -221,8 +233,8 @@
       };
 
       systemd.services.hermes-agent = lib.mkIf secretsEnabled {
-        after = [ "ollama-model-loader.service" ];
-        requires = [ "ollama-model-loader.service" ];
+        after = [ "local-qwen-proxy.socket" ];
+        requires = [ "local-qwen-proxy.socket" ];
         environment.HOME = lib.mkForce "/home/capcu";
         restartTriggers = [
           (pkgs.writeText "hermes-agent-gateway-config" (

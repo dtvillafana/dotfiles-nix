@@ -125,6 +125,23 @@
         "url": "https://install.determinate.systems/determinate-nixd/tag/v3.23.0/x86_64-linux"
       }
     },
+    "fast-browser-mcp-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791665998,
+        "narHash": "sha256-Co0bjywz744i92CCeYURNSetZeRBeFnlfcDD4L4gljs=",
+        "owner": "kqlio67",
+        "repo": "fast-browser-mcp",
+        "rev": "e269204f2a6851d47b8bfae1903a7da8c69258d0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kqlio67",
+        "ref": "v0.10.0",
+        "repo": "fast-browser-mcp",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -954,6 +971,7 @@
       "inputs": {
         "agent-deck-src": "agent-deck-src",
         "determinate": "determinate",
+        "fast-browser-mcp-src": "fast-browser-mcp-src",
         "flake-parts": "flake-parts_2",
         "hermes-agent": "hermes-agent",
         "hermes-webui": "hermes-webui",

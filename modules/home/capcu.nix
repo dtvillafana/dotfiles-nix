@@ -168,6 +168,8 @@
       users.groups.capcu = { };
       users.groups.git-secrets.members = [ "capcu" ];
 
+      sops.age.sshKeyPaths = lib.mkIf secretsEnabled [ "/home/capcu/.ssh/id_ed25519" ];
+
       sops.secrets = lib.mkIf secretsEnabled {
         git_github_capcu = mkSharedSecret "git_github";
         git_gitlab_capcu = mkSharedSecret "git_gitlab";
@@ -243,7 +245,7 @@
             self.homeModules.terminal
             self.homeModules.monitors
             self.homeModules.launcher
-            self.homeModules.ai
+            self.homeModules.workAi
             self.homeModules.agent-deck
             self.homeModules.tmux
             self.homeModules.zsh
@@ -257,6 +259,8 @@
 
           home.username = "capcu";
           home.homeDirectory = "/home/capcu";
+
+          wayvnc.port = lib.mkDefault 5900;
 
           # Paths are rendered from sops into the Claude and OpenCode global configs.
           agentRuntimeSecrets = lib.mkIf secretsEnabled [
@@ -283,7 +287,7 @@
               bc
               blueman
               brightnessctl
-              btop
+              (btop.override { cudaSupport = true; })
               bun
               dunst
               fd

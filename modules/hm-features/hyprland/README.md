@@ -271,8 +271,12 @@ All three desktop users can access ydotool's input-simulation socket. This
 allows input injection, not access to raw physical input events. Gopass secrets
 are passed through stdin, not process arguments: normally to wtype, but to
 ydotool with slower key events for browsers, Remmina, and virt-manager to avoid
-virtual-keymap translation and dropped characters. The ydotool path assumes a US
-keyboard layout and ASCII credentials. There are no idle screen-off timers,
+virtual-keymap translation and dropped characters. The ydotool typing path assumes
+a US keyboard layout. Non-ASCII credentials (including `ñ` and `Ñ`) and control
+characters use Ctrl+V instead, with a UTF-8 clipboard selection owned for at most
+five seconds. This replaces the current clipboard; clipboard managers may retain
+it, and remote sessions need clipboard sharing enabled. Native Wayland targets
+still receive Unicode directly through wtype. There are no idle screen-off timers,
 preserving the previous rogdesktop behavior.
 
 After logging in, check:

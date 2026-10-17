@@ -180,7 +180,6 @@
 
       hardware.graphics.enable = true;
       services.sheepit = {
-        enable = true;
         memoryGiB = 16;
       };
 

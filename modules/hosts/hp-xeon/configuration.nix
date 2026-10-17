@@ -22,7 +22,6 @@
 
       hardware.graphics.enable = true;
       services.sheepit = {
-        enable = true;
         memoryGiB = 8;
         # The connected controller continuously emits absolute-axis events at rest.
         ignoredInputDevices = [

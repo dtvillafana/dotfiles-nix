@@ -62,19 +62,7 @@
             fuzzel_cached "$cache_name" --dmenu "$@"
           }
 
-          type_credential() {
-            # Let the shortcut modifiers be released before injecting stdin.
-            sleep 0.2
-            case "$1" in
-              *[Rr]emmina*|*virt-manager*|*virt-viewer*|*remote-viewer*)
-                ydotool type --key-delay=20 --key-hold=20 --file=-
-                ;;
-              *[Bb]rave*|*[Cc]hromium*|*[Cc]hrome*|*[Ff]irefox*|*qutebrowser*)
-                ydotool type --key-delay=10 --key-hold=10 --file=-
-                ;;
-              *) wtype - ;;
-            esac
-          }
+          ${builtins.readFile ./hyprland/type-credential.sh}
 
           case "''${1:-}" in
             apps)
@@ -188,199 +176,198 @@
 
       imports = [ ./hyprland/_settings.nix ];
 
-      wayland.systemd.target = "graphical-session.target";
-
-      programs.zsh.shellAliases.start-hyprland = "uwsm start hyprland.desktop";
-
-      # All desktop users share the same UWSM-managed Wayland session.
-      home.packages = with pkgs; [
-        desktopAction
-        hyprwhichkey
-        quickshell
-        grim
-        slurp
-        wl-clipboard
-        swaybg
-        dunst
-        networkmanagerapplet
-        hyprmonLauncher
-        wtype
-        wdisplays
-        wayvnc
-        (writeShellApplication {
-          name = "xdg-open";
-          runtimeInputs = [ systemd ];
-          text = ''
-            # Restore the current UWSM session for detached tmux/agent shells.
-            # Never guess :0: XWayland's display number is session-specific.
-            if [ -z "''${DISPLAY:-}" ] && [ -z "''${WAYLAND_DISPLAY:-}" ]; then
-              while IFS= read -r variable; do
-                case "$variable" in
-                  DISPLAY=*|WAYLAND_DISPLAY=*|XDG_CURRENT_DESKTOP=*|XDG_SESSION_TYPE=*|DBUS_SESSION_BUS_ADDRESS=*)
-                    export "''${variable?}"
-                    ;;
-                esac
-              done < <(systemctl --user show-environment)
-            fi
-            exec ${lib.getExe' pkgs.xdg-utils "xdg-open"} "$@"
-          '';
-        })
-        (writeShellScriptBin "hypr-neovide" ''
-          exec ${lib.getExe pkgs.neovide} --neovim-bin ${lib.getExe nixvim.packages.${system}.default} "$@"
-        '')
-      ];
-
-      xdg.configFile."hypr/user.lua".text = lib.mkDefault "";
-      home.pointerCursor = {
-        package = pkgs.adwaita-icon-theme;
-        name = "Adwaita";
-        size = 24;
-        gtk.enable = true;
-        x11.enable = true;
-      };
-      # UWSM imports these before starting graphical-session.target and portals.
-      xdg.configFile."uwsm/env-hyprland".text = ''
-        export NIXOS_OZONE_WL=1
-        export XCURSOR_THEME=Adwaita
-        export XCURSOR_SIZE=24
-      '';
-
-      # Distinct ports allow different users' sessions to coexist on one host.
-      # Hosts can override this default to preserve an existing tunnel endpoint.
-      xdg.configFile."wayvnc/config".text = lib.mkDefault ''
-        address=127.0.0.1 ::1
-        port=${
-          toString (
-            if config.home.username == "capcu" then
-              5900
-            else if config.home.username == "vir" then
-              5902
-            else
-              5903
-          )
-        }
-        enable_auth=false
-      '';
-      systemd.user.services.wayvnc = {
-        Unit = {
-          Description = "Share the Hyprland desktop over localhost-only VNC";
-          After = [ "graphical-session.target" ];
-          PartOf = [ "graphical-session.target" ];
-          ConditionEnvironment = "WAYLAND_DISPLAY";
-          # The SDDM greeter can own the port for several seconds after login.
-          # Keep retrying even if startup/hotplug failures exceed systemd's limit.
-          StartLimitIntervalSec = 0;
-        };
-        Service = {
-          ExecStart = "${lib.getExe pkgs.wayvnc} --desktop --disable-resizing --config ${config.xdg.configHome}/wayvnc/config";
-          Restart = "always";
-          RestartSec = 2;
-        };
-        Install.WantedBy = [ "graphical-session.target" ];
-      };
-      systemd.user.services.hyprwhichkey = {
-        Unit = {
-          Description = "Which-key binding overlay for Hyprland";
-          After = [ "graphical-session.target" ];
-          PartOf = [ "graphical-session.target" ];
-          ConditionEnvironment = "WAYLAND_DISPLAY";
-        };
-        Service = {
-          ExecStart = lib.getExe hyprwhichkey;
-          Restart = "on-failure";
-          RestartSec = 2;
-        };
-        Install.WantedBy = [ "graphical-session.target" ];
+      options.wayvnc.port = lib.mkOption {
+        type = lib.types.port;
+        default = 5903;
+        description = "Local VNC port for this user's Hyprland session.";
       };
 
-      services.hyprpolkitagent.enable = true;
-      services.hypridle = {
-        enable = true;
-        systemdTarget = "graphical-session.target";
-        settings.general = {
-          lock_cmd = "${lib.getExe pkgs.quickshell} --path ${config.xdg.configHome}/quickshell/lock --no-duplicate";
-          before_sleep_cmd = "loginctl lock-session";
-        };
-      };
-      xdg.configFile."quickshell/lock/shell.qml".source = ./hyprland/lock.qml;
-      programs.hyprlock = {
-        enable = true;
-        settings = {
-          background = {
-            monitor = "";
-            color = "rgba(000000ff)";
-          };
-          input-field = {
-            monitor = "";
-            size = "300, 50";
-            position = "0, 0";
-            halign = "center";
-            valign = "center";
-          };
-        };
-      };
+      config = {
+        wayland.systemd.target = "graphical-session.target";
 
-      programs.waybar = {
-        enable = true;
-        systemd.enable = true;
-        systemd.targets = [ "graphical-session.target" ];
-        settings.mainBar = {
-          layer = "top";
-          position = "bottom";
-          height = 26;
-          on-sigusr1 = "hide";
-          on-sigusr2 = "show";
-          modules-left = [
-            "hyprland/workspaces"
-            "hyprland/submap"
-          ];
-          modules-center = [ "hyprland/window" ];
-          modules-right = [
-            "custom/keyboard"
-            "network"
-            "disk"
-            "battery"
-            "memory"
-            "pulseaudio"
-            "clock"
-            "tray"
-          ];
-          "hyprland/workspaces" = {
-            format = "{name}";
-            all-outputs = false;
-          };
-          "hyprland/window" = {
-            align = 0.5;
-            format = "{title}";
-            max-length = 80;
-            separate-outputs = true;
-          };
-          "custom/keyboard" = {
-            format = "⌨";
-            tooltip-format = "Toggle keyboard shortcuts (Mod+F1)";
-            on-click = "hypr-desktop-action bindings";
-          };
-          network = {
-            format-wifi = "W: {essid} ({signalStrength}%) {ipaddr}";
-            format-ethernet = "E: {ipaddr}";
-            format-disconnected = "Network: down";
-          };
-          disk.format = "{free}";
-          battery.format = "BAT: {capacity}% {time}";
-          memory.format = "Tax Fraud Docs: {used:0.1f} GiB";
-          pulseaudio.format = "VOL: {volume}%";
-          clock = {
-            format = "{:%Y-%m-%d %H:%M:%S}";
-            interval = 1;
-          };
+        programs.zsh.shellAliases.start-hyprland = "uwsm start hyprland.desktop";
+
+        # All desktop users share the same UWSM-managed Wayland session.
+        home.packages = with pkgs; [
+          desktopAction
+          hyprwhichkey
+          quickshell
+          grim
+          slurp
+          wl-clipboard
+          swaybg
+          dunst
+          networkmanagerapplet
+          hyprmonLauncher
+          wtype
+          wdisplays
+          wayvnc
+          (writeShellApplication {
+            name = "xdg-open";
+            runtimeInputs = [ systemd ];
+            text = ''
+              # Restore the current UWSM session for detached tmux/agent shells.
+              # Never guess :0: XWayland's display number is session-specific.
+              if [ -z "''${DISPLAY:-}" ] && [ -z "''${WAYLAND_DISPLAY:-}" ]; then
+                while IFS= read -r variable; do
+                  case "$variable" in
+                    DISPLAY=*|WAYLAND_DISPLAY=*|XDG_CURRENT_DESKTOP=*|XDG_SESSION_TYPE=*|DBUS_SESSION_BUS_ADDRESS=*)
+                      export "''${variable?}"
+                      ;;
+                  esac
+                done < <(systemctl --user show-environment)
+              fi
+              exec ${lib.getExe' pkgs.xdg-utils "xdg-open"} "$@"
+            '';
+          })
+          (writeShellScriptBin "hypr-neovide" ''
+            exec ${lib.getExe pkgs.neovide} --neovim-bin ${lib.getExe nixvim.packages.${system}.default} "$@"
+          '')
+        ];
+
+        xdg.configFile."hypr/user.lua".text = lib.mkDefault "";
+        home.pointerCursor = {
+          package = pkgs.adwaita-icon-theme;
+          name = "Adwaita";
+          size = 24;
+          gtk.enable = true;
+          x11.enable = true;
         };
-        style = ''
-          * { font-family: "DejaVu Sans Mono"; font-size: 14px; }
-          window#waybar { background: #222222; color: #ffffff; }
-          #workspaces button { color: #ffffff; padding: 0 8px; border-radius: 0; }
-          #workspaces button.active { background: #285577; }
-          #custom-keyboard, #network, #disk, #battery, #memory, #pulseaudio, #clock, #tray, #submap, #window { padding: 0 8px; }
+        # UWSM imports these before starting graphical-session.target and portals.
+        xdg.configFile."uwsm/env-hyprland".text = ''
+          export NIXOS_OZONE_WL=1
+          export XCURSOR_THEME=Adwaita
+          export XCURSOR_SIZE=24
         '';
+
+        # Distinct ports allow different users' sessions to coexist on one host.
+        # Hosts can override this default to preserve an existing tunnel endpoint.
+        xdg.configFile."wayvnc/config".text = lib.mkDefault ''
+          address=127.0.0.1 ::1
+          port=${toString config.wayvnc.port}
+          enable_auth=false
+        '';
+        systemd.user.services.wayvnc = {
+          Unit = {
+            Description = "Share the Hyprland desktop over localhost-only VNC";
+            After = [ "graphical-session.target" ];
+            PartOf = [ "graphical-session.target" ];
+            ConditionEnvironment = "WAYLAND_DISPLAY";
+            # The SDDM greeter can own the port for several seconds after login.
+            # Keep retrying even if startup/hotplug failures exceed systemd's limit.
+            StartLimitIntervalSec = 0;
+          };
+          Service = {
+            ExecStart = "${lib.getExe pkgs.wayvnc} --desktop --disable-resizing --config ${config.xdg.configHome}/wayvnc/config";
+            Restart = "always";
+            RestartSec = 2;
+          };
+          Install.WantedBy = [ "graphical-session.target" ];
+        };
+        systemd.user.services.hyprwhichkey = {
+          Unit = {
+            Description = "Which-key binding overlay for Hyprland";
+            After = [ "graphical-session.target" ];
+            PartOf = [ "graphical-session.target" ];
+            ConditionEnvironment = "WAYLAND_DISPLAY";
+          };
+          Service = {
+            ExecStart = lib.getExe hyprwhichkey;
+            Restart = "on-failure";
+            RestartSec = 2;
+          };
+          Install.WantedBy = [ "graphical-session.target" ];
+        };
+
+        services.hyprpolkitagent.enable = true;
+        services.hypridle = {
+          enable = true;
+          systemdTarget = "graphical-session.target";
+          settings.general = {
+            lock_cmd = "${lib.getExe pkgs.quickshell} --path ${config.xdg.configHome}/quickshell/lock --no-duplicate";
+            before_sleep_cmd = "loginctl lock-session";
+          };
+        };
+        xdg.configFile."quickshell/lock/shell.qml".source = ./hyprland/lock.qml;
+        programs.hyprlock = {
+          enable = true;
+          settings = {
+            background = {
+              monitor = "";
+              color = "rgba(000000ff)";
+            };
+            input-field = {
+              monitor = "";
+              size = "300, 50";
+              position = "0, 0";
+              halign = "center";
+              valign = "center";
+            };
+          };
+        };
+
+        programs.waybar = {
+          enable = true;
+          systemd.enable = true;
+          systemd.targets = [ "graphical-session.target" ];
+          settings.mainBar = {
+            layer = "top";
+            position = "bottom";
+            height = 26;
+            on-sigusr1 = "hide";
+            on-sigusr2 = "show";
+            modules-left = [
+              "hyprland/workspaces"
+              "hyprland/submap"
+            ];
+            modules-center = [ "hyprland/window" ];
+            modules-right = [
+              "custom/keyboard"
+              "network"
+              "disk"
+              "battery"
+              "memory"
+              "pulseaudio"
+              "clock"
+              "tray"
+            ];
+            "hyprland/workspaces" = {
+              format = "{name}";
+              all-outputs = false;
+            };
+            "hyprland/window" = {
+              align = 0.5;
+              format = "{title}";
+              max-length = 80;
+              separate-outputs = true;
+            };
+            "custom/keyboard" = {
+              format = "⌨";
+              tooltip-format = "Toggle keyboard shortcuts (Mod+F1)";
+              on-click = "hypr-desktop-action bindings";
+            };
+            network = {
+              format-wifi = "W: {essid} ({signalStrength}%) {ipaddr}";
+              format-ethernet = "E: {ipaddr}";
+              format-disconnected = "Network: down";
+            };
+            disk.format = "{free}";
+            battery.format = "BAT: {capacity}% {time}";
+            memory.format = "Tax Fraud Docs: {used:0.1f} GiB";
+            pulseaudio.format = "VOL: {volume}%";
+            clock = {
+              format = "{:%Y-%m-%d %H:%M:%S}";
+              interval = 1;
+            };
+          };
+          style = ''
+            * { font-family: "DejaVu Sans Mono"; font-size: 14px; }
+            window#waybar { background: #222222; color: #ffffff; }
+            #workspaces button { color: #ffffff; padding: 0 8px; border-radius: 0; }
+            #workspaces button.active { background: #285577; }
+            #custom-keyboard, #network, #disk, #battery, #memory, #pulseaudio, #clock, #tray, #submap, #window { padding: 0 8px; }
+          '';
+        };
       };
     };
 }

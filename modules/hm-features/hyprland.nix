@@ -183,6 +183,9 @@
       };
     in
     {
+      # Deduplicate direct imports and prerequisites such as obs-zoom.
+      key = "dotfiles-nix-hyprland";
+
       imports = [ ./hyprland/_settings.nix ];
 
       wayland.systemd.target = "graphical-session.target";

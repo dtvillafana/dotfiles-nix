@@ -121,6 +121,7 @@
             age
             ast-grep
             audacity
+            ayugram-desktop
             bc
             blueman
             brightnessctl
@@ -154,7 +155,6 @@
             # Install Steam only for vir, not in the system profile.
             config.programs.steam.package
             config.programs.steam.package.run
-            telegram-desktop
             vlc
             wireguard-tools
             xournalpp

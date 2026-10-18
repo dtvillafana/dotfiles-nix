@@ -24,7 +24,7 @@ old context/throughput sweep.
   attention mode, and current per-model context fixed during the baseline.
   Larger context, 15 decode token/s, and 90% GPU utilization are **not** default
   acceptance requirements. A slow model may finish better work with fewer retries.
-- Preserve the configured VRAM reserve (currently 1,536 MiB for local Qwen).
+- Preserve the configured VRAM reserve (currently 1,536 MiB for local models).
   Do not lower it, kill desktop applications, or use swapping to force a result.
   If unsafe, stop the trial and report it as resource-blocked. Do not silently
   rebuild, offload more layers, or start an automatic context search.
@@ -185,10 +185,10 @@ before claiming an applied tuning change.
 
 `references/capcudell.md` contains historical backend paths and measurements, not
 agentic scores or settings to apply to another host. On rogdesktop, inspect
-`modules/features/local-qwen-pascal.nix` and `modules/features/local-qwen/README.md`
+`modules/features/local-models-pascal.nix` and `modules/features/local-models/README.md`
 for the actual profile and desktop-load caveats. Read current files before use.
 
-`local-qwen-bench` and `scripts/check_trial.py` are **synthetic throughput tools**.
+`local-models-bench` and `scripts/check_trial.py` are **synthetic throughput tools**.
 The checker validates the old exact-input/decode/headroom contract, not task
 correctness, tool use, safety, or agentic quality. Existing checker tests remain
 useful for that limited purpose. Run a context stress sweep only when explicitly

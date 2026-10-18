@@ -26,6 +26,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
+    llama-cpp-k2-src = {
+      # First upstream build with K2 Horizon MoVA and tool-call support.
+      url = "github:ggml-org/llama.cpp/4625240437c6821ee5c2da99e12d4817c6a8f07f";
+      flake = false;
+    };
     agent-deck-src = {
       url = "github:dtvillafana/agent-deck/main";
       flake = false;

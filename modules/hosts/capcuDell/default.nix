@@ -20,7 +20,7 @@ let
         self.nixosModules.capcuDellHardware
         self.nixosModules.capcuHome
         self.nixosModules.hermesM365Email
-        self.nixosModules.localQwenBlackwell
+        self.nixosModules.localModelsBlackwell
       ];
       specialArgs = {
         inherit secretsEnabled;

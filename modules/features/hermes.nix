@@ -9,10 +9,10 @@
     }:
     let
       workingDirectory = "/home/vir/git-repos";
-      localQwenProvider = config.home-manager.users.vir.opencode.settings.providers.local-qwen;
+      localModelsProvider = config.home-manager.users.vir.opencode.settings.providers.local-models;
     in
     {
-      imports = [ self.nixosModules.localQwen ];
+      imports = [ self.nixosModules.localModels ];
 
       services.hermes-agent = {
         enable = true;
@@ -25,9 +25,9 @@
         extraPackages = config.home-manager.users.vir.home.packages;
         settings.model = {
           provider = "custom";
-          base_url = localQwenProvider.settings.baseURL;
+          base_url = localModelsProvider.settings.baseURL;
           default = "qwen3.5-9b-abliterated";
-          context_length = localQwenProvider.models."qwen3.5-9b-abliterated".limit.context;
+          context_length = localModelsProvider.models."qwen3.5-9b-abliterated".limit.context;
         };
         settings.max_turns = 100;
         settings.agent = {
@@ -49,8 +49,8 @@
       };
 
       systemd.services.hermes-agent = {
-        after = [ "local-qwen-proxy.socket" ];
-        requires = [ "local-qwen-proxy.socket" ];
+        after = [ "local-models-proxy.socket" ];
+        requires = [ "local-models-proxy.socket" ];
         serviceConfig.TimeoutStopSec = 210;
       };
     };

@@ -7,17 +7,17 @@ observed on 2026-10-16 and can change.
 
 Repository: `~/git-repos/dotfiles-nix`.
 
-- `modules/features/local-qwen-blackwell.nix`: host-selected Blackwell profile;
-  `services.local-qwen.modelOverrides.<id>.contextSize` is the per-model knob.
-- `modules/features/local-qwen.nix`: shared runtime presets and OpenCode limits;
+- `modules/features/local-models-blackwell.nix`: host-selected Blackwell profile;
+  `services.local-models.modelOverrides.<id>.contextSize` is the per-model knob.
+- `modules/features/local-models.nix`: shared runtime presets and OpenCode limits;
   per-model overrides set both `ctx-size` and `fit-ctx`.
 - `modules/hosts/capcuDell/configuration.nix`: Hermes default context comes
   from its selected default model's provider limit; custom models use each
   provider model's own limit. Do not replace these with the shared fallback.
-- `modules/features/local-qwen/benchmark.py`: installed as `local-qwen-bench`;
+- `modules/features/local-models/benchmark.py`: installed as `local-models-bench`;
   use `--model`, `--runs`, `--tokens`, `--prompt-tokens`, and `--json`.
-- `modules/features/local-qwen/test_benchmark.py`: offline regression tests.
-- `modules/features/local-qwen/BLACKWELL.md`: detailed measurements and caveats.
+- `modules/features/local-models/test_benchmark.py`: offline regression tests.
+- `modules/features/local-models/BLACKWELL.md`: detailed measurements and caveats.
 
 `type nr` previously expanded to:
 
@@ -37,8 +37,8 @@ The loopback router is `http://127.0.0.1:18082`, proxied to port 18083.
 API connection can activate the router and stop competing Ollama services.
 Do not stop Hermes or OpenCode: they are clients of this backend.
 
-Inspect status/errors with `systemctl show local-qwen -p ExecStart -p ActiveState`
-and `journalctl -u local-qwen -b --no-pager`. A build can finish but activation
+Inspect status/errors with `systemctl show local-models -p ExecStart -p ActiveState`
+and `journalctl -u local-models -b --no-pager`. A build can finish but activation
 fail if a competing Ollama startup terminates the router. Restore API readiness
 and verify the actual service after any rebuild; do not mask a failed switch.
 

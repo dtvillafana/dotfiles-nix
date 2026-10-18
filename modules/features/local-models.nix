@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.nixosModules.localQwen =
+  flake.nixosModules.localModels =
     {
       config,
       lib,
@@ -8,7 +8,7 @@
       ...
     }:
     let
-      cfg = config.services.local-qwen;
+      cfg = config.services.local-models;
       llmPkgs = import inputs.llm-agents.inputs.nixpkgs {
         inherit (pkgs.stdenv.hostPlatform) system;
         config = pkgs.config;
@@ -61,7 +61,7 @@
           url = "https://huggingface.co/${model.repo}/resolve/${model.revision}/${file}";
           sha256 = hash;
         };
-      presets = pkgs.writeText "local-qwen.ini" (
+      presets = pkgs.writeText "local-models.ini" (
         lib.generators.toINI { } (
           {
             "*" = {
@@ -106,6 +106,8 @@
               cache-type-k = model.cacheTypeK or "f16";
               cache-type-v = model.cacheTypeV or "f16";
               model = toString (fetch model model.file model.hash);
+            }
+            // lib.optionalAttrs (model ? projector) {
               mmproj = toString (fetch model model.projector model.projectorHash);
             }
             // lib.optionalAttrs (model ? gpuLayers) {
@@ -117,16 +119,19 @@
               n-cpu-ffn = model.cpuFfnLayers;
             }
             // lib.optionalAttrs model.moe (
-              if cfg.cpuExpertLayers == null then { cpu-moe = 1; } else { n-cpu-moe = cfg.cpuExpertLayers; }
+              let
+                cpuExpertLayers = model.cpuExpertLayers or cfg.cpuExpertLayers;
+              in
+              if cpuExpertLayers == null then { cpu-moe = 1; } else { n-cpu-moe = cpuExpertLayers; }
             )
           ) models
         )
       );
     in
     {
-      key = "dotfiles-nix-local-qwen";
+      key = "dotfiles-nix-local-models";
 
-      options.services.local-qwen = {
+      options.services.local-models = {
         competingServices = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = competingServices;
@@ -139,7 +144,7 @@
         };
         providerName = lib.mkOption {
           type = lib.types.str;
-          default = "Local Qwen (GTX 1070 + RAM)";
+          default = "Local Models (GTX 1070 + RAM)";
           description = "Display name for the local OpenCode provider.";
         };
         package = lib.mkOption {
@@ -169,7 +174,7 @@
         modelOverrides = lib.mkOption {
           type = lib.types.attrsOf lib.types.attrs;
           default = { };
-          description = "Recursive model metadata overrides and additional pinned model definitions; contextSize, flashAttention, cacheTypeK, cacheTypeV, and fitTarget override shared runtime defaults per model. gpuLayers sets explicit placement without automatic fitting, cpuFfnLayers keeps the first N dense FFN layers on CPU, logVerbosity controls diagnostics, and requestBody adds per-model OpenCode request fields.";
+          description = "Recursive model metadata overrides and additional pinned model definitions; contextSize, flashAttention, cacheTypeK, cacheTypeV, and fitTarget override shared runtime defaults per model. gpuLayers sets explicit placement without automatic fitting, cpuFfnLayers keeps the first N dense FFN layers on CPU, cpuExpertLayers overrides MoE placement (null keeps all experts on CPU), logVerbosity controls diagnostics, and requestBody adds per-model OpenCode request fields. projector and projectorHash are optional for text-only models.";
         };
         contextSize = lib.mkOption {
           type = lib.types.ints.positive;
@@ -196,48 +201,48 @@
       config = {
         # Historical conservative fallbacks; host profiles select measured
         # operating points. Agentic task quality is evaluated separately.
-        services.local-qwen.modelContextSizes = {
+        services.local-models.modelContextSizes = {
           "qwen3.5-9b-abliterated" = lib.mkDefault 30720;
           "qwen3.6-35b-a3b-abliterated" = lib.mkDefault 24576;
         };
 
         environment.systemPackages = [
-          (pkgs.writeShellScriptBin "local-qwen-check" ''
-            exec ${pkgs.python3}/bin/python3 ${./local-qwen/check.py} "$@"
+          (pkgs.writeShellScriptBin "local-models-check" ''
+            exec ${pkgs.python3}/bin/python3 ${./local-models/check.py} "$@"
           '')
-          (pkgs.writeShellScriptBin "local-qwen-bench" ''
-            exec ${pkgs.python3}/bin/python3 ${./local-qwen/benchmark.py} "$@"
+          (pkgs.writeShellScriptBin "local-models-bench" ''
+            exec ${pkgs.python3}/bin/python3 ${./local-models/benchmark.py} "$@"
           '')
         ];
 
         assertions = [
           {
             assertion = cfg.contextSize > 8192;
-            message = "local-qwen needs contextSize > 8192 to leave room for input and output.";
+            message = "local-models needs contextSize > 8192 to leave room for input and output.";
           }
           {
             assertion = lib.all (name: builtins.hasAttr name models) (builtins.attrNames cfg.modelContextSizes);
-            message = "local-qwen modelContextSizes contains an unknown model ID.";
+            message = "local-models modelContextSizes contains an unknown model ID.";
           }
         ]
         ++ lib.mapAttrsToList (id: model: {
           assertion = contextSizeFor id > 8192;
-          message = "local-qwen model ${id} needs contextSize > 8192.";
+          message = "local-models model ${id} needs contextSize > 8192.";
         }) models;
 
         # Only the public socket starts at boot. The proxy starts the router on
         # the first connection, retaining Nemotron/Hermes defaults until then.
-        systemd.sockets.local-qwen-proxy = {
-          description = "On-demand local Qwen API socket";
+        systemd.sockets.local-models-proxy = {
+          description = "On-demand local models API socket";
           wantedBy = [ "sockets.target" ];
           listenStreams = [ "127.0.0.1:18082" ];
         };
 
-        systemd.services.local-qwen-proxy = {
-          description = "Socket-activated proxy for the local Qwen router";
-          requires = [ "local-qwen-proxy.socket" ];
-          bindsTo = [ "local-qwen.service" ];
-          after = [ "local-qwen.service" ];
+        systemd.services.local-models-proxy = {
+          description = "Socket-activated proxy for the local models router";
+          requires = [ "local-models-proxy.socket" ];
+          bindsTo = [ "local-models.service" ];
+          after = [ "local-models.service" ];
           serviceConfig = {
             ExecStart = "${pkgs.systemd}/lib/systemd/systemd-socket-proxyd 127.0.0.1:18083";
             DynamicUser = true;
@@ -245,8 +250,8 @@
         };
 
         # Starting either backend stops the other, preventing GPU contention.
-        systemd.services.local-qwen = {
-          description = "On-demand Qwen vision/tool model router for OpenCode";
+        systemd.services.local-models = {
+          description = "On-demand local vision/tool model router for OpenCode";
           # Ordering as well as conflicts: wait for old GPU workers to exit.
           after = [ "network.target" ] ++ cfg.competingServices;
           conflicts = cfg.competingServices;
@@ -285,9 +290,9 @@
             ];
             TimeoutStartSec = 90;
             DynamicUser = true;
-            StateDirectory = "local-qwen";
-            WorkingDirectory = "/var/lib/local-qwen";
-            Environment = "HOME=/var/lib/local-qwen";
+            StateDirectory = "local-models";
+            WorkingDirectory = "/var/lib/local-models";
+            Environment = "HOME=/var/lib/local-models";
             Restart = "on-failure";
             RestartSec = 10;
             TimeoutStopSec = 60;
@@ -314,7 +319,7 @@
             ''
           );
 
-          opencode.settings.providers.local-qwen = {
+          opencode.settings.providers.local-models = {
             name = cfg.providerName;
             package = "@opencode/ai/providers/openai-compatible";
             settings = {
@@ -328,10 +333,7 @@
                 inherit (model) name;
                 capabilities = {
                   tools = true;
-                  input = [
-                    "text"
-                    "image"
-                  ];
+                  input = [ "text" ] ++ lib.optional (model ? projector) "image";
                   output = [ "text" ];
                 };
                 compatibility.reasoningField = "reasoning_content";

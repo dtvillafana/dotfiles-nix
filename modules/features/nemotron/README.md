@@ -1,7 +1,7 @@
 # Nemotron on rogdesktop
 
 Optional feature, no longer selected by rogdesktop. Hermes now uses the
-abliterated Qwen3.5 9B through the local Qwen llama.cpp router; Ollama has been
+abliterated Qwen3.5 9B through the local models llama.cpp router; Ollama has been
 removed. The instructions below describe the historical Nemotron setup and
 require explicitly selecting `self.nixosModules.nemotron` first.
 
@@ -49,7 +49,7 @@ Stop the production server, Qwen router, and agents first, and stop SheepIt if
 it is rendering.
 
 ```sh
-sudo systemctl stop hermes-webui hermes-agent local-qwen-proxy.socket local-qwen llama-cpp
+sudo systemctl stop hermes-webui hermes-agent local-models-proxy.socket local-models llama-cpp
 nemotron-test-server
 ```
 

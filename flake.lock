@@ -418,6 +418,23 @@
         "type": "github"
       }
     },
+    "llama-cpp-k2-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791304944,
+        "narHash": "sha256-pyCUL4ddIv1ehcPz+Xp/nGWUEjPQY3k6Y+Pm4qeTtAo=",
+        "owner": "ggml-org",
+        "repo": "llama.cpp",
+        "rev": "4625240437c6821ee5c2da99e12d4817c6a8f07f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ggml-org",
+        "repo": "llama.cpp",
+        "rev": "4625240437c6821ee5c2da99e12d4817c6a8f07f",
+        "type": "github"
+      }
+    },
     "llm-agents": {
       "inputs": {
         "bun2nix": "bun2nix",
@@ -962,6 +979,7 @@
         "hyprmon-src": "hyprmon-src",
         "hyprwhichkey-src": "hyprwhichkey-src",
         "import-tree": "import-tree",
+        "llama-cpp-k2-src": "llama-cpp-k2-src",
         "llm-agents": "llm-agents",
         "m365-tui": "m365-tui",
         "mcp-for-blender-src": "mcp-for-blender-src",

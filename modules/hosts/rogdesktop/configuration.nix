@@ -10,7 +10,7 @@
       ...
     }:
     let
-      localQwenProvider = config.home-manager.users.vir.opencode.settings.providers.local-qwen;
+      localModelsProvider = config.home-manager.users.vir.opencode.settings.providers.local-models;
       inputplumber = pkgs.inputplumber.overrideAttrs (old: {
         patches = (old.patches or [ ]) ++ [
           (pkgs.writeText "inputplumber-axis-direction.patch" ''
@@ -254,20 +254,20 @@
           toolsets = [ "all" ];
           platforms.api_server.enabled = true;
           model = {
-            provider = "custom:local-qwen";
-            base_url = localQwenProvider.settings.baseURL;
+            provider = "custom:local-models";
+            base_url = localModelsProvider.settings.baseURL;
             default = "qwen3.5-9b-abliterated";
-            context_length = localQwenProvider.models."qwen3.5-9b-abliterated".limit.context;
+            context_length = localModelsProvider.models."qwen3.5-9b-abliterated".limit.context;
           };
           custom_providers = [
             {
-              name = "Local Qwen";
-              base_url = localQwenProvider.settings.baseURL;
+              name = "Local Models";
+              base_url = localModelsProvider.settings.baseURL;
               api_key = "local-no-auth";
               model = "qwen3.5-9b-abliterated";
               models = lib.mapAttrs (_: model: {
                 context_length = model.limit.context;
-              }) localQwenProvider.models;
+              }) localModelsProvider.models;
             }
           ];
           max_turns = 100;
@@ -301,8 +301,8 @@
       };
 
       systemd.services.hermes-agent = lib.mkIf secretsEnabled {
-        after = [ "local-qwen-proxy.socket" ];
-        requires = [ "local-qwen-proxy.socket" ];
+        after = [ "local-models-proxy.socket" ];
+        requires = [ "local-models-proxy.socket" ];
         environment.HOME = lib.mkForce "/home/vir";
         restartTriggers = [
           (pkgs.writeText "hermes-agent-gateway-config" (

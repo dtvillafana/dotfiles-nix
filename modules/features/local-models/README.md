@@ -1,13 +1,39 @@
-# Local Qwen options for OpenCode (rogdesktop)
+# Local Models options for OpenCode (rogdesktop)
 
 For CapCUDell's separate Blackwell profiles, see [BLACKWELL.md](BLACKWELL.md).
 For the ongoing real-agent benchmark and placement experiments, see
 [AGENTIC.md](AGENTIC.md). Its profiles supersede the older throughput-only
 recommendations below; they are not yet final optimized settings.
 
-`../local-qwen.nix` adds three models under the `local-qwen` provider, without
+`../local-models.nix` adds three models under the `local-models` provider, without
 changing OpenCode's default model or the existing Nemotron/Hermes configuration.
 Both normal and bootstrap host configurations import this feature.
+
+### Experimental K2 Horizon addition (rogdesktop only)
+
+`localModelsPascal` additionally selects
+`local-models/k2-horizon-mova-36b-a4b-abliterated`, without changing the default model.
+It uses [mradermacher's imatrix Q4_K_M GGUF](https://huggingface.co/mradermacher/K2-Horizon-MoVA-36B-A4B-uncensored-i1-GGUF)
+of InfinimindCreations' rank-3 abliterated checkpoint. Among matching MoVA 36B
+abliterated GGUF repositories found on 2026-10-18, it had the most monthly downloads
+(10,696; the Heretic imatrix alternative had 9,258). Popularity is not a quality
+evaluation; the original K2 Intelligence Index score does not validate this variant.
+
+- Immutable revision and LFS SHA-256 pin a **22.37 GB / 20.83 GiB** weight file.
+- **Text-only**, with tool support advertised; no vision projector is fetched.
+- Initial **16,384-token context**, 8,192-token output cap, all routed experts
+  on CPU, automatic layer fitting, six threads. Placement/context remain unvalidated.
+- Requests select high reasoning effort, temperature 1.0, top-p 0.95. High effort
+  follows the original model's guidance; the derivative's refusal tests used low.
+- The Pascal profile uses the locked **llama.cpp b11454** source, the first upstream
+  K2 Horizon implementation with reasoning/tool parsing. CUDA 12 and AVX2 dynamic
+  dispatch are retained; other host profiles keep their existing runtime.
+
+This requires a runtime rebuild and the additional weight download on activation.
+Evaluate/build before switching, then validate text, tool round-trips, actual
+allocation, and agent tasks. It has not been loaded or benchmarked here. Existing
+Qwen models remain available. Download/runtime totals below describe the original
+three-model setup, not this addition.
 
 ## Memory placement
 
@@ -32,7 +58,7 @@ Only **one model** can be loaded at a time; selecting another evicts the previou
 one. Long prefill and CPU vision encoding will still be slow on the Ryzen 2600X.
 MTP/speculative decoding is not enabled, even for files containing MTP tensors.
 
-Rogdesktop selects `../local-qwen-pascal.nix`. Current agentic experiments retain
+Rogdesktop selects `../local-models-pascal.nix`. Current agentic experiments retain
 **16,384 / 65,536 / 32,768 context tokens** for 9B / MoE / 27B, respectively,
 but change fitting headroom, expert/FFN placement, and request settings as described
 in [AGENTIC.md](AGENTIC.md). Older near-full validation below applies to the exact
@@ -56,10 +82,33 @@ changed, or deleted.
 
 ## Evaluate and activate
 
+### Renaming from local-qwen
+
+The feature modules are now `localModels`, `localModelsPascal`, and
+`localModelsBlackwell`; options live under `services.local-models`. The provider
+ID, systemd units, and helper commands also use `local-models` instead of
+`local-qwen`. Model IDs and API ports are unchanged.
+
+After rebuilding, reselect saved OpenCode/Hermes model choices that reference the
+old provider (`local-qwen/<model>` or `custom:local-qwen`). Existing conversation
+history is not rewritten. Before switching an existing installation, stop the old
+units to release the API ports and GPU:
+
+```sh
+sudo systemctl stop local-qwen-proxy.socket local-qwen-proxy.service local-qwen.service
+```
+
+The new service creates `/var/lib/local-models` automatically. The old
+`/var/lib/local-qwen` state (including any private systemd state directory) is
+left untouched, not moved or deleted; model weights remain in the Nix store and
+do not need to be copied. Historical benchmark artifact paths below are unchanged.
+
+### Build
+
 Add the new files to Git first so the Git-backed flake can see them:
 
 ```sh
-git add modules/features/local-qwen.nix modules/features/local-qwen
+git add -A -- 'modules/features/local-models*' 'modules/features/local-qwen*'
 nix eval .#nixosConfigurations.rogdesktop.config.system.build.toplevel.drvPath
 nix eval .#nixosConfigurations.rogdesktopBootstrap.config.system.build.toplevel.drvPath
 sudo nixos-rebuild switch --flake .#rogdesktop
@@ -77,27 +126,27 @@ with this router to prevent competing backends from consuming the same GPU.
 To stop inference and its clients:
 
 ```sh
-sudo systemctl stop hermes-agent hermes-webui local-qwen
+sudo systemctl stop hermes-agent hermes-webui local-models
 ```
 
-To prevent subsequent API requests from starting Qwen again, also stop the socket:
+To prevent subsequent API requests from starting the router again, also stop the socket:
 
 ```sh
-sudo systemctl stop local-qwen-proxy.socket local-qwen-proxy.service local-qwen.service
+sudo systemctl stop local-models-proxy.socket local-models-proxy.service local-models.service
 # Re-enable on-demand access when wanted:
-sudo systemctl start local-qwen-proxy.socket
+sudo systemctl start local-models-proxy.socket
 ```
 
 In OpenCode, open `/models` and choose:
 
-- `local-qwen/qwen3.8-27b-abliterated`
-- `local-qwen/qwen3.6-35b-a3b-abliterated`
-- `local-qwen/qwen3.5-9b-abliterated`
+- `local-models/qwen3.8-27b-abliterated`
+- `local-models/qwen3.6-35b-a3b-abliterated`
+- `local-models/qwen3.5-9b-abliterated`
 
 Use a fresh session if the existing conversation exceeds the selected model's
 context. Models load on the first request, so the first turn and switches take longer. The local
 provider allows up to an hour for response headers and streamed chunk gaps.
-Run `model-unload` in Zsh to release loaded Qwen models from RAM/VRAM without
+Run `model-unload` in Zsh to release loaded models from RAM/VRAM without
 stopping the router. The next model request loads it again.
 The API binds only to loopback and has no authentication; local processes can
 access it. OpenCode executes tools, not the model server's built-in agent tools.
@@ -107,8 +156,8 @@ access it. OpenCode executes tools, not the model server's built-in agent tools.
 After activating, run the included text, tool-call/follow-up, and image tests:
 
 ```sh
-local-qwen-check
-journalctl -u local-qwen -b --no-pager
+local-models-check
+journalctl -u local-models -b --no-pager
 nvidia-smi
 free -h
 ```
@@ -122,7 +171,7 @@ long-context performance or prove reliable autonomous task completion.
 To tune after measurement, set these in the host configuration and rebuild:
 
 ```nix
-services.local-qwen = {
+services.local-models = {
   # Fallback for models without a per-model override:
   contextSize = 32768;
   # Runtime allocation, minimum fitting context, and OpenCode limits stay aligned:
@@ -216,7 +265,7 @@ configuration, rebuild logs/exit codes, and final summary are saved under
 `~/.cache/qwen-context-tuning-20261017-114244/`. Intermediate activations hit
 conflicting inference-service startup races; the intended router was recovered
 and each rebuild retried successfully before benchmarking. No unrelated
-services were permanently disabled. `local-qwen-bench` now prints per-run
+services were permanently disabled. `local-models-bench` now prints per-run
 prefill seconds and wall time as well as decode throughput.
 
 ## Required 32K context follow-up (2026-10-17)

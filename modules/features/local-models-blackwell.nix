@@ -1,6 +1,6 @@
 { self, inputs, ... }:
 {
-  flake.nixosModules.localQwenBlackwell =
+  flake.nixosModules.localModelsBlackwell =
     { pkgs, ... }:
     let
       llmPkgs = import inputs.llm-agents.inputs.nixpkgs {
@@ -9,15 +9,15 @@
       };
     in
     {
-      imports = [ self.nixosModules.localQwen ];
+      imports = [ self.nixosModules.localModels ];
 
-      services.local-qwen = {
+      services.local-models = {
         # Hermes and OpenCode are clients of this router, not competing backends.
         competingServices = [
           "llama-cpp.service"
         ];
         user = "capcu";
-        providerName = "Local Qwen (Blackwell 16 GiB + RAM)";
+        providerName = "Local Models (Blackwell 16 GiB + RAM)";
         package = llmPkgs.llama-cpp.override {
           cudaSupport = true;
           cudaPackages = llmPkgs.cudaPackages_13;
@@ -33,7 +33,7 @@
         # context must be validated against actual free VRAM separately.
         cpuExpertLayers = 20;
         # Near-full-context decode validated above 15 tok/s on 2026-10-16.
-        # See local-qwen/BLACKWELL.md for boundary trials and memory limits.
+        # See local-models/BLACKWELL.md for boundary trials and memory limits.
         modelOverrides = {
           "qwen3.8-27b-abliterated" = {
             contextSize = 45056;

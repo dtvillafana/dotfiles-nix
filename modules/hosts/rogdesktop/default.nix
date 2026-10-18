@@ -23,7 +23,7 @@ let
         self.nixosModules.capcuHome
         self.nixosModules.guestHome
         self.nixosModules.experiment
-        self.nixosModules.localQwenPascal
+        self.nixosModules.localModelsPascal
         self.nixosModules.sheepit
       ];
       specialArgs = {

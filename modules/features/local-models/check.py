@@ -1,4 +1,4 @@
-"""Sequential smoke tests for the local Qwen router (standard library only)."""
+"""Sequential smoke tests for the local models router (standard library only)."""
 
 import base64
 import json
@@ -56,7 +56,7 @@ def red_image() -> str:
     return "data:image/png;base64," + base64.b64encode(image).decode()
 
 
-def check_model(model: str) -> None:
+def check_model(model: str, *, supports_vision: bool = True) -> None:
     start = time.monotonic()
     print(f"{model}: loading and testing text...", flush=True)
     answer = chat(model, [{"role": "user", "content": "Reply with exactly OK."}])
@@ -98,21 +98,24 @@ def check_model(model: str) -> None:
     if not followup.get("content") or followup.get("tool_calls"):
         raise ValueError(f"Unexpected tool follow-up: {followup}")
 
-    print(f"{model}: testing vision...", flush=True)
-    vision = chat(
-        model,
-        [
-            {
-                "role": "user",
-                "content": [
-                    {"type": "image_url", "image_url": {"url": red_image()}},
-                    {"type": "text", "text": "What color is this image? One word."},
-                ],
-            }
-        ],
-    )
-    if "red" not in (vision.get("content") or "").lower():
-        raise ValueError(f"Unexpected vision response: {vision}")
+    if supports_vision:
+        print(f"{model}: testing vision...", flush=True)
+        vision = chat(
+            model,
+            [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "image_url", "image_url": {"url": red_image()}},
+                        {"type": "text", "text": "What color is this image? One word."},
+                    ],
+                }
+            ],
+        )
+        if "red" not in (vision.get("content") or "").lower():
+            raise ValueError(f"Unexpected vision response: {vision}")
+    else:
+        print(f"{model}: skipping vision (text-only model)", flush=True)
     loaded = [
         item["id"]
         for item in request("/models")["data"]
@@ -125,7 +128,17 @@ def check_model(model: str) -> None:
 
 if __name__ == "__main__":
     try:
-        for model in sorted(item["id"] for item in request("/v1/models")["data"]):
-            check_model(model)
-    except (urllib.error.URLError, TimeoutError, ValueError, KeyError, IndexError) as error:
+        for model in sorted(request("/models")["data"], key=lambda item: item["id"]):
+            check_model(
+                model["id"],
+                supports_vision="image"
+                in model.get("architecture", {}).get("input_modalities", []),
+            )
+    except (
+        urllib.error.URLError,
+        TimeoutError,
+        ValueError,
+        KeyError,
+        IndexError,
+    ) as error:
         raise SystemExit(f"FAIL: {error}") from error

@@ -1,4 +1,4 @@
-"""Check saved local-qwen timings; never run inference or change the system."""
+"""Check saved local-models timings; never run inference or change the system."""
 
 import argparse
 import json

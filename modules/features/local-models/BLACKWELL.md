@@ -1,10 +1,10 @@
 # Local abliterated models on CapCUDell
 
-The normal and bootstrap CapCUDell hosts select `localQwenBlackwell`. This
+The normal and bootstrap CapCUDell hosts select `localModelsBlackwell`. This
 reuses the socket-activated Qwen router, not rogdesktop's Pascal placement
 settings. OpenCode's default model is unchanged. Hermes uses the same Qwen
 endpoint, defaulting to Qwen3.8 27B, with all four models registered in its
-`Local Qwen` custom provider. Context limits are tuned per model and shared
+`Local Models` custom provider. Context limits are tuned per model and shared
 with both clients rather than relying on the shared module's default.
 
 ## Hardware and selection
@@ -14,7 +14,7 @@ inspection), SM 12.0; Core Ultra 7 265K, 20 hybrid cores; 62 GiB usable RAM,
 32 GiB available, no swap. About 613 GiB disk was available. RAM/VRAM usage
 will change with desktop applications.
 
-| OpenCode model under `local-qwen/` | Quant / weight size | Intended placement |
+| OpenCode model under `local-models/` | Quant / weight size | Intended placement |
 | --- | --- | --- |
 | `qwen3.8-27b-abliterated` | UD-DW IQ3_S / 11.49 GiB | Prefer all dense layers on GPU; fit automatically if memory is insufficient |
 | `qwen3.6-35b-a3b-abliterated` | Q4_K / 20.22 GiB | Experts in first 20/40 blocks on CPU; later experts and other tensors GPU-preferred; context must be memory-tested |
@@ -35,7 +35,7 @@ KV cache; `fit-target` alone is not a memory guard for that model.
 The host profile uses the existing locked llama.cpp package with CUDA 13,
 the host's configured SM 12.0 target, flash attention on, F16 caches, eight CPU
 threads and one slot. Context is overridden per model in
-`local-qwen-blackwell.nix`, including each model's `fit-ctx` floor and client
+`local-models-blackwell.nix`, including each model's `fit-ctx` floor and client
 limits. Dense-model fitting reserves 1,536 MiB relative to available VRAM and
 cannot silently shrink the context. Vision encoders run
 on CPU with at most 1,024 image tokens. MTP/speculative decoding is not enabled.
@@ -63,7 +63,7 @@ Only a localhost API socket starts at boot. **The first API request stops
 Ollama and its loader**, but not Hermes: both Hermes and OpenCode are clients
 of the same router. Hermes requires the API socket rather than Ollama's loader.
 Each model loads on its first inference request. OpenCode's `/models` lists the
-four IDs above; Hermes's `/model` picker exposes them under `Local Qwen`.
+four IDs above; Hermes's `/model` picker exposes them under `Local Models`.
 Hermes WebUI uses its existing gateway connection to this configured agent.
 Hermes is intentionally absent from the secrets-disabled bootstrap configuration.
 The backend has one inference slot: simultaneous clients queue, and switching
@@ -71,9 +71,9 @@ models may require reloading weights. This does not promise parallel throughput.
 The API is loopback-only but has no authentication against other local users.
 
 ```sh
-local-qwen-check
-local-qwen-bench --json "$HOME/.cache/capcudell-qwen-benchmark.json"
-journalctl -u local-qwen -b --no-pager
+local-models-check
+local-models-bench --json "$HOME/.cache/capcudell-qwen-benchmark.json"
+journalctl -u local-models -b --no-pager
 nvidia-smi
 free -h
 ```
@@ -97,8 +97,8 @@ cached inputs. Leave room for the generated tokens within the context limit.
 For example, at a 32,768-token context:
 
 ```sh
-local-qwen-bench --runs 2 --tokens 512 --prompt-tokens 32000
-python3 -m unittest discover -s modules/features/local-qwen -p 'test_*.py'
+local-models-bench --runs 2 --tokens 512 --prompt-tokens 32000
+python3 -m unittest discover -s modules/features/local-models -p 'test_*.py'
 ```
 
 These repeated-text throughput tests are not a long-context retrieval or
@@ -175,12 +175,12 @@ Test long prompts, images, and real tool sessions before declaring a winner.
 Use the same prompt size and output length when comparing profiles:
 
 ```sh
-local-qwen-bench --model qwen3.6-35b-a3b-abliterated --runs 5 --tokens 512
+local-models-bench --model qwen3.6-35b-a3b-abliterated --runs 5 --tokens 512
 # Increase prompt length, while staying below context minus output budget:
-local-qwen-bench --prompt-repeats 512 --json "$HOME/.cache/capcudell-qwen-long.json"
+local-models-bench --prompt-repeats 512 --json "$HOME/.cache/capcudell-qwen-long.json"
 ```
 
-Tune in `modules/features/local-qwen-blackwell.nix`, rebuilding between trials:
+Tune in `modules/features/local-models-blackwell.nix`, rebuilding between trials:
 
 - Sweep `cpuExpertLayers` through 24, 20, 16, and 12. Lower values put more
   experts on GPU. Inspect available VRAM explicitly: this runtime cannot fit
@@ -201,8 +201,8 @@ and disable socket activation until you want to resume:
 
 ```sh
 sudo systemctl stop hermes-agent hermes-webui
-sudo systemctl stop local-qwen-proxy.socket local-qwen-proxy.service local-qwen.service
+sudo systemctl stop local-models-proxy.socket local-models-proxy.service local-models.service
 # Later, restart Qwen's socket and its clients:
-sudo systemctl start local-qwen-proxy.socket
+sudo systemctl start local-models-proxy.socket
 sudo systemctl start hermes-agent hermes-webui
 ```

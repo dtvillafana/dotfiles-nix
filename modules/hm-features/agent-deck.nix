@@ -12,7 +12,7 @@
             (old: rec {
               version = "${old.version}-fork";
               src = inputs.agent-deck-src;
-              vendorHash = "sha256-E7wm0ESRE3NLdEhzfmlCOI2R7sgq1jkfNgwPSB5P4v4=";
+              vendorHash = "sha256-v3vhZiTTktjmWuv4FTWAEiHaeSUXyVRVTOL02UeZZrw=";
               doCheck = false;
               ldflags = builtins.map (builtins.replaceStrings [ old.version ] [ version ]) old.ldflags;
             })

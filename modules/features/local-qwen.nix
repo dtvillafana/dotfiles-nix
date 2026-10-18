@@ -20,10 +20,6 @@
       };
       competingServices = [
         "llama-cpp.service"
-        "ollama.service"
-        "ollama-model-loader.service"
-        "hermes-agent.service"
-        "hermes-webui.service"
       ];
       models = lib.recursiveUpdate {
         "qwen3.8-27b-abliterated" = {
@@ -104,8 +100,21 @@
             {
               ctx-size = contextSizeFor name;
               fit-ctx = contextSizeFor name;
+              fit-target = model.fitTarget or cfg.fitTarget;
+              log-verbosity = model.logVerbosity or 3;
+              flash-attn = model.flashAttention or cfg.flashAttention;
+              cache-type-k = model.cacheTypeK or "f16";
+              cache-type-v = model.cacheTypeV or "f16";
               model = toString (fetch model model.file model.hash);
               mmproj = toString (fetch model model.projector model.projectorHash);
+            }
+            // lib.optionalAttrs (model ? gpuLayers) {
+              # Explicit placement trials must not be silently refitted.
+              gpu-layers = model.gpuLayers;
+              fit = "off";
+            }
+            // lib.optionalAttrs (model ? cpuFfnLayers) {
+              n-cpu-ffn = model.cpuFfnLayers;
             }
             // lib.optionalAttrs model.moe (
               if cfg.cpuExpertLayers == null then { cpu-moe = 1; } else { n-cpu-moe = cfg.cpuExpertLayers; }
@@ -115,6 +124,8 @@
       );
     in
     {
+      key = "dotfiles-nix-local-qwen";
+
       options.services.local-qwen = {
         competingServices = lib.mkOption {
           type = lib.types.listOf lib.types.str;
@@ -158,7 +169,7 @@
         modelOverrides = lib.mkOption {
           type = lib.types.attrsOf lib.types.attrs;
           default = { };
-          description = "Recursive model metadata overrides and additional pinned model definitions; contextSize overrides the shared context per model.";
+          description = "Recursive model metadata overrides and additional pinned model definitions; contextSize, flashAttention, cacheTypeK, cacheTypeV, and fitTarget override shared runtime defaults per model. gpuLayers sets explicit placement without automatic fitting, cpuFfnLayers keeps the first N dense FFN layers on CPU, logVerbosity controls diagnostics, and requestBody adds per-model OpenCode request fields.";
         };
         contextSize = lib.mkOption {
           type = lib.types.ints.positive;
@@ -183,8 +194,8 @@
       };
 
       config = {
-        # Long-input decoding, not just an allocated but empty cache, must
-        # meet the 15 token/s target. The 27B has no qualifying profile.
+        # Historical conservative fallbacks; host profiles select measured
+        # operating points. Agentic task quality is evaluated separately.
         services.local-qwen.modelContextSizes = {
           "qwen3.5-9b-abliterated" = lib.mkDefault 30720;
           "qwen3.6-35b-a3b-abliterated" = lib.mkDefault 24576;
@@ -311,26 +322,30 @@
               headerTimeout = 3600000;
               chunkTimeout = 3600000;
             };
-            models = lib.mapAttrs (name: model: {
-              inherit (model) name;
-              capabilities = {
-                tools = true;
-                input = [
-                  "text"
-                  "image"
-                ];
-                output = [ "text" ];
-              };
-              compatibility.reasoningField = "reasoning_content";
-              limit = {
-                context = contextSizeFor name;
-                output = 8192;
-              };
-              cost = {
-                input = 0;
-                output = 0;
-              };
-            }) models;
+            models = lib.mapAttrs (
+              name: model:
+              {
+                inherit (model) name;
+                capabilities = {
+                  tools = true;
+                  input = [
+                    "text"
+                    "image"
+                  ];
+                  output = [ "text" ];
+                };
+                compatibility.reasoningField = "reasoning_content";
+                limit = {
+                  context = contextSizeFor name;
+                  output = 8192;
+                };
+                cost = {
+                  input = 0;
+                  output = 0;
+                };
+              }
+              // lib.optionalAttrs (model ? requestBody) { body = model.requestBody; }
+            ) models;
           };
         };
       };

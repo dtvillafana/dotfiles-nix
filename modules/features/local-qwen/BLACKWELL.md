@@ -196,14 +196,13 @@ Tune in `modules/features/local-qwen-blackwell.nix`, rebuilding between trials:
   to hide a failing profile. The 9B fallback is the lowest-risk speed choice.
 
 `model-unload` releases the resident model without stopping either client.
-To deliberately use the old Ollama backend instead, stop Hermes first (it is
-now configured to use Qwen and would reactivate it on its next request):
+Ollama is no longer installed. To stop inference completely, stop Hermes first
+and disable socket activation until you want to resume:
 
 ```sh
 sudo systemctl stop hermes-agent hermes-webui
 sudo systemctl stop local-qwen-proxy.socket local-qwen-proxy.service local-qwen.service
-sudo systemctl start ollama
-# Later, return to Qwen and its clients:
+# Later, restart Qwen's socket and its clients:
 sudo systemctl start local-qwen-proxy.socket
 sudo systemctl start hermes-agent hermes-webui
 ```

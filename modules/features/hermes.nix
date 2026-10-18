@@ -1,4 +1,4 @@
-{ ... }:
+{ self, ... }:
 {
   flake.nixosModules.hermes =
     {
@@ -9,8 +9,11 @@
     }:
     let
       workingDirectory = "/home/vir/git-repos";
+      localQwenProvider = config.home-manager.users.vir.opencode.settings.providers.local-qwen;
     in
     {
+      imports = [ self.nixosModules.localQwen ];
+
       services.hermes-agent = {
         enable = true;
         package = llm-agents.packages.${system}.hermes-agent;
@@ -22,9 +25,9 @@
         extraPackages = config.home-manager.users.vir.home.packages;
         settings.model = {
           provider = "custom";
-          base_url = "http://127.0.0.1:11434/v1";
-          default = "qwen3.5:9b";
-          context_length = 65536;
+          base_url = localQwenProvider.settings.baseURL;
+          default = "qwen3.5-9b-abliterated";
+          context_length = localQwenProvider.models."qwen3.5-9b-abliterated".limit.context;
         };
         settings.max_turns = 100;
         settings.agent = {
@@ -45,6 +48,10 @@
         ];
       };
 
-      systemd.services.hermes-agent.serviceConfig.TimeoutStopSec = 210;
+      systemd.services.hermes-agent = {
+        after = [ "local-qwen-proxy.socket" ];
+        requires = [ "local-qwen-proxy.socket" ];
+        serviceConfig.TimeoutStopSec = 210;
+      };
     };
 }

@@ -23,9 +23,7 @@ let
         self.nixosModules.capcuHome
         self.nixosModules.guestHome
         self.nixosModules.experiment
-        self.nixosModules.ollama
-        self.nixosModules.nemotron
-        self.nixosModules.localQwen
+        self.nixosModules.localQwenPascal
         self.nixosModules.sheepit
       ];
       specialArgs = {

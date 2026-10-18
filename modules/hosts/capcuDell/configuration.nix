@@ -111,11 +111,6 @@
       services.udev.packages = [ pkgs.displaylink ];
 
       nixpkgs.config.cudaCapabilities = [ "12.0" ];
-      services.ollama.loadModels = lib.mkForce [
-        "gpt-oss:20b"
-        "nemotron-3.5-lightning:30b"
-        "mistral-small3.2:24b"
-      ];
 
       # Idle input is reported by Hyprland. loginctl runs hypridle's lock_cmd.
       home-manager.users.capcu.services.hypridle = {
@@ -132,24 +127,6 @@
             on-timeout = "loginctl lock-session";
           }
         ];
-      };
-
-      home-manager.users.capcu.opencode.settings = {
-        "$schema" = "https://opencode.ai/config.json";
-        providers = {
-          "Local Ollama" = {
-            package = "@opencode/ai/providers/openai-compatible";
-            name = "Local Ollama";
-            settings = {
-              baseURL = "http://127.0.0.1:11434/v1";
-            };
-            models = {
-              "nemotron-3.5-lightning:30b" = {
-                name = "nemotron-3.5-lightning:30b";
-              };
-            };
-          };
-        };
       };
 
       sops.secrets."hermes-env-capcu" = lib.mkIf secretsEnabled {
@@ -186,15 +163,15 @@
           model = {
             provider = "custom:local-qwen";
             base_url = localQwenProvider.settings.baseURL;
-            default = "qwen3.8-27b-abliterated";
-            context_length = localQwenProvider.models."qwen3.8-27b-abliterated".limit.context;
+            default = "qwen3.5-9b-abliterated";
+            context_length = localQwenProvider.models."qwen3.5-9b-abliterated".limit.context;
           };
           custom_providers = [
             {
               name = "Local Qwen";
               base_url = localQwenProvider.settings.baseURL;
               api_key = "local-no-auth";
-              model = "qwen3.8-27b-abliterated";
+              model = "qwen3.5-9b-abliterated";
               models = lib.mapAttrs (_: model: {
                 context_length = model.limit.context;
               }) localQwenProvider.models;

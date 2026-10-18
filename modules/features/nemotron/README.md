@@ -1,9 +1,9 @@
 # Nemotron on rogdesktop
 
-Selected explicitly by rogdesktop (including bootstrap). Other hosts and the
-shared Ollama module are unchanged. Hermes uses llama.cpp on localhost:18080,
-with **65,536 tokens for one slot**. Ollama remains available on port 11434 for
-manual use; avoid loading models there while Nemotron uses the GPU.
+Optional feature, no longer selected by rogdesktop. Hermes now uses the
+abliterated Qwen3.5 9B through the local Qwen llama.cpp router; Ollama has been
+removed. The instructions below describe the historical Nemotron setup and
+require explicitly selecting `self.nixosModules.nemotron` first.
 
 ## Model and runtime
 
@@ -11,8 +11,7 @@ manual use; avoid loading models there while Nemotron uses the GPU.
   [Source model card](https://huggingface.co/HangGlidersRule/Darkstar-Nemotron-3.5-Lightning-30B-A3B-Abliterated-BF16)
   and [GGUF card](https://huggingface.co/mradermacher/Darkstar-Nemotron-3.5-Lightning-30B-A3B-Abliterated-BF16-GGUF).
 - The GGUF revision and SHA-256 are pinned in `../nemotron.nix`. The first build
-  downloads about 25.4 GB into the Nix store. It is distinct from the existing
-  Ollama model; neither that model nor its files are deleted or modified.
+  downloads about 25.4 GB into the Nix store, independently of Ollama's cache.
 - The publisher reports zero refusals on a 200-prompt suite, not a guarantee of
   zero refusals or unchanged capability. Tool-call and reasoning quality after
   abliteration/quantization still need local validation.
@@ -40,17 +39,17 @@ curl --fail http://127.0.0.1:18080/health
 journalctl -u llama-cpp -b
 ```
 
-Hermes starts after the server passes its health check. Bootstrap still omits
+Hermes is configured separately to use Qwen, not this service. Bootstrap omits
 secret-dependent Hermes services. This service keeps the model resident; while
 it is running, SheepIt's GPU contention monitor will inhibit rendering.
 
 ## Tune without rebuilding
 
-Stop the production server and agents first. Also unload any Ollama models with
-`ollama ps` / `ollama stop MODEL`, and stop SheepIt if it is rendering.
+Stop the production server, Qwen router, and agents first, and stop SheepIt if
+it is rendering.
 
 ```sh
-sudo systemctl stop hermes-webui hermes-agent llama-cpp
+sudo systemctl stop hermes-webui hermes-agent local-qwen-proxy.socket local-qwen llama-cpp
 nemotron-test-server
 ```
 

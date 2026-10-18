@@ -192,6 +192,12 @@
               };
             };
           };
+          home.activation.configureOpencodePassword = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+            opencode=${llm-agents.packages.${system}.opencode2}/bin/opencode2
+            if [ "$("$opencode" service get password)" != web ]; then
+              run "$opencode" service set password web
+            fi
+          '';
           home.file.".grok/config.toml".text = ''
             [marketplace]
             default_skills_installs_purged = true

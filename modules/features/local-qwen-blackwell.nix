@@ -15,8 +15,6 @@
         # Hermes and OpenCode are clients of this router, not competing backends.
         competingServices = [
           "llama-cpp.service"
-          "ollama.service"
-          "ollama-model-loader.service"
         ];
         user = "capcu";
         providerName = "Local Qwen (Blackwell 16 GiB + RAM)";

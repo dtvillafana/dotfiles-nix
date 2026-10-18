@@ -51,10 +51,6 @@
       url = "github:dtvillafana/zoho-desk-mcp-server";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    ollama-src = {
-      url = "github:ollama/ollama/v0.32.9";
-      flake = false;
-    };
     mixar-src = {
       url = "github:Mixar-AI/mixar-app/v4.1.4";
       flake = false;

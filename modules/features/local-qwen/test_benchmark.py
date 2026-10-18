@@ -55,8 +55,11 @@ class BenchmarkTests(unittest.TestCase):
                 15,
             )
 
+    @patch("builtins.print")
     @patch("benchmark.request")
-    def test_warmup_excluded_and_samples_uncached(self, request_mock) -> None:
+    def test_warmup_excluded_and_samples_uncached(
+        self, request_mock, print_mock
+    ) -> None:
         request_mock.return_value = {
             "timings": {
                 "predicted_n": 512,
@@ -76,6 +79,7 @@ class BenchmarkTests(unittest.TestCase):
         self.assertEqual([body["n_predict"] for body in bodies], [32, 512, 512])
         self.assertTrue(all(not body["cache_prompt"] for body in bodies))
         self.assertNotEqual(bodies[1]["prompt"], bodies[2]["prompt"])
+        self.assertIn("100 prefill tokens in 0.10s", print_mock.call_args.args[0])
 
     @patch("benchmark.request")
     def test_exact_token_budget(self, request_mock) -> None:

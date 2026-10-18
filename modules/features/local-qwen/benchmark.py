@@ -96,7 +96,8 @@ def benchmark(base_url: str, model: str, args: argparse.Namespace) -> dict:
         samples.append({**timings, "wall_seconds": elapsed})
         print(
             f"  run {run + 1}: {timings['predicted_per_second']:.2f} decode tok/s; "
-            f"{timings['prompt_n']} prefill tokens",
+            f"{timings['prompt_n']} prefill tokens in "
+            f"{timings['prompt_ms'] / 1000:.2f}s; {elapsed:.2f}s wall",
             flush=True,
         )
     return summarize(samples, args.target)

@@ -3,11 +3,11 @@
     "agent-deck-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1792088781,
-        "narHash": "sha256-PdraRCvi9Dhp4s1y13ETVUg2BckdS7gG2cmgiTWGmZ0=",
+        "lastModified": 1792344044,
+        "narHash": "sha256-+YaviA4rJeSF1DJsMcXKs5Fs19snpb2cODAJ4tHla58=",
         "owner": "dtvillafana",
         "repo": "agent-deck",
-        "rev": "bde8be5697a6a1098047447b7750c239bf26a8d7",
+        "rev": "babd79b8ed7beb0772de3e52d236a97e2aff54f9",
         "type": "github"
       },
       "original": {
@@ -427,11 +427,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1792149628,
-        "narHash": "sha256-z6OJhOCXlLXdP1GdqS+6wLe/blU6KGZFrib+b/nxYE8=",
+        "lastModified": 1792315957,
+        "narHash": "sha256-LzC5I1T+RoNzolKqp2xYk1x/SraHlmYnJzK27PU+ewg=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "e85b99217baf13a38fc887b31338b1833f1159c0",
+        "rev": "14f2728181ecf9f5da168b72799bc9f42ae51803",
         "type": "github"
       },
       "original": {
@@ -731,11 +731,11 @@
     },
     "nixpkgs_4": {
       "locked": {
-        "lastModified": 1791966044,
-        "narHash": "sha256-t1hT8UW97rFCWCJO7/pClvu0AhLN5V3uir2M0ic4w/Q=",
+        "lastModified": 1792116957,
+        "narHash": "sha256-EjZqHKObBfIOeHZnMRVV87HB3pPq/WBkmRJWyFxmZu8=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "319e4cebef10cbb636c6ea392137b52ad105336a",
+        "rev": "f20cd90e28fe0403873f473b29e42662cd86e8c4",
         "type": "github"
       },
       "original": {
@@ -900,23 +900,6 @@
         "type": "github"
       }
     },
-    "ollama-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1786424301,
-        "narHash": "sha256-6BDUXDF5pXL3stffvtNJOnhC0A1xjPv43ZpsxegXm4w=",
-        "owner": "ollama",
-        "repo": "ollama",
-        "rev": "1d5febee105f00c430e19214b7b7b620cf186f98",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ollama",
-        "ref": "v0.32.9",
-        "repo": "ollama",
-        "type": "github"
-      }
-    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -988,7 +971,6 @@
         "nix-on-droid": "nix-on-droid",
         "nixpkgs": "nixpkgs_5",
         "nixvim": "nixvim",
-        "ollama-src": "ollama-src",
         "sops-nix": "sops-nix",
         "treefmt-nix": "treefmt-nix_2",
         "wrapper-modules": "wrapper-modules",

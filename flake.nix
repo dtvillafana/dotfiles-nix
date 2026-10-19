@@ -27,8 +27,20 @@
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
     llama-cpp-k2-src = {
-      # First upstream build with K2 Horizon MoVA and tool-call support.
-      url = "github:ggml-org/llama.cpp/4625240437c6821ee5c2da99e12d4817c6a8f07f";
+      # Tested 32K K2 runtime; expert caching is supported but stays disabled.
+      url = "github:ggml-org/llama.cpp/d6cf9acb25e6c657d6c6a4645ab7b69fce119995";
+      flake = false;
+    };
+    llama-cpp-k2-parser-fix = {
+      # Unmerged upstream PR #30335: accept the generic closer at medium/low effort.
+      type = "file";
+      url = "https://github.com/ggml-org/llama.cpp/commit/406bd24fe19818796bbf4ceed4828ad2482f934a.patch";
+      flake = false;
+    };
+    k2-horizon-7b-chat-template = {
+      # The GGUF's minimal replacement template drops tool definitions.
+      type = "file";
+      url = "https://huggingface.co/Avicennasis/K2-Horizon-7B-heretic/resolve/b364bdb85dca419c662cfa82bcdca75b592036b6/chat_template.jinja";
       flake = false;
     };
     agent-deck-src = {

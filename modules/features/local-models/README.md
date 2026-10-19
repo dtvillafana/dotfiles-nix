@@ -9,7 +9,84 @@ recommendations below; they are not yet final optimized settings.
 changing OpenCode's default model or the existing Nemotron/Hermes configuration.
 Both normal and bootstrap host configurations import this feature.
 
-### Experimental K2 Horizon addition (rogdesktop only)
+### Accepted K2 MoVA 32K profile (2026-10-19, rogdesktop only)
+
+This profile supersedes the historical 16K MoVA settings below. The user accepted
+the measured performance despite falling slightly below the 9 tok/s target at
+longer context. It is persisted in `../local-models-pascal.nix`:
+
+- **32,768 context tokens**, shared by the backend and OpenCode client limits.
+- Existing pinned abliterated **Q4_K_M weights**, six CPU/batch threads, flash
+  attention on, **Q4 K/V cache**, and high reasoning effort.
+- **49 GPU layers**, all routed FFN experts on CPU, and explicit CPU placement
+  of `blk.3` through `blk.26` attention value-expert tensors. Other value experts
+  and dense layers stay on GPU. Automatic fitting is disabled.
+- GPU expert caching remains **disabled**: 256–1,024 MiB cache experiments
+  slowed decode to about 3.7–3.9 tok/s on this machine.
+- Runtime source is locked at `d6cf9acb25e6c657d6c6a4645ab7b69fce119995`, plus
+  the pinned generic reasoning-closer parser fix. Both are reproducible without
+  any benchmark-cache scripts or files.
+
+| Actual prompt length | Measured decode |
+| --- | ---: |
+| 1,672 tokens | 9.48–9.62 tok/s |
+| 4,770 tokens | 8.95–9.04 tok/s |
+| 13,155 tokens | 8.57 tok/s |
+
+The selected profile retained **2,136 MiB minimum free VRAM**. Uncached prefill
+for 4,770 tokens took about **172s**. Text/tool/follow-up checks passed, but Q4 KV
+agent-task quality and near-full 32K performance remain unvalidated. These are
+replayed-request diagnostics, not verified agent completions. The benchmark's
+**1,024 MiB guard is not a production-wide VRAM reservation**.
+
+Artifacts: `~/.cache/local-k2-32k-tuning-20261019/`, including manifests, every
+attempt, raw responses, telemetry, selected-profile repeat and longer-history
+validation. Earlier placement experiments remain in
+`~/.cache/local-k2-placement-tuning-20261019/`. The original control already
+offloaded the output projection; the output-only override changed no allocation.
+The accepted profile does not change the default model or Blackwell composition.
+Persistence does not activate it: run `nr` to switch rogdesktop to these settings.
+
+### Experimental K2 Horizon 7B addition (rogdesktop only)
+
+`localModelsPascal` additionally selects `local-models/k2-horizon-7b-abliterated`:
+[mradermacher's Heretic imatrix GGUF](https://huggingface.co/mradermacher/K2-Horizon-7B-heretic-i1-GGUF),
+quantized from [Avicennasis' abliterated checkpoint](https://huggingface.co/Avicennasis/K2-Horizon-7B-heretic).
+It was the most-downloaded matching abliterated 7B GGUF repository found on
+2026-10-18 (9,345 monthly downloads; the non-imatrix Heretic GGUF had 1,007).
+Popularity does not establish quality or preserve the original model's AA score.
+
+- Immutable revision and LFS SHA-256 pin **Q4_K_M**, **5.59 GB / 5.21 GiB**.
+- Dense, text-only; uses the existing Pascal K2 runtime, without a projector.
+- Initial **16,384-token context**, inherited **8,192-token output cap**, six
+  threads, automatic layer fitting with **2,304 MiB** fitting headroom. This is
+  not a guarantee of full GPU residency or a measured free-VRAM reserve.
+- Requests select temperature 1.0, top-p 0.95, and high reasoning effort. The
+  bundled minimal chat template does not serialize tool definitions or honor
+  reasoning-effort selection; its tool smoke test failed. The profile now selects
+  the full template from the same abliterated source checkpoint, pinned as the
+  `k2-horizon-7b-chat-template` flake input. A private-worker text/tool/follow-up
+  test passed with this template, including parsed reasoning and actual tool calls.
+  The inherited output cap is below upstream's recommended 32,768 output tokens.
+- Initial fitting loaded **23/37 GPU layers**, 3,228 MiB CUDA weights and
+  1,408 MiB CUDA KV. The full-template smoke retained **2,453 MiB free VRAM**
+  and decoded at **10.2–10.3 tok/s** on short requests. Sustained agent-context
+  speed was lower in the baseline below; short requests are not agent scores.
+- The template fix is activated. Both initial high-effort agent tasks timed out
+  at **900s** without source edits or a final answer. The model made tool calls,
+  then spent the final turn in repetitive, incoherent reasoning. Completed turns
+  decoded at **6.75–7.92 tok/s**; measured prefill was at least **19.2s** for fix
+  and **15.7s** for understanding. Interrupted-turn timings/usage are unknown.
+  Minimum free VRAM was **2,327 / 1,634 MiB** respectively. This profile has no
+  verified agent success yet; medium effort is a separate compatibility experiment.
+  Existing models and the default model remain unchanged; Blackwell is unaffected.
+
+New speed experiments and 7B artifacts are in
+`~/.cache/local-k2-speed-tuning-20261019/`, separate from the earlier MoVA pass.
+The high-effort baseline preserves the original fitting target and 16K context;
+all subsequent tuning tracks remain separate rather than erasing its failures.
+
+### Experimental K2 Horizon MoVA addition (rogdesktop only)
 
 `localModelsPascal` additionally selects
 `local-models/k2-horizon-mova-36b-a4b-abliterated`, without changing the default model.
@@ -22,18 +99,163 @@ evaluation; the original K2 Intelligence Index score does not validate this vari
 - Immutable revision and LFS SHA-256 pin a **22.37 GB / 20.83 GiB** weight file.
 - **Text-only**, with tool support advertised; no vision projector is fetched.
 - Initial **16,384-token context**, 8,192-token output cap, all routed experts
-  on CPU, automatic layer fitting, six threads. Placement/context remain unvalidated.
-- Requests select high reasoning effort, temperature 1.0, top-p 0.95. High effort
-  follows the original model's guidance; the derivative's refusal tests used low.
+  on CPU, six threads. **28 GPU layers with f16 KV** passed both initial agent tasks;
+  the **36-layer/Q8-KV/flash-attention profile** is provisionally selected after
+  two matched repetitions. Broader testing exposed desktop-load memory stops;
+  long-context validation remains pending. This is not an unconditional safe profile.
+  Automatic fitting was rejected:
+  CPU tensor overrides disable it, and the initial load failed allocating KV cache.
+- Requests select temperature 1.0, top-p 0.95, and high reasoning effort, following
+  the original model's guidance. Low effort failed the actual agent comparison:
+  native tool-call markup was emitted inside `reasoning_content` and not executed.
+  High effort was restored; short low-effort runtimes are not successes. The
+  derivative's refusal tests used low, but do not validate agent/parser compatibility.
 - The Pascal profile uses the locked **llama.cpp b11454** source, the first upstream
   K2 Horizon implementation with reasoning/tool parsing. CUDA 12 and AVX2 dynamic
   dispatch are retained; other host profiles keep their existing runtime.
 
-This requires a runtime rebuild and the additional weight download on activation.
-Evaluate/build before switching, then validate text, tool round-trips, actual
-allocation, and agent tasks. It has not been loaded or benchmarked here. Existing
+The runtime rebuild and weight download completed on 2026-10-18. The explicit
+split loaded **24/49 layers** on GPU, with 3,096 MiB CUDA weights, 1,472 MiB CUDA
+KV, 1,600 MiB CPU KV, and 232 MiB CUDA compute buffers. A guarded text/tool/follow-up
+smoke test retained **2,390 MiB free** and decoded at **6.3–7.7 tok/s** on short
+requests. These are diagnostics, not agent-task scores. High reasoning effort
+generated 257 tokens for a request to answer only `OK`, so end-to-end latency
+must include reasoning. Artifacts: `~/.cache/local-k2-tuning-20261018/`.
+The benchmark stop reserve is 1,024 MiB by explicit user approval; automatic
+fitting headroom is a separate setting. Existing
 Qwen models remain available. Download/runtime totals below describe the original
 three-model setup, not this addition.
+
+Initial agent comparison (same frozen fixtures, seed 42, 16K context, CPU experts,
+high reasoning; one repetition/profile):
+
+| GPU layers | Bug fix | Understanding | Measured prefill, fix / understanding | Minimum free MiB |
+| --- | --- | --- | --- | ---: |
+| 24 | Verified, 697.8s | Partial, 728.4s: invented frozen-dataclass claim | 177.2s / 152.9s | 2,067 |
+| 28 | Verified, 609.9s | Verified, 684.1s | 173.9s / 130.4s | 1,312 |
+
+The 28-layer smoke probe decoded at 8.1–8.4 tok/s, but actual agent-turn speeds
+were lower as context grew (fix: 4.4–6.2 tok/s). Do not substitute short-prompt
+throughput for task latency. No claim of statistical reliability or maximum tuning.
+
+Low-effort comparison at the same 28-layer split failed both tasks (67.1s fix,
+90.6s understanding, measured prefill 57.2s / 70.0s). No patch or final explanation
+was produced. Raw SSE preserves `<ifm|tool_calls>` within the reasoning channel;
+this is a compatibility failure, not evidence of weak reasoning or faster completion.
+
+Further fixed-request diagnostics (1,672 uncached prompt tokens, two requests each):
+
+| GPU layers / KV / flash attention | Prefill seconds | Decode tok/s |
+| --- | ---: | ---: |
+| 28 / f16 / off | 58.0 / 58.1 | 6.61–6.66 |
+| 28 / f16 / on | 61.3 / 61.5 | 6.52–6.53 |
+| 28 / Q8 / on | 57.3 / 57.5 | 5.79–5.80 |
+| 36 / Q8 / on | 52.0 / 51.5 | 6.85–6.91 |
+
+The Q8/36-layer profile's first agent repetition did not establish a better choice:
+bug fix verified in 694.0s (151.9s prefill), understanding partial in 567.6s
+(109.7s prefill), with incorrect current-code zero/one-retry attempt counts.
+Minimum free VRAM was 1,627 MiB. Seed43 passed both tasks: fix 497.7s
+(136.6s prefill), understanding 658.1s (112.4s prefill). The f16/28-layer repeat
+passed fix in 752.5s (183.8s prefill), but its 670.2s understanding answer
+(119.9s prefill) invented an immutable dataclass. No quality difference can be
+attributed specifically to quantization from these small samples.
+
+Matched two-task/two-seed comparison, including unsuccessful answers in elapsed time:
+
+| Profile | Verified / attempts | Total agent wall | Verified tasks/hour | Total measured prefill | Minimum free MiB |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| f16 / 28 GPU / flash off / high | 3/4 | 2,716.6s | 3.98 | 608.0s | 1,312 |
+| Q8 / 36 GPU / flash on / high | 3/4 | 2,417.4s | 4.47 | 510.6s | 1,620 |
+
+Q8/36 is the provisional choice for about 11% less total wall time and better
+observed headroom at equal verified counts. Desktop load and generation variance
+remain confounders; this is not statistical confidence or a universal quality claim.
+Research, implementation, and recovery tests below are not part of the matched
+rates above. Earlier failures and environment errors remain
+in the artifact ledger and are not erased by this profile selection.
+
+Broader selected-profile validation, first repetition (seed42):
+
+| Task | Result | Agent wall | Measured prefill | Minimum free MiB |
+| --- | --- | ---: | ---: | ---: |
+| Research, synthetic documents | Verified; resolving citations, injection ignored | 445.7s | 83.8s | 1,627 |
+| Multi-file implementation | Timeout; behavior checks passed but required tests not added | 900.1s | At least 107.3s | 1,627 |
+| Recovery | Verified; stale command diagnosed, validation fixed and regression added | 573.1s | 138.3s | 1,296 |
+
+Final seed43 repeats: recovery verified in **621.4s** (140.4s prefill), but
+implementation was resource-blocked after **360.9s** at **980 MiB free**, and
+research after **78.6s** at **1,018 MiB free**. The 1,024 MiB guard stopped them
+and unloaded the worker; no ordinary desktop applications were killed.
+
+### Initial tuning-pass outcome
+
+The selected Q8/36-layer/high-effort profile has **6/10 verified attempts** across
+five frozen tasks, two seeds each:
+
+| Task | Verified | Other outcomes |
+| --- | ---: | --- |
+| Bug fix | 2/2 | — |
+| Understanding | 1/2 | Incorrect current-code boundary table |
+| Research | 1/2 | One resource-blocked attempt |
+| Implementation | 0/2 | One timeout, one resource-blocked attempt |
+| Recovery | 2/2 | — |
+
+Total task wall time including failures/stops: **5,397.1s**; **4.00 verified
+tasks/hour**, excluding model loading and evaluator overhead. Successful-task
+median **597.2s**, range **445.7–694.0s**. Total measured prefill is **at least
+1,107.3s**; unfinished turns have unknown timing. Successful trials retained at
+least **1,102 MiB free**, but two later trials crossed the approved reserve, so
+this profile is **conditional on desktop GPU load**, not universally memory-safe.
+The benchmark guard is not a production-wide GPU reservation.
+
+This concludes the initial tuning pass, not proof of maximum performance or
+statistical reliability. A quiet-window repeat or a separately tested more
+conservative placement is needed to resolve the blocked categories. The
+implementation timeout is not counted as completion merely because unfinished
+production code passed hidden behavior checks. Results and all previous attempts
+are retained in `~/.cache/local-k2-tuning-20261018/summary.json`, `reviews.json`,
+the trial ledger, manifests, telemetry, and transcripts. No benchmark is left running.
+
+### Follow-up 10 tok/s experiments
+
+The user explicitly requested a 10 decode tok/s target after the initial pass.
+The MoVA follow-up holds 16K context, Q8 KV, flash attention, 36 GPU layers,
+high reasoning, and batch threads6 fixed. Two uncached requests per profile use
+the same captured 1,672-token agent prompt and naturally generate 71 tokens:
+
+| Change | Decode tok/s | Prefill seconds |
+| --- | ---: | ---: |
+| Six-thread control, first | 6.90–6.98 | 50.6–50.7 |
+| Four generation threads | 6.04–6.52 | 56.7–59.5 |
+| Two generation threads | 4.40–4.52 | 59.0 |
+| Eight generation threads | 6.50–6.52 | 55.7–55.8 |
+| Six physical cores pinned | 6.42–6.90 | 56.5–58.0 |
+| Non-mapped `load-mode=none` | 6.34–6.45 | 35.1–35.2 |
+| Six-thread control, repeated | 6.35–6.39 | 58.6 |
+| One GPU expert block (`n-cpu-moe=47`) | 6.37–6.42 | 53.9–54.2 |
+
+No configuration reached 10 tok/s on this fixed prompt. Repeated-control drift
+prevents interpreting small differences as reliable wins. Non-mapped loading
+improved prefill materially, but increased loading to 55s and has not been
+validated in agent tasks. The GPU expert trial retained only 1,147 MiB free and
+did not improve decode enough to promote. Deployed MoVA settings are unchanged.
+
+A longer standalone coding-request diagnostic (485 prompt tokens, 512 generated
+tokens at the ceiling; not an agent completion) decoded at **7.41 tok/s** normally,
+**7.75 tok/s** with n-gram speculation (60 of 119 proposed draft tokens accepted),
+and **7.33 tok/s** with non-mapped loading. None reached 10 tok/s. At the larger
+1,672-token agent prompt, n-gram speculation stayed at **6.28–6.40 tok/s**.
+
+The 7B medium-effort smoke reproduced the generic reasoning-closer mismatch:
+literal tool calls remained in `reasoning_content`. This matches upstream
+[issue #30246](https://github.com/ggml-org/llama.cpp/issues/30246). The runtime
+package now pins the unmerged [PR #30335](https://github.com/ggml-org/llama.cpp/pull/30335)
+fix at commit `406bd24fe19818796bbf4ceed4828ad2482f934a`, with its two parser
+regression tests. The patch accepts the generic `</ifm|think>` closer at medium/
+low effort without changing high-effort parsing. It applied cleanly to b11454;
+build and runtime validation are pending. All pre-fix medium/low failures remain
+separate compatibility tracks, not evidence about intrinsic reasoning capability.
 
 ## Memory placement
 

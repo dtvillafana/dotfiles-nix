@@ -110,6 +110,9 @@
             // lib.optionalAttrs (model ? projector) {
               mmproj = toString (fetch model model.projector model.projectorHash);
             }
+            // lib.optionalAttrs (model ? chatTemplate) {
+              chat-template-file = toString model.chatTemplate;
+            }
             // lib.optionalAttrs (model ? gpuLayers) {
               # Explicit placement trials must not be silently refitted.
               gpu-layers = model.gpuLayers;
@@ -117,6 +120,9 @@
             }
             // lib.optionalAttrs (model ? cpuFfnLayers) {
               n-cpu-ffn = model.cpuFfnLayers;
+            }
+            // lib.optionalAttrs (model ? tensorOverrides) {
+              override-tensor = lib.concatStringsSep "," model.tensorOverrides;
             }
             // lib.optionalAttrs model.moe (
               let
@@ -174,7 +180,7 @@
         modelOverrides = lib.mkOption {
           type = lib.types.attrsOf lib.types.attrs;
           default = { };
-          description = "Recursive model metadata overrides and additional pinned model definitions; contextSize, flashAttention, cacheTypeK, cacheTypeV, and fitTarget override shared runtime defaults per model. gpuLayers sets explicit placement without automatic fitting, cpuFfnLayers keeps the first N dense FFN layers on CPU, cpuExpertLayers overrides MoE placement (null keeps all experts on CPU), logVerbosity controls diagnostics, and requestBody adds per-model OpenCode request fields. projector and projectorHash are optional for text-only models.";
+          description = "Recursive model metadata overrides and additional pinned model definitions; contextSize, flashAttention, cacheTypeK, cacheTypeV, and fitTarget override shared runtime defaults per model. gpuLayers sets explicit placement without automatic fitting, cpuFfnLayers keeps the first N dense FFN layers on CPU, cpuExpertLayers overrides MoE placement (null keeps all FFN experts on CPU), tensorOverrides supplies a list of tensor-pattern=buffer placement overrides, logVerbosity controls diagnostics, and requestBody adds per-model OpenCode request fields. chatTemplate selects a pinned Jinja template file. projector and projectorHash are optional for text-only models.";
         };
         contextSize = lib.mkOption {
           type = lib.types.ints.positive;

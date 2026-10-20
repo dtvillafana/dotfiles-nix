@@ -23,19 +23,19 @@
         cpuExpertLayers = 35;
         # Per-host tuning; keep the Blackwell profile and shared defaults separate.
         modelOverrides = {
-          # Most-downloaded matching abliterated GGUF on 2026-10-18 (9,345/month).
+          # Independent Candor weight edit; replaces the unreliable Heretic variant.
           "k2-horizon-7b-abliterated" = {
-            name = "K2 Horizon 7B Heretic Abliterated (dense, experimental)";
-            repo = "mradermacher/K2-Horizon-7B-heretic-i1-GGUF";
-            revision = "eeebbdece06eef115157fecc876def53b491fdb1";
-            file = "K2-Horizon-7B-heretic.i1-Q4_K_M.gguf";
-            hash = "303af04f5ccaa0747988902e9f712f1f452416718d7e8cc52634c97cf17266d9";
+            name = "K2 Horizon 7B Candor Uncensored (dense, experimental)";
+            repo = "candor-lab/K2-Horizon-7B-Candor-Uncensored-GGUF";
+            revision = "684d33f62676e57731acf15f03a9cf9601b6a890";
+            file = "K2-Horizon-7B-Candor-Uncensored-Q4_K_M.gguf";
+            hash = "f46e3f6e15b3b04b778c645e89331a6c34c0b6130a45e70f04f483bcc986322f";
             moe = false;
             # Fit layers automatically, preserving desktop headroom and context.
             contextSize = 16384;
             fitTarget = 2304;
             logVerbosity = 4;
-            # Full source template passed text, tool call, and tool-result checks.
+            # Retain the full K2 tool template; Candor compatibility is unvalidated.
             chatTemplate = inputs.k2-horizon-7b-chat-template.outPath;
             requestBody = {
               temperature = 1.0;

@@ -47,7 +47,29 @@ offloaded the output projection; the output-only override changed no allocation.
 The accepted profile does not change the default model or Blackwell composition.
 Persistence does not activate it: run `nr` to switch rogdesktop to these settings.
 
-### Experimental K2 Horizon 7B addition (rogdesktop only)
+### Current K2 Horizon 7B replacement (rogdesktop only, 2026-10-19)
+
+The existing `local-models/k2-horizon-7b-abliterated` ID now selects
+[Candor Uncensored](https://huggingface.co/candor-lab/K2-Horizon-7B-Candor-Uncensored-GGUF),
+an independent weight edit of IFM's original model, rather than Avicennasis Heretic.
+The Q4_K_M file is pinned at revision
+`684d33f62676e57731acf15f03a9cf9601b6a890`, SHA-256
+`f46e3f6e15b3b04b778c645e89331a6c34c0b6130a45e70f04f483bcc986322f`
+(5,592,227,200 bytes). Context, placement, sampling, high reasoning effort, and
+the pinned full K2 tool template remain unchanged. The default model, MoVA, and
+Blackwell profiles are unaffected.
+
+The publisher reports 1,209/1,319 GSM8K correct versus 1,222/1,319 before editing,
+and 0/300 harmless refusals, evaluated on this quantized file with high-effort
+thinking. These are publisher claims, not local agent validation. Their evaluation
+uses llama.cpp b11524, top-k 1,000, and an 8,192-token reasoning budget; this swap
+does not adopt those settings or update the runtime. Tool use and agentic tasks
+were not evaluated by the publisher. Local loading, template/parser compatibility,
+and task quality remain unvalidated. Run `nr` to download and activate the replacement.
+
+The Heretic results below are historical and do not describe Candor.
+
+### Historical K2 Horizon 7B Heretic addition (rogdesktop only)
 
 `localModelsPascal` additionally selects `local-models/k2-horizon-7b-abliterated`:
 [mradermacher's Heretic imatrix GGUF](https://huggingface.co/mradermacher/K2-Horizon-7B-heretic-i1-GGUF),

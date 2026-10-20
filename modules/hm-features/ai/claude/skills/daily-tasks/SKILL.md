@@ -1,6 +1,6 @@
 ---
 name: daily-tasks
-description: Assemble David's prioritized list of what to work on today (or a stated day/week), merging open Gitea PRs and issues, ServiceDesk tickets, capcu.org work-note deadlines, and actionable email. Use for "what should I work on today", "my tasks for today", "what's on my plate", or standup prep.
+description: Assemble David's prioritized list of what to work on today (or a stated day/week), merging open Gitea PRs and issues, ServiceDesk tickets, failed AWX jobs, capcu.org work-note deadlines, and actionable email. Use for "what should I work on today", "my tasks for today", "what's on my plate", or standup prep.
 ---
 
 # Daily task list
@@ -11,6 +11,13 @@ david.villafana@capcu.org. This is the forward-looking mirror of
 horizon: **today**. The user may widen it ("this week", "next few days").
 
 ## 1. Gather sources — in parallel, they are independent
+
+**Do not start compiling the report (sections 2–3) until every search below
+has finished** — Gitea, ServiceDesk, work notes, AWX, and the background email
+agent. Wait for the email agent's completion notification before merging; do
+not deliver a partial list and add mail "later". The only exception is a
+source that is unavailable (MCP missing, connector unauthenticated): name it
+in the report as not searched and why, then continue.
 
 **Gitea (ccugitea.capcu.org)** — open code work.
 - Read the API token from
@@ -68,6 +75,23 @@ WAITING EVENT | DONE CANCELED DELEGATED`. Extract:
   next-actions and skip the `[X]` done ones.
 - One-line project descriptions and stakeholder names for context.
 
+**AWX (https://ccuawx.capcu.org)** — failed automation jobs.
+- Read the token from `/run/secrets/awx_api_token` per command and send it as
+  `Authorization: Bearer`; never echo it.
+- List jobs finished in the last ~3 days:
+  `GET /api/v2/jobs/?finished__gt=<ISO date>&order_by=-finished&page_size=200`
+  (follow `next` if present). Group by `unified_job_template` / `name`.
+- Report a template as **needs action** when its most recent finished run
+  failed or errored (a later successful run clears an earlier failure; still
+  mention repeated scheduled failures that were only cleared by a manual
+  run, since the next schedule may fail again).
+- For each needs-action template record: name, template id, last failure
+  time, launch type, consecutive failure count, and the job ids. If it is
+  cheap, read the failed job's `/api/v2/jobs/<id>/stdout/?format=txt` tail for
+  a one-line cause; never quote credentials or member data from output.
+- Cross-reference with email (e.g. a failed CoreIQ job and a "Core IQ Import
+  Failure" mail are one entry).
+
 **This file contains live production credentials, IPs, and passwords** for
 core banking system integrations (SymXchange, jXChange, etc.). Never quote,
 copy, or include any credential/IP/password into the output or into memory —
@@ -108,19 +132,36 @@ signs in.
 ## 3. Deliver — terminal markdown, not an Artifact
 
 This is a personal working list; keep it in the reply (do not publish an
-Artifact). Structure:
+Artifact).
+
+**Format: tables with footnote references.** Every section is a markdown
+table; do not use prose bullets for items. Keep each row terse (one short
+phrase per cell) and move detail into numbered footnotes. Columns:
+`# | Item | Source | Due / status | Next action | Ref` where Ref is a
+footnote marker like `[1]`. Put all footnotes in a **Footnotes** section at
+the end, numbered continuously across the whole report (`[1]`, `[2]`, …).
+A footnote holds the extra data: the ticket/PR/org line details, notes from
+mail (sender, date, what was asked), AWX job ids and failure cause, related
+items merged into the row, and status conflicts. Never put credentials, IPs,
+or member PII in a footnote.
+
+Sections (omit empty ones):
 - **Today — hard deadlines**: `DEADLINE` today or overdue, plus explicit
   go-live / commitment dates from mail, plus ServiceDesk tickets due today
-  or overdue. Table each row with its source reference (`capcu.org:<line>`,
-  repo `#<n>`, `SDP #<id>`).
+  or overdue. Source column uses `capcu.org:<line>`, repo `#<n>`,
+  `SDP #<id>`, `AWX #<template id>`, or `mail`.
+- **Failed AWX jobs**: templates whose latest run failed (see AWX source),
+  one row each, with cause and job ids in the footnote.
 - **This week**: `[#A]`/`[#B]` work and project next-actions due within the
   horizon.
 - **Tomorrow (prep today)**: `SCHEDULED` items in the next day or two.
 - **Waiting on others (track only)**: no action unless stalled.
 - **Idle branches / lower priority**: stale PRs, `[#C]`/`[#D]` items.
-- **Suggested order today**: a short ordered list — hard deadline first,
-  then highest business weight (A-priority, vendor-blocking,
-  launch-critical), then quick vendor unblocks, then the rest.
+- **Suggested order today**: a short numbered list (the one non-table
+  section) — hard deadline first, then highest business weight (A-priority,
+  vendor-blocking, launch-critical), then quick vendor unblocks, then the
+  rest.
+- **Sources not searched**: only if a source was unavailable.
 Flag scheduling collisions (two calendar items overlapping) explicitly.
 Order within each section by priority cookie, then deadline proximity.
 

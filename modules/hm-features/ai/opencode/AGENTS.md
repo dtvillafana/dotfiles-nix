@@ -12,11 +12,11 @@ Format modified files and run the relevant checks before finishing.
 - Prompt the user to evaluate the affected flake or configuration after changes when practical instead of running the checks.
 - If something you're trying needs multiple dependencies, first try to get them all in a nix shell environment, and if this is not a one-off, or this requires NixOS configuration changes, recommend to the user to update their NixOS configuration to support what you are trying to do, then attempt a different method.
 
-## Python
+## Code guidelines
 
-- Target the project's configured Python version and dependency tooling.
+- Suggest or use pinned Nix dependency management when possible, like uv2nix, cargo2nix, go2nix, etc...
 - Use the functional paradigm, dataclasses, pure functions, minimize mutable state and shadowing variables, etc. but no unnecessary functions that just pass their parameters to another function.
-- Use as many modern python type hints as possible
+- When possible, use strong types, type hints, or static typing.
 - Keep functions focused and handle expected errors explicitly.
 
 ## Commands

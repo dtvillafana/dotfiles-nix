@@ -51,6 +51,10 @@
       url = "github:kqlio67/fast-browser-mcp/v0.10.0";
       flake = false;
     };
+    voxtype-tray-src = {
+      url = "github:matt-shearing/voxtype-tray/6fcacd82fc52299c3b152962ff3737a16cc42b68";
+      flake = false;
+    };
     hyprwhichkey-src = {
       url = "github:Juhan280/hyprwhichkey/6f4408e456bbd6b33f43845d797b92407037ae74";
       flake = false;

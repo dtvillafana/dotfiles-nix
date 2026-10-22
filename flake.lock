@@ -1017,6 +1017,7 @@
         "nixvim": "nixvim",
         "sops-nix": "sops-nix",
         "treefmt-nix": "treefmt-nix_2",
+        "voxtype-tray-src": "voxtype-tray-src",
         "wrapper-modules": "wrapper-modules",
         "zoho-desk-mcp-server": "zoho-desk-mcp-server"
       }
@@ -1169,6 +1170,23 @@
       "original": {
         "owner": "pyproject-nix",
         "repo": "uv2nix",
+        "type": "github"
+      }
+    },
+    "voxtype-tray-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1787317126,
+        "narHash": "sha256-bnWKVPpugXQ35X4Pw7U7BaA9zwXDQdgnXcJcJuH5zNY=",
+        "owner": "matt-shearing",
+        "repo": "voxtype-tray",
+        "rev": "6fcacd82fc52299c3b152962ff3737a16cc42b68",
+        "type": "github"
+      },
+      "original": {
+        "owner": "matt-shearing",
+        "repo": "voxtype-tray",
+        "rev": "6fcacd82fc52299c3b152962ff3737a16cc42b68",
         "type": "github"
       }
     },

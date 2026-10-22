@@ -196,18 +196,37 @@ the viewer; seamless login/logout continuity is not promised.
 - Webex is retained, but its native client's Wayland screen-sharing support
   depends on the vendor build. If sharing fails, use a supported browser client;
   XWayland alone cannot capture the complete Wayland desktop.
-- Handy starts in the UWSM graphical session. For capcu, Hyprland owns
-  Alt+Space hold-to-talk: pressing starts recording, releasing Space or either
-  Alt key stops it. Ordinary Space/Alt releases do not toggle recording.
-  The installed `handy` binary and its menu entry set `GDK_BACKEND=x11`,
-  `WEBKIT_DISABLE_DMABUF_RENDERER=1`, and `WEBKIT_DISABLE_COMPOSITING_MODE=1`.
-  vir and capcu services set the same variables because they execute the
-  unwrapped store path. Launching the bare binary from the menu otherwise
-  confines the webview to the top-left corner. XWayland fixes that; the WebKit
-  overrides avoid NVIDIA rendering issues. Dictation still uses `wtype` on Wayland.
-  The Handy service selects `wtype` for direct text insertion on Wayland,
-  preserving the rest of its saved settings. Test dictation in your target app;
-  some browsers and remote-desktop clients may need a different typing backend.
+- Voxtype starts in the graphical session for vir, capcu, and guest. Hyprland owns
+  Right Alt hold-to-dictate: press to start, release to stop and insert text.
+  Alt+Space remains toggle-to-dictate: press and release once to start, then again to
+  stop and insert text. Alt+Escape cancels. Built-in keyboard monitoring is
+  disabled with `--no-hotkey`, so no input-group access or X11 global grabs are
+  needed. Shortcuts are controlled by Hyprland, not the tray's evdev controls.
+  The feature in `modules/features/voxtype.nix` exports `homeModules.voxtype`,
+  selected explicitly by each user profile, including bootstrap configurations.
+  PipeWire prerequisites are already provided by the shared desktop-services
+  feature; no additional host import is needed. The user module uses nixpkgs' ONNX-enabled
+  Voxtype with a local Parakeet INT8 model. After applying the configuration,
+  each user runs `voxtype setup model` and downloads `parakeet-tdt-0.6b-v3-int8`,
+  then runs `systemctl --user restart voxtype`. Models live under
+  `~/.local/share/voxtype/models/` and are not downloaded by Nix. Audio
+  capture uses the `pipewire` ALSA PCM and follows the default PipeWire source;
+  select the Meteor as the default microphone on rogdesktop. No direct USB
+  hardware access or never-suspend exception is needed. Text is inserted after
+  stopping (experimental streaming is disabled). Test insertion in your target
+  app; clipboard fallback is enabled if typing fails.
+- `voxtype-tray` adds the PyQt6 settings GUI and a Waybar tray icon for all
+  Voxtype users. It starts with the graphical session; right-click the icon
+  and choose **Settings...** to edit settings or download models. Start it
+  manually with `systemctl --user start voxtype-tray` or the **VoxType Tray**
+  application launcher entry. The upstream source is pinned in `flake.lock`.
+  Nix seeds `~/.config/voxtype/config.toml` only when absent, and converts the
+  previous Home Manager symlink to a writable copy without discarding settings.
+  Later rebuilds preserve GUI edits. Backend-switching buttons are disabled:
+  binary/ONNX/GPU support is managed through Nix, not writes to `/usr/bin`.
+  Keep built-in hotkey monitoring disabled to retain the Hyprland shortcuts.
+  Streaming requires a newer Voxtype and a compatible model; installing the
+  tray does not enable it in the pinned 0.7.2 package.
 - Super+Shift+G opens capcu's keepmenu database when secrets are enabled.
   Test username/password/Tab auto-typing into both native and XWayland apps.
   KeePassXC's own X11 auto-type is not made Wayland-compatible by this change;
@@ -285,12 +304,11 @@ After logging in, check:
 hyprctl configerrors
 hyprctl monitors all
 hyprctl clients
-systemctl --user status wayvnc hyprwhichkey hyprpolkitagent handy
+systemctl --user status wayvnc hyprwhichkey hyprpolkitagent voxtype
 systemctl --user status xdg-desktop-portal xdg-desktop-portal-hyprland
 journalctl --user -b -u wayvnc
 ```
 
-On guest, omit `handy` because that service is not installed. On the Dell,
-also inspect `journalctl -b -u display-manager` if the greeter or its VNC server
+On the Dell, also inspect `journalctl -b -u display-manager` if the greeter or its VNC server
 fails. Verify lock/unlock, suspend/resume, screenshots/OCR, password typing,
 clipboard exchange, and VNC keyboard/mouse before migrating the remaining nodes.

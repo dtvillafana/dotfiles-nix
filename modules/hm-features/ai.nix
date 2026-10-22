@@ -45,21 +45,6 @@
           (pkgs.writeShellScriptBin "obu" openBrowserUseCommand)
         ];
       };
-      # Native Wayland confines Handy's webview to the top-left corner, and
-      # WebKitGTK's DMA-BUF renderer blanks the window on NVIDIA. Menu and CLI
-      # launches use this wrapper. User services still set the same variables
-      # because they execute the unwrapped store path.
-      handyWrapped = pkgs.symlinkJoin {
-        name = "handy";
-        paths = [ llm-agents.packages.${system}.handy ];
-        nativeBuildInputs = [ pkgs.makeWrapper ];
-        postBuild = ''
-          wrapProgram $out/bin/handy \
-            --set GDK_BACKEND x11 \
-            --set WEBKIT_DISABLE_DMABUF_RENDERER 1 \
-            --set WEBKIT_DISABLE_COMPOSITING_MODE 1
-        '';
-      };
       openBrowserUseHost = pkgs.writeShellScript "open-browser-use-host" ''
         exec ${openBrowserUse}/bin/open-browser-use host --socket-dir "${socketDir}"
       '';
@@ -131,27 +116,12 @@
           home.packages = [
             llm-agents.packages.${system}.claude-code
             llm-agents.packages.${system}.grok
-            handyWrapped
             llm-agents.packages.${system}.herdr
             llm-agents.packages.${system}.opencode2
             fastBrowserMcp
             fastBrowserLaunch
             openBrowserUseCli
           ];
-
-          xdg.desktopEntries.handy = {
-            name = "Handy";
-            comment = "Fast and accurate local transcription app";
-            exec = "${handyWrapped}/bin/handy";
-            icon = "handy";
-            categories = [
-              "Audio"
-              "AudioVideo"
-              "Utility"
-            ];
-            startupNotify = true;
-            terminal = false;
-          };
 
           xdg.configFile = {
             "BraveSoftware/Brave-Browser/NativeMessagingHosts/com.ifuryst.open_browser_use.extension.json".text =

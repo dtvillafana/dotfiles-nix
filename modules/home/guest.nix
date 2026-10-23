@@ -29,6 +29,7 @@
           imports = [
             inputs.nix-index-database.homeModules.nix-index
             self.homeModules.hyprland
+            self.homeModules.voxtype
             self.homeModules.launcher
             self.homeModules.browsers
             self.homeModules.monitors

@@ -3,11 +3,11 @@
     "agent-deck-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1792612116,
-        "narHash": "sha256-1GH2HDqeG9qhneWPeven5HVlXV75FWd6Ur8ga5yephY=",
+        "lastModified": 1792840687,
+        "narHash": "sha256-0PEQS1hMK9hZ6eqvU4C4fiF5Q2umm3hn49b/tDqMfKY=",
         "owner": "dtvillafana",
         "repo": "agent-deck",
-        "rev": "1485b4b345e0c41e26111700c7dda11add42089f",
+        "rev": "d1c2dfc36e7ddd9f00ac73cbd44a525ea102bffb",
         "type": "github"
       },
       "original": {
@@ -468,11 +468,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1792835552,
-        "narHash": "sha256-0EthGjCBH0UEPrU78omXpEbvRqKjCBZeC8fi+kIBy+o=",
+        "lastModified": 1792856955,
+        "narHash": "sha256-G+DZhXnybjKLxQsXZVUNhJQ0oFgclOyux4zYI0c3FKg=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "53a2d94ce3b88753200be9a0549d8978b031fa60",
+        "rev": "125f2c1b3ddccf591fe8d4d9d86d1171913ba64a",
         "type": "github"
       },
       "original": {

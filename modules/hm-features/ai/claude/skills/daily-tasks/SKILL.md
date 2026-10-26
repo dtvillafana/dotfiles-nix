@@ -117,6 +117,27 @@ URL and code — surface those to David, deliver the list from Gitea + org +
 ServiceDesk in the meantime, and offer to re-run the mail search once he
 signs in.
 
+**Cross-check ticket mentions in email against ServiceDesk** — do this in
+the main session after the email agent reports (the agent may not have the
+servicedesk MCP). Mail often forwards ticket notices ("RE-63604", "TMS 63436",
+"SDP #63285", "Request Id ##RE-63436##"). The number is the ServiceDesk
+request id. For every ticket id the email report mentions as an action
+for David:
+- Call `servicedesk_get_request` (or `servicedesk_get_request_summary`) and
+  read `technician` and `status`.
+- Assigned to David (`david.villafana@capcu.org`) -> keep it as action on
+  him, merged with his assigned-queue row if it is already there.
+- Unassigned (`technician` null) -> keep it only if the mail is addressed to
+  him or the work clearly falls to him; note it as unassigned.
+- Assigned to someone else (e.g. Jeremy) -> do not add it to his task list.
+  At most mention it in one line under "Waiting on others" or the footnote
+  ("assigned to <name>"), and only if it still affects his work.
+- Closed/resolved -> drop it.
+- A ticket the email report names but the assigned-queue list lacks is not
+  David's by default; the lookup decides, not the email wording. If the MCP
+  fails, say the ticket was not verified rather than assuming it is his.
+Look tickets up by id only; never quote member PII from the ticket text.
+
 ## 2. Merge sources — none is subordinate to another
 
 - Items from two or more sources describing the same initiative become one

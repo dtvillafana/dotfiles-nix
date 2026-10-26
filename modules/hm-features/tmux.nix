@@ -19,15 +19,15 @@
           set -sg escape-time 0
           set -g allow-passthrough on
 
-          # Use Vim directions, retaining the default modifiers and repeatability.
+          # Require the prefix for every pane switch; keep resizing repeatable.
           unbind Left
           unbind Down
           unbind Up
           unbind Right
-          bind -r h select-pane -L
-          bind -r j select-pane -D
-          bind -r k select-pane -U
-          bind -r l select-pane -R
+          bind h select-pane -L
+          bind j select-pane -D
+          bind k select-pane -U
+          bind l select-pane -R
 
           unbind M-Left
           unbind M-Down

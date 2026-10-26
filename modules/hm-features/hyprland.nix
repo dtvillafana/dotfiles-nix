@@ -72,6 +72,18 @@
               shift
               fuzzel_menu "$@"
               ;;
+            workspaces)
+              shift
+              workspace="$(
+                {
+                  printf '%s\n' "$@"
+                  hyprctl -j workspaces | jq -r '.[] | select(.id >= 0) | .name'
+                } | sort -u | fuzzel_menu workspaces --only-match --prompt 'Switch workspace… '
+              )" || exit 0
+              [ -n "$workspace" ] || exit 0
+              target="$(jq -cn --arg workspace "name:$workspace" '$workspace')"
+              exec hyprctl eval "hl.dispatch(hl.dsp.focus({ workspace = $target }))"
+              ;;
             bindings)
               shift
               exec astal -i hyprwhichkey "$@"

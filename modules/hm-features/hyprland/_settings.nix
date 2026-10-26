@@ -255,6 +255,9 @@ in
           (exec "SUPER + SHIFT + Return" "hypr-neovide" { })
           (exec "SUPER + D" "hypr-desktop-action apps" { })
           (exec "SUPER + SHIFT + D" "hypr-desktop-action run" { })
+          (exec "SUPER + SHIFT + W" "hypr-desktop-action workspaces ${
+            lib.escapeShellArgs (map (workspace: workspace.name) workspaces)
+          }" { description = "Switch workspace"; })
           (exec "SUPER + T" "hypr-desktop-action kill-user" { })
           (exec "SUPER + SHIFT + T" "hypr-desktop-action kill-root" { })
           (exec "SUPER + G" "hypr-desktop-action password" { })

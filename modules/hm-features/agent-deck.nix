@@ -23,6 +23,9 @@
         default_tool = "claude"
         theme = "dark"
 
+        [updates]
+        check_enabled = false
+
         [tools.terminal]
         command = "zsh"
         icon = "⌨"

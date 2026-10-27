@@ -25,7 +25,8 @@
           url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/CIS-300-UMARY-EXERCISES";
           path = "$HOME/git-repos/CIS-300-UMARY-EXERCISES";
           secret = githubSecret;
-        }        {
+        }
+        {
           name = "CIS-300-UMary";
           url = "https://dtvillafana:$(cat ${githubSecret})@github.com/dtvillafana/CIS-300-UMary";
           path = "$HOME/git-repos/CIS-300-UMary";

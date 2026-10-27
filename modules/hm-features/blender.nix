@@ -15,7 +15,6 @@
       home.packages = [
         pkgs.blender
         self.packages.${system}.mcp-for-blender
-        self.packages.${system}.mixar
       ];
 
       opencode.settings.mcp.servers.blender = {

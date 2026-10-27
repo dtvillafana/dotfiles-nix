@@ -17,7 +17,7 @@
           "llama-cpp.service"
         ];
         user = "capcu";
-        providerName = "Local Models (Blackwell 16 GiB + RAM)";
+        providerName = "Local Blackwell";
         package = llmPkgs.llama-cpp.override {
           cudaSupport = true;
           cudaPackages = llmPkgs.cudaPackages_13;
@@ -37,22 +37,23 @@
         modelOverrides = {
           "qwen3.8-27b-abliterated" = {
             contextSize = 45056;
-            name = "Qwen3.8 27B Abliterated (IQ3_S, quality)";
+            name = "Qwen3.8-27B-Ablit";
             file = "Huihui-Qwen3.8-27B-abliterated-UD-DW-IQ3_S.gguf";
             hash = "d0eaa1e90e7630de8cefaf52510eb8913c76f85da0186d8f85a462aa6a40192c";
           };
           "qwen3.5-9b-abliterated" = {
             contextSize = 245760;
-            name = "Qwen3.5 9B Abliterated (Q6_K, fast)";
+            name = "Qwen3.5-9B-Ablit";
             file = "Huihui-Qwen3.5-9B-abliterated.Q6_K.gguf";
             hash = "c57ef5dc56ead87f054e808c14e4edbd4be60b3a32717cc38ea54e90dc296d2c";
           };
           "qwen3.6-35b-a3b-abliterated" = {
             contextSize = 143360;
+            name = "Qwen3.6-35B-MoE-Ablit";
           };
           "qwen3.8-27b-coder390-abliterated" = {
             contextSize = 45056;
-            name = "Qwen3.8 27B Coder390 Abliterated (experimental)";
+            name = "Qwen3.8-27B-Coder-Ablit";
             repo = "huihui-ai/Huihui-Qwen3.8-27B-Coder390-EfficientThink-abliterated-GGUF";
             revision = "a0b17c71d9943529aefe88b83f494bf01c6b4d68";
             file = "Huihui-Qwen3.8-27B-Coder390-EfficientThink-abliterated-IQ3_S3.gguf";

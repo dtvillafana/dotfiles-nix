@@ -23,6 +23,19 @@ Format modified files and run the relevant checks before finishing.
 
 - when you try a command and the program is not available, then try again using `nix shell` to get the desired program before trying something else.
 
+## OpenAI agent workload routing
+
+When using the OpenAI agent family:
+
+- Keep implementation and architectural planning in the primary Sol high agent (`openai-build` or `openai-plan`). Do not change the session model merely to perform a small task.
+- Delegate only when the user or applicable instructions explicitly request delegation. Routing guidance does not itself authorize spawning subagents. Honor any explicit model choice from the user.
+- Choose `openai-explore` (Luna medium) for read-only file discovery, symbol searches, and targeted codebase questions. Give it a concrete question and a thoroughness level; do not ask it to design changes or diagnose complex failures.
+- Choose `openai-general` (Terra medium) for bounded research, source-backed synthesis, browser workflows, writing, and straightforward implementation with clear acceptance criteria and limited dependencies.
+- Choose `openai-complex` (Sol medium) for ambiguous requirements, architectural tradeoffs, difficult debugging, security-sensitive code, or tightly coupled cross-file changes. Do not send complex coding to Terra solely to reduce token cost.
+- For each delegated task, specify scope, constraints, acceptance criteria, and required validation. Avoid concurrent edits to shared files or concurrent browser sessions against the shared active tab.
+- If a Terra task fails validation or uncovers architectural uncertainty, stop retrying the same approach. Have the primary Sol agent reassess or delegate the narrowed problem to `openai-complex`, including the evidence and failed checks. Validate returned work before integrating it.
+- Plan mode may delegate only read-only discovery to `openai-explore`; it must not use implementation subagents or leave plan mode to complete a task.
+
 ## Browser automation in OpenCode
 
 - Use the local `fast_browser` MCP for browser interaction. Do not use cloud browser services. Use webfetch for simple text retrieval. If no browser is listening on localhost:9222, ask the user to run `fast-browser-launch` to open the dedicated Brave automation profile.

@@ -371,8 +371,15 @@
                   plan.permissions = mkPlanSubagentPerms "explore";
                   "grok-explore" = mkExplore "xai/grok-build-0.1";
                   "grok-general" = mkGeneral "xai/grok-4.7#medium";
-                  "openai-explore" = mkExplore "openai/gpt-6-luna#medium";
-                  "openai-general" = mkGeneral "openai/gpt-6.1-sol#medium";
+                  "openai-explore" = mkExplore "openai/gpt-6-luna#medium" // {
+                    description = "Luna: inexpensive, read-only file discovery, symbol searches, and targeted codebase questions. Specify quick, medium, or very thorough exploration. Use openai-complex for architectural reasoning or difficult debugging, not this agent.";
+                  };
+                  "openai-general" = mkGeneral "openai/gpt-6.1-terra#medium" // {
+                    description = "Terra: bounded research, source-backed synthesis, browser workflows, writing, and straightforward implementation with clear acceptance criteria. Use openai-complex instead for ambiguous requirements, architecture, difficult debugging, security-sensitive code, or tightly coupled cross-file changes.";
+                  };
+                  "openai-complex" = mkGeneral "openai/gpt-6.1-sol#medium" // {
+                    description = "Sol: complex coding, architectural analysis, difficult debugging, security-sensitive code, and tightly coupled cross-file changes. Also use when a bounded Terra task fails validation or reveals unexpected complexity. Prefer openai-explore for discovery and openai-general for routine, well-scoped work.";
+                  };
                   "grok-build" = mkBuild {
                     model = "xai/grok-4.7#high";
                     explore = "grok-explore";
@@ -384,16 +391,22 @@
                     explore = "grok-explore";
                     description = "Read-only agent for exploring the codebase and planning work before implementation. Cannot edit code files.";
                   };
-                  "openai-build" = mkBuild {
-                    model = "openai/gpt-6.1-sol#high";
-                    explore = "openai-explore";
-                    general = "openai-general";
-                    description = "The default agent. Executes tools based on configured permissions.";
-                  };
+                  "openai-build" =
+                    (mkBuild {
+                      model = "openai/gpt-6.1-sol#high";
+                      explore = "openai-explore";
+                      general = "openai-general";
+                      description = "Sol high: primary implementation agent for architecture, debugging, and cross-file changes. When delegation is requested, choose Luna for discovery, Terra for bounded routine work, and Sol for complex work.";
+                    })
+                    // {
+                      permissions = mkFamilySubagentPerms "openai-explore" "openai-general" ++ [
+                        (subagentRule "allow" "openai-complex")
+                      ];
+                    };
                   "openai-plan" = mkPlan {
                     model = "openai/gpt-6.1-sol#high";
                     explore = "openai-explore";
-                    description = "Read-only agent for exploring the codebase and planning work before implementation. Cannot edit code files.";
+                    description = "Sol high: read-only architectural investigation and implementation planning. May delegate discovery to openai-explore when requested; switch to openai-build for implementation.";
                   };
                 };
                 providers.openai = {

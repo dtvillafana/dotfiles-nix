@@ -51,6 +51,22 @@
       url = "github:kqlio67/fast-browser-mcp/v0.10.0";
       flake = false;
     };
+    octoprint-malyan-connection-fix-src = {
+      url = "github:OctoPrint/OctoPrint-MalyanConnectionFix/5a935585a396c129f061e8c43227707562079e05";
+      flake = false;
+    };
+    octoprint-src = {
+      url = "github:OctoPrint/OctoPrint/1.11.8";
+      flake = false;
+    };
+    octoprint-filecheck-src = {
+      url = "github:OctoPrint/OctoPrint-FileCheck/2025.7.23";
+      flake = false;
+    };
+    octoprint-firmwarecheck-src = {
+      url = "github:OctoPrint/OctoPrint-FirmwareCheck/2025.7.23";
+      flake = false;
+    };
     voxtype-tray-src = {
       url = "github:matt-shearing/voxtype-tray/6fcacd82fc52299c3b152962ff3737a16cc42b68";
       flake = false;

@@ -907,6 +907,74 @@
         "type": "github"
       }
     },
+    "octoprint-filecheck-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1753256594,
+        "narHash": "sha256-Y3JVfbe+bZz2t65OqdjvVVqTSa0VUPoCaxvE+zQ+Qts=",
+        "owner": "OctoPrint",
+        "repo": "OctoPrint-FileCheck",
+        "rev": "8bac7a3e474b954340369dbe2fbb4dc0276719c8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "OctoPrint",
+        "ref": "2025.7.23",
+        "repo": "OctoPrint-FileCheck",
+        "type": "github"
+      }
+    },
+    "octoprint-firmwarecheck-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1753256587,
+        "narHash": "sha256-QPchpyeotB5IKbfES74CJlhw3sz8Q1df/+n5dpbrHSs=",
+        "owner": "OctoPrint",
+        "repo": "OctoPrint-FirmwareCheck",
+        "rev": "940e44f328f547835dc210f725bfb939d9f77e2c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "OctoPrint",
+        "ref": "2025.7.23",
+        "repo": "OctoPrint-FirmwareCheck",
+        "type": "github"
+      }
+    },
+    "octoprint-malyan-connection-fix-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1655974323,
+        "narHash": "sha256-21kl+YyUiM7HND/aRF8IrR0MVRFZ1ZlthHeGnHBCnaE=",
+        "owner": "OctoPrint",
+        "repo": "OctoPrint-MalyanConnectionFix",
+        "rev": "5a935585a396c129f061e8c43227707562079e05",
+        "type": "github"
+      },
+      "original": {
+        "owner": "OctoPrint",
+        "repo": "OctoPrint-MalyanConnectionFix",
+        "rev": "5a935585a396c129f061e8c43227707562079e05",
+        "type": "github"
+      }
+    },
+    "octoprint-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1782199299,
+        "narHash": "sha256-yTHzBqwVxAP6EokiWqD/SR6P2X4gIGyiyzNH0UzzDB4=",
+        "owner": "OctoPrint",
+        "repo": "OctoPrint",
+        "rev": "42be7409d4820431043da48ece30014e26b47073",
+        "type": "github"
+      },
+      "original": {
+        "owner": "OctoPrint",
+        "ref": "1.11.8",
+        "repo": "OctoPrint",
+        "type": "github"
+      }
+    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -979,6 +1047,10 @@
         "nix-on-droid": "nix-on-droid",
         "nixpkgs": "nixpkgs_5",
         "nixvim": "nixvim",
+        "octoprint-filecheck-src": "octoprint-filecheck-src",
+        "octoprint-firmwarecheck-src": "octoprint-firmwarecheck-src",
+        "octoprint-malyan-connection-fix-src": "octoprint-malyan-connection-fix-src",
+        "octoprint-src": "octoprint-src",
         "sops-nix": "sops-nix",
         "treefmt-nix": "treefmt-nix_2",
         "voxtype-tray-src": "voxtype-tray-src",

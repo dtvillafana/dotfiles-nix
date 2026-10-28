@@ -2,6 +2,7 @@
 
 Follow the repository's existing conventions and make the smallest correct change.
 Format modified files and run the relevant checks before finishing.
+Do not create tests unless explicitly asked to do so, or the project already has test coverage for the components being modified.
 
 ## Nix
 

@@ -39,6 +39,11 @@ Typical chain — copy `messageId` through every step:
 
 Copy downloaded files from `hostTempPath` to the requested destination.
 
+- Format: always pass `bodyType: "HTML"` to `send_outlook_email`,
+  `reply_outlook_email`, and `edit_outlook_draft` (when setting `body`), and
+  write the body as simple HTML (`<p>`, `<br>`, `<ul>`/`<li>`, `<b>`,
+  `<a href>`). Escape `&`, `<`, and `>` in literal text. Use `"Text"` only
+  when the user explicitly asks for plain text.
 - New mail: draft with `send_outlook_email`; set `send_now: true` only after
   explicit approval.
 - Replies: after `read_email`, call `reply_outlook_email` with that same
@@ -56,5 +61,6 @@ Copy downloaded files from `hostTempPath` to the requested destination.
   `send_now: true`; that leaves a duplicate draft behind.
 
 If every To/Cc/Bcc address ends in `@capcu.org`, end the body with a small
-footer that says exactly: Sent by Claude. Omit that footer when any
+footer that says exactly: Sent by Claude (in HTML, e.g.
+`<p><small>Sent by Claude</small></p>`). Omit that footer when any
 recipient is outside `@capcu.org`.

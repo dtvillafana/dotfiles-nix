@@ -13,6 +13,30 @@
         inherit voxtype;
         inherit (inputs) voxtype-tray-src;
       };
+      hotkeyMode = pkgs.writeScript "voxtype-hotkey-mode" ''
+        #!${pkgs.python3}/bin/python3
+        import sys
+        import tomllib
+        from pathlib import Path
+
+        path = Path(${builtins.toJSON "${config.xdg.configHome}/voxtype/config.toml"})
+        try:
+            settings = tomllib.loads(path.read_text())
+        except FileNotFoundError:
+            settings = {}
+        except (OSError, tomllib.TOMLDecodeError) as error:
+            print(f"Cannot read Voxtype hotkey mode: {error}", file=sys.stderr)
+            sys.exit(1)
+
+        mode = settings.get("hotkey", {}).get("mode", "push_to_talk")
+        # Match the daemon's in-memory streaming override, even if the GUI
+        # leaves hotkey.mode set to push_to_talk in the file.
+        if settings.get("parakeet", {}).get("streaming", False):
+            mode = "toggle"
+        if mode not in ("toggle", "push_to_talk"):
+            sys.exit("Unknown Voxtype hotkey mode")
+        print(mode)
+      '';
     in
     {
       key = "dotfiles-nix-voxtype";
@@ -45,8 +69,8 @@
             model = "parakeet-tdt-0.6b-v3-int8";
             model_type = "tdt";
             on_demand_loading = false;
-            # 0.7.2's streaming pipeline requires a different model export and
-            # only commits text on stop. Keep the supported batch TDT path.
+            # Streaming requires a different model export, such as
+            # parakeet-unified-en-0.6b. Default to the batch TDT path.
             streaming = false;
           };
           output = {
@@ -87,38 +111,52 @@
 
       # Hyprland owns hotkeys: evdev would require access to every keyboard.
       xdg.configFile."hypr/user.lua".text = lib.mkBefore ''
-        local voxtype_held = false
+        local voxtype_key = nil
+        local voxtype_mode = nil
         local voxtype_start = hl.dsp.exec_cmd("${lib.getExe voxtype} record start")
         local voxtype_stop = hl.dsp.exec_cmd("${lib.getExe voxtype} record stop")
         local voxtype_toggle = hl.dsp.exec_cmd("${lib.getExe voxtype} record toggle")
         local voxtype_cancel = hl.dsp.exec_cmd("${lib.getExe voxtype} record cancel")
 
-        hl.bind("Alt_R", function()
-          if voxtype_held then return end
-          voxtype_held = true
-          hl.dispatch(voxtype_start)
-        end, { description = "Hold Right Alt to dictate", ignore_mods = true })
+        local function voxtype_bind(key, ignore_mods)
+          hl.bind(key, function()
+            -- Suppress repeats and overlapping dictation shortcuts.
+            if voxtype_key then return end
+            local reader = io.popen("${hotkeyMode}", "r")
+            if not reader then return end
+            local mode = reader:read("*l")
+            local ok = reader:close()
+            if not ok or (mode ~= "toggle" and mode ~= "push_to_talk") then return end
+            voxtype_key = key
+            voxtype_mode = mode
+            if mode == "push_to_talk" then hl.dispatch(voxtype_start) end
+          end, { description = "Voxtype: configured toggle/hold mode", ignore_mods = ignore_mods })
 
-        hl.bind("Alt_R", function()
-          if not voxtype_held then return end
-          voxtype_held = false
-          hl.dispatch(voxtype_stop)
-        end, {
-          description = "Stop Right Alt dictation",
-          release = true,
-          ignore_mods = true,
-          submap_universal = true,
-        })
+          hl.bind(key, function()
+            if voxtype_key ~= key then return end
+            -- Retain the press-time mode even if settings change while held.
+            local mode = voxtype_mode
+            voxtype_key = nil
+            voxtype_mode = nil
+            if mode == "toggle" then
+              hl.dispatch(voxtype_toggle)
+            elseif mode == "push_to_talk" then
+              hl.dispatch(voxtype_stop)
+            end
+          end, {
+            description = "Voxtype: release toggle/hold key",
+            release = true,
+            ignore_mods = ignore_mods,
+            submap_universal = true,
+          })
+        end
 
-        -- Only toggle after key release; do not toggle during held dictation.
-        hl.bind("ALT + space", function()
-          if not voxtype_held then hl.dispatch(voxtype_toggle) end
-        end, {
-          description = "Toggle Voxtype dictation",
-          release = true,
-        })
+        -- Toggle only on release so typing never starts with the key held.
+        voxtype_bind("Alt_R", true)
+        voxtype_bind("ALT + space", false)
         hl.bind("ALT + Escape", function()
-          voxtype_held = false
+          -- Keep the key latched until release; cancelling must not re-toggle.
+          voxtype_mode = "cancelled"
           hl.dispatch(voxtype_cancel)
         end, {
           description = "Cancel Voxtype dictation",

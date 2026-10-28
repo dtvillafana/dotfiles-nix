@@ -197,10 +197,14 @@ the viewer; seamless login/logout continuity is not promised.
   depends on the vendor build. If sharing fails, use a supported browser client;
   XWayland alone cannot capture the complete Wayland desktop.
 - Voxtype starts in the graphical session for vir, capcu, and guest. Hyprland owns
-  Right Alt hold-to-dictate: press to start, release to stop and insert text.
-  Alt+Space remains toggle-to-dictate: press and release once to start, then again to
-  stop and insert text. Alt+Escape cancels. Built-in keyboard monitoring is
-  disabled with `--no-hotkey`, so no input-group access or X11 global grabs are
+  Right Alt and Alt+Space dictation. Both read `[hotkey] mode` from the writable
+  Voxtype config on each press: `toggle` starts/stops on key release, while
+  `push_to_talk` starts on press and stops on release. Parakeet streaming forces
+  toggle activation, matching the daemon's override. Tap and release the shortcut
+  before speaking in toggle mode. Repeats and overlapping shortcuts are ignored;
+  Alt+Escape cancels without restarting on release. Restart Voxtype after changing
+  its settings so the daemon and shortcuts use the same config. Built-in keyboard
+  monitoring is disabled with `--no-hotkey`, so no input-group access or X11 global grabs are
   needed. Shortcuts are controlled by Hyprland, not the tray's evdev controls.
   The feature in `modules/features/voxtype.nix` exports `homeModules.voxtype`,
   selected explicitly by each user profile, including bootstrap configurations.
@@ -225,8 +229,9 @@ the viewer; seamless login/logout continuity is not promised.
   Later rebuilds preserve GUI edits. Backend-switching buttons are disabled:
   binary/ONNX/GPU support is managed through Nix, not writes to `/usr/bin`.
   Keep built-in hotkey monitoring disabled to retain the Hyprland shortcuts.
-  Streaming requires a newer Voxtype and a compatible model; installing the
-  tray does not enable it in the pinned 0.7.2 package.
+  Streaming requires a compatible model such as `parakeet-unified-en-0.6b`;
+  installing the tray does not enable it or download that model. The pinned
+  0.7.2 package supports this model with a manual download.
 - Super+Shift+G opens capcu's keepmenu database when secrets are enabled.
   Test username/password/Tab auto-typing into both native and XWayland apps.
   KeePassXC's own X11 auto-type is not made Wayland-compatible by this change;

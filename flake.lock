@@ -327,16 +327,22 @@
         "type": "github"
       }
     },
-    "hokum-release": {
-      "flake": false,
+    "hokum": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_4"
+      },
       "locked": {
-        "narHash": "sha256-cTHVNFT6n1serIvTAhe4A/bmZrd4vdEY8pjHBmhrndk=",
-        "type": "file",
-        "url": "https://anoma.ly/release/hokum/desktop/stable.json"
+        "lastModified": 1793304873,
+        "narHash": "sha256-B+F5U5TFQcYyzko3zeCHn4k4U7ZzVgcUpKUXIG0dL5I=",
+        "owner": "anomalyco",
+        "repo": "hokum",
+        "rev": "c31f8b49885c8a665dd7fd69fabed7afa535344a",
+        "type": "github"
       },
       "original": {
-        "type": "file",
-        "url": "https://anoma.ly/release/hokum/desktop/stable.json"
+        "owner": "anomalyco",
+        "repo": "hokum",
+        "type": "github"
       }
     },
     "home-manager": {
@@ -475,7 +481,7 @@
       "inputs": {
         "bun2nix": "bun2nix",
         "flake-parts": "flake-parts_4",
-        "nixpkgs": "nixpkgs_4",
+        "nixpkgs": "nixpkgs_5",
         "systems": "systems",
         "treefmt-nix": "treefmt-nix"
       },
@@ -750,6 +756,22 @@
     },
     "nixpkgs_4": {
       "locked": {
+        "lastModified": 1793110635,
+        "narHash": "sha256-dhoW6VgFWlaodSY5jrBn+CF2FLmaUvDVgM7+C7T2+NM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "31ecbaca1bdefa45dffc409f0250bd8039ea0010",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_5": {
+      "locked": {
         "lastModified": 1793225069,
         "narHash": "sha256-sx1f99WGrDfJ83KKuQrqGPmot0rnDgmpLJDzpU2oHQQ=",
         "owner": "NixOS",
@@ -764,7 +786,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_5": {
+    "nixpkgs_6": {
       "locked": {
         "lastModified": 1790750587,
         "narHash": "sha256-VfjaoJ1Uyb7JZTrBgE5Jf2nhjtQPmD9KOd19HJwmZwM=",
@@ -778,7 +800,7 @@
         "url": "https://flakehub.com/f/NixOS/nixpkgs/0.2605.0"
       }
     },
-    "nixpkgs_6": {
+    "nixpkgs_7": {
       "locked": {
         "lastModified": 1770107345,
         "narHash": "sha256-tbS0Ebx2PiA1FRW8mt8oejR0qMXmziJmPaU1d4kYY9g=",
@@ -794,7 +816,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_7": {
+    "nixpkgs_8": {
       "locked": {
         "lastModified": 1788431191,
         "narHash": "sha256-MFClkboDeW56feBCAeAV3Z3J2quGSZFlAOXQ4JjIlIA=",
@@ -1045,7 +1067,7 @@
         "flake-parts": "flake-parts_2",
         "hermes-agent": "hermes-agent",
         "hermes-webui": "hermes-webui",
-        "hokum-release": "hokum-release",
+        "hokum": "hokum",
         "home-manager": "home-manager_2",
         "hyprmon-src": "hyprmon-src",
         "hyprwhichkey-src": "hyprwhichkey-src",
@@ -1058,7 +1080,7 @@
         "mcp-for-blender-src": "mcp-for-blender-src",
         "nix-index-database": "nix-index-database",
         "nix-on-droid": "nix-on-droid",
-        "nixpkgs": "nixpkgs_5",
+        "nixpkgs": "nixpkgs_6",
         "nixvim": "nixvim",
         "octoprint-filecheck-src": "octoprint-filecheck-src",
         "octoprint-firmwarecheck-src": "octoprint-firmwarecheck-src",
@@ -1160,7 +1182,7 @@
     },
     "treefmt-nix_2": {
       "inputs": {
-        "nixpkgs": "nixpkgs_6"
+        "nixpkgs": "nixpkgs_7"
       },
       "locked": {
         "lastModified": 1786901030,
@@ -1241,7 +1263,7 @@
     },
     "wrapper-modules": {
       "inputs": {
-        "nixpkgs": "nixpkgs_7"
+        "nixpkgs": "nixpkgs_8"
       },
       "locked": {
         "lastModified": 1788981141,

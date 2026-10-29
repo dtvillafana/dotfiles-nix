@@ -59,10 +59,9 @@ The old i3, startx, autorandr, and Plasma session definitions are removed.
    startup hooks for the tray applet and wallpaper. Hokum notifications run as a
    graphical-session user service, with updates managed through Nix. It still
    loads the existing `monitors.lua` and per-user `user.lua` overrides.
-- Hokum's stable release manifest is pinned in `flake.lock`. Run
-  `nix flake update hokum-release` to select the latest stable release, then
-  rebuild. The package reads its version, binary URL, and checksum from that
-  manifest; ordinary rebuilds keep the locked release.
+- Hokum is built using its upstream flake, pinned in `flake.lock`. Run
+  `nix flake update hokum` to select the latest upstream revision, then
+  rebuild. Ordinary rebuilds keep the locked revision.
   Home Manager seeds a writable `~/.config/hokum/config.kdl` once (with update
   checks disabled). Hokum owns subsequent settings and DND changes; rebuilds
   preserve them and migrate any previous Nix-store symlink to a writable copy.

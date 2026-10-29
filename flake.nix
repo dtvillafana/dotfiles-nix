@@ -80,11 +80,7 @@
       url = "github:erans/hyprmon/43f06d7e6d144df2d200914fdc695d74f11ed721";
       flake = false;
     };
-    hokum-release = {
-      type = "file";
-      url = "https://anoma.ly/release/hokum/desktop/stable.json";
-      flake = false;
-    };
+    hokum.url = "github:anomalyco/hokum";
     m365-tui = {
       url = "github:dtvillafana/m365-tui";
       inputs.nixpkgs.follows = "nixpkgs";

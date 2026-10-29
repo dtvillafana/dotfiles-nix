@@ -327,6 +327,18 @@
         "type": "github"
       }
     },
+    "hokum-release": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-cTHVNFT6n1serIvTAhe4A/bmZrd4vdEY8pjHBmhrndk=",
+        "type": "file",
+        "url": "https://anoma.ly/release/hokum/desktop/stable.json"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://anoma.ly/release/hokum/desktop/stable.json"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -1033,6 +1045,7 @@
         "flake-parts": "flake-parts_2",
         "hermes-agent": "hermes-agent",
         "hermes-webui": "hermes-webui",
+        "hokum-release": "hokum-release",
         "home-manager": "home-manager_2",
         "hyprmon-src": "hyprmon-src",
         "hyprwhichkey-src": "hyprwhichkey-src",

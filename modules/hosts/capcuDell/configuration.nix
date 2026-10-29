@@ -8,6 +8,33 @@
       ...
     }:
     let
+      idleWarning = pkgs.writeShellApplication {
+        name = "idle-lock-warning";
+        runtimeInputs = [
+          pkgs.coreutils
+          pkgs.glib
+          pkgs.libnotify
+        ];
+        text = ''
+          state="''${XDG_RUNTIME_DIR:?}/hypridle-lock-notification"
+          case "''${1:-}" in
+            show)
+              notify-send --print-id --app-name=hypridle --urgency=critical --expire-time=60000 \
+                "Screen locking in 1 minute" \
+                "Move the mouse or press a key to cancel automatic locking." > "$state"
+              ;;
+            close)
+              if [ -s "$state" ]; then
+                id="$(cat "$state")"
+                gdbus call --session --dest org.freedesktop.Notifications \
+                  --object-path /org/freedesktop/Notifications \
+                  --method org.freedesktop.Notifications.CloseNotification "$id"
+                rm -f "$state"
+              fi
+              ;;
+          esac
+        '';
+      };
       evdi = config.boot.kernelPackages.evdi.overrideAttrs {
         version = "1.15.0";
         src = pkgs.fetchFromGitHub {
@@ -115,8 +142,8 @@
         settings.listener = [
           {
             timeout = 540;
-            on-timeout = ''${pkgs.dunst}/bin/dunstify --app-name=hypridle --replace-id=94521 --urgency=critical --expire-time=60000 "Screen locking in 1 minute" "Move the mouse or press a key to cancel automatic locking."'';
-            on-resume = "${pkgs.dunst}/bin/dunstify --close=94521";
+            on-timeout = "${lib.getExe idleWarning} show";
+            on-resume = "${lib.getExe idleWarning} close";
           }
           {
             timeout = 600;

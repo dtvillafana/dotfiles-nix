@@ -290,7 +290,6 @@
               brightnessctl
               (btop.override { cudaSupport = true; })
               bun
-              dunst
               fd
               fzf
               gemini-cli

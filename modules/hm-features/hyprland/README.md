@@ -22,7 +22,7 @@ provide a NixOS graphical/login session.
 | autorandr / ARandR | Hyprland hotplug monitor rules / wdisplays |
 | X11 display guessing for xdg-open | Current UWSM activation environment for detached shells |
 
-Rofi's pinned version supports Wayland; dunst, NetworkManager's tray applet,
+Hokum replaces Dunst for notifications; NetworkManager's tray applet
 and the installed GUI applications are retained. XWayland remains enabled
 because some applications still require X11; it is not an Xorg desktop session.
 The old i3, startx, autorandr, and Plasma session definitions are removed.
@@ -56,8 +56,16 @@ The old i3, startx, autorandr, and Plasma session definitions are removed.
 - `config.lua` is appended through Home Manager's `extraConfig` option (the
   pinned release-26.05 module does not provide `extraLuaFiles`).
   It retains custom group/focus/reorder callbacks, the mouse submap, and
-  startup hooks for the tray applet, notifications, and wallpaper. It still
-  loads the existing `monitors.lua` and per-user `user.lua` overrides.
+   startup hooks for the tray applet and wallpaper. Hokum notifications run as a
+   graphical-session user service, with updates managed through Nix. It still
+   loads the existing `monitors.lua` and per-user `user.lua` overrides.
+- Hokum's stable release manifest is pinned in `flake.lock`. Run
+  `nix flake update hokum-release` to select the latest stable release, then
+  rebuild. The package reads its version, binary URL, and checksum from that
+  manifest; ordinary rebuilds keep the locked release.
+  Home Manager seeds a writable `~/.config/hokum/config.kdl` once (with update
+  checks disabled). Hokum owns subsequent settings and DND changes; rebuilds
+  preserve them and migrate any previous Nix-store symlink to a writable copy.
 - `programs.waybar`, `services.hypridle`, `programs.hyprlock`, and
   `services.hyprpolkitagent` own their settings and services. UWSM owns
   `graphical-session.target`; Home Manager's separate Hyprland session target

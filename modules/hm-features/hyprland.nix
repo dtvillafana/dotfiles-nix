@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ inputs, self, ... }:
 {
   flake.homeModules.hyprland =
     {
@@ -186,7 +186,10 @@
       # Deduplicate direct imports and prerequisites such as obs-zoom.
       key = "dotfiles-nix-hyprland";
 
-      imports = [ ./hyprland/_settings.nix ];
+      imports = [
+        ./hyprland/_settings.nix
+        self.homeModules.hokum
+      ];
 
       options.wayvnc.port = lib.mkOption {
         type = lib.types.port;
@@ -208,7 +211,6 @@
           slurp
           wl-clipboard
           swaybg
-          dunst
           networkmanagerapplet
           hyprmonLauncher
           wtype

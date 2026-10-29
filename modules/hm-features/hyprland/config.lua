@@ -12,7 +12,6 @@ require("user")
 
 hl.on("hyprland.start", function()
     hl.exec_cmd("nm-applet --indicator")
-    hl.exec_cmd("dunst")
     hl.exec_cmd('test ! -f "$HOME/pictures/wallpaper.jpg" || swaybg -i "$HOME/pictures/wallpaper.jpg" -m fill')
 end)
 

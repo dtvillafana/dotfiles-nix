@@ -3,14 +3,11 @@
   flake.nixosModules.rogdesktopConfig =
     {
       config,
-      hermes-agent,
       lib,
       pkgs,
-      secretsEnabled ? true,
       ...
     }:
     let
-      localModelsProvider = config.home-manager.users.vir.opencode.settings.providers.local-models;
       inputplumber = pkgs.inputplumber.overrideAttrs (old: {
         patches = (old.patches or [ ]) ++ [
           (pkgs.writeText "inputplumber-axis-direction.patch" ''
@@ -223,101 +220,6 @@
       };
       systemd.services.inputplumber.environment.XDG_DATA_DIRS =
         lib.mkForce "${retrolinkInputPlumberData}/share";
-
-      sops.secrets."hermes-env" = lib.mkIf secretsEnabled {
-        sopsFile = self + /secrets/hermes-rog.yaml;
-        format = "yaml";
-        owner = "vir";
-        group = "vir";
-        restartUnits = [
-          "hermes-agent.service"
-          "hermes-webui.service"
-        ];
-      };
-
-      services.hermes-agent = lib.mkIf secretsEnabled {
-        enable = true;
-        package = hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default;
-        container.enable = false;
-        addToSystemPackages = true;
-        user = "vir";
-        group = "vir";
-        createUser = false;
-        workingDirectory = "/home/vir/git-repos";
-        extraPackages = config.home-manager.users.vir.home.packages;
-        environmentFiles = [ config.sops.secrets."hermes-env".path ];
-        environment = {
-          API_SERVER_HOST = "127.0.0.1";
-          API_SERVER_PORT = "8642";
-        };
-        settings = {
-          toolsets = [ "all" ];
-          platforms.api_server.enabled = true;
-          model = {
-            provider = "custom:local-models";
-            base_url = localModelsProvider.settings.baseURL;
-            default = "qwen3.5-9b-abliterated";
-            context_length = localModelsProvider.models."qwen3.5-9b-abliterated".limit.context;
-          };
-          custom_providers = [
-            {
-              name = "Local Models";
-              base_url = localModelsProvider.settings.baseURL;
-              api_key = "local-no-auth";
-              model = "qwen3.5-9b-abliterated";
-              models = lib.mapAttrs (_: model: {
-                context_length = model.limit.context;
-              }) localModelsProvider.models;
-            }
-          ];
-          max_turns = 100;
-          agent = {
-            max_turns = 60;
-            verbose = true;
-            tool_use_enforcement = true;
-            intent_ack_continuation = true;
-          };
-          memory = {
-            memory_enabled = true;
-            user_profile_enabled = true;
-          };
-          terminal = {
-            cwd = "/home/vir/git-repos";
-            backend = "local";
-            timeout = 180;
-          };
-        };
-      };
-
-      services.hermes-webui = lib.mkIf secretsEnabled {
-        enable = true;
-        user = "vir";
-        group = "vir";
-        stateDir = "/home/vir/.hermes/webui";
-        hermesHome = "${config.services.hermes-agent.stateDir}/.hermes";
-        agent.package = config.services.hermes-agent.package;
-        environmentFiles = [ config.sops.secrets."hermes-env".path ];
-        extraEnvironment.HERMES_WEBUI_CHAT_BACKEND = "legacy";
-      };
-
-      systemd.services.hermes-agent = lib.mkIf secretsEnabled {
-        after = [ "local-models-proxy.socket" ];
-        requires = [ "local-models-proxy.socket" ];
-        environment.HOME = lib.mkForce "/home/vir";
-        restartTriggers = [
-          (pkgs.writeText "hermes-agent-gateway-config" (
-            builtins.toJSON {
-              inherit (config.services.hermes-agent) environment settings;
-            }
-          ))
-        ];
-        serviceConfig.TimeoutStopSec = 210;
-      };
-
-      systemd.services.hermes-webui = lib.mkIf secretsEnabled {
-        after = [ "hermes-agent.service" ];
-        requires = [ "hermes-agent.service" ];
-      };
 
     };
 }

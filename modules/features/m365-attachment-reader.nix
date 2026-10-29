@@ -1,4 +1,4 @@
-{ ... }:
+{ self, ... }:
 let
   mkM365AttachmentReader =
     pkgs:
@@ -41,6 +41,8 @@ in
       m365AttachmentReader = mkM365AttachmentReader pkgs;
     in
     {
+      imports = [ self.nixosModules.hermes ];
+
       services.hermes-agent = lib.mkIf secretsEnabled {
         mcpServers.m365-attachment-reader-local = {
           command = lib.getExe m365AttachmentReader;

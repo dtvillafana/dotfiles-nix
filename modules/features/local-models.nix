@@ -13,7 +13,7 @@
         inherit (pkgs.stdenv.hostPlatform) system;
         config = pkgs.config;
       };
-      # Same locked runtime as Nemotron: AVX2 dispatch and CUDA 12 for Pascal.
+      # AVX2 dispatch and CUDA 12 for Pascal.
       llama = llmPkgs.llama-cpp.override {
         cudaSupport = true;
         cudaPackages = llmPkgs.cudaPackages_12;
@@ -237,7 +237,7 @@
         }) models;
 
         # Only the public socket starts at boot. The proxy starts the router on
-        # the first connection, retaining Nemotron/Hermes defaults until then.
+        # the first connection, retaining Hermes defaults until then.
         systemd.sockets.local-models-proxy = {
           description = "On-demand local models API socket";
           wantedBy = [ "sockets.target" ];

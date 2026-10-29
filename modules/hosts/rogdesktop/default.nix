@@ -6,8 +6,7 @@ let
       modules = [
         inputs.determinate.nixosModules.default
         inputs.home-manager.nixosModules.home-manager
-        inputs.hermes-agent.nixosModules.default
-        inputs.hermes-webui.nixosModules.default
+        self.nixosModules.hermesRogdesktop
         inputs.sops-nix.nixosModules.sops
         self.nixosModules.baseSystem
         self.nixosModules.nixPolicy
@@ -30,7 +29,6 @@ let
       specialArgs = {
         inherit secretsEnabled;
         inherit (inputs)
-          hermes-agent
           home-manager
           nixvim
           llm-agents

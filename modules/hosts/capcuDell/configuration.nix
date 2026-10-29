@@ -1,13 +1,10 @@
-{ self, ... }:
+{ ... }:
 {
   flake.nixosModules.capcuDellConfig =
     {
       config,
-      hermes-agent,
-      llm-agents,
       lib,
       pkgs,
-      secretsEnabled ? true,
       ...
     }:
     let
@@ -26,7 +23,6 @@
       tailscaleCaBundle = pkgs.runCommand "tailscale-ca-bundle.crt" { } ''
         cat ${config.security.pki.caBundle} ${./Fortinet_CA_SSL.cer} >"$out"
       '';
-      localModelsProvider = config.home-manager.users.capcu.opencode.settings.providers.local-models;
       # Run a minimal Hyprland greeter so WayVNC also works before login.
       # Its server exits with the greeter; capcu's user service takes over 5901.
       greeterConfig = ''
@@ -129,105 +125,6 @@
         ];
       };
 
-      sops.secrets."hermes-env-capcu" = lib.mkIf secretsEnabled {
-        sopsFile = self + /secrets/hermes-dell.yaml;
-        format = "yaml";
-        owner = "capcu";
-        group = "capcu";
-        restartUnits = [
-          "hermes-agent.service"
-          "hermes-webui.service"
-        ];
-      };
-
-      services.hermes-agent = lib.mkIf secretsEnabled {
-        enable = true;
-        package = hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default;
-        container.enable = false;
-        addToSystemPackages = true;
-        user = "capcu";
-        group = "capcu";
-        createUser = false;
-        workingDirectory = "/home/capcu";
-        extraPackages = config.home-manager.users.capcu.home.packages;
-        environmentFiles = [
-          config.sops.secrets."hermes-env-capcu".path
-        ];
-        environment = {
-          API_SERVER_HOST = "127.0.0.1";
-          API_SERVER_PORT = "8642";
-        };
-        settings = {
-          toolsets = [ "all" ];
-          platforms.api_server.enabled = true;
-          model = {
-            provider = "custom:local-models";
-            base_url = localModelsProvider.settings.baseURL;
-            default = "qwen3.5-9b-abliterated";
-            context_length = localModelsProvider.models."qwen3.5-9b-abliterated".limit.context;
-          };
-          custom_providers = [
-            {
-              name = "Local Models";
-              base_url = localModelsProvider.settings.baseURL;
-              api_key = "local-no-auth";
-              model = "qwen3.5-9b-abliterated";
-              models = lib.mapAttrs (_: model: {
-                context_length = model.limit.context;
-              }) localModelsProvider.models;
-            }
-          ];
-          max_turns = 100;
-          agent = {
-            max_turns = 60;
-            verbose = true;
-            tool_use_enforcement = true;
-            intent_ack_continuation = true;
-          };
-          memory = {
-            memory_enabled = true;
-            user_profile_enabled = true;
-          };
-          terminal = {
-            backend = "local";
-            timeout = 180;
-          };
-        };
-      };
-
-      services.hermes-webui = lib.mkIf secretsEnabled {
-        enable = true;
-        user = "capcu";
-        group = "capcu";
-        stateDir = "/home/capcu/.hermes/webui";
-        hermesHome = "${config.services.hermes-agent.stateDir}/.hermes";
-        agent.package = config.services.hermes-agent.package;
-        environmentFiles = [ config.sops.secrets."hermes-env-capcu".path ];
-        extraEnvironment = {
-          HERMES_WEBUI_CHAT_BACKEND = "gateway";
-          HERMES_WEBUI_GATEWAY_BASE_URL = "http://${config.services.hermes-agent.environment.API_SERVER_HOST}:${config.services.hermes-agent.environment.API_SERVER_PORT}";
-        };
-      };
-
-      systemd.services.hermes-agent = lib.mkIf secretsEnabled {
-        after = [ "local-models-proxy.socket" ];
-        requires = [ "local-models-proxy.socket" ];
-        environment.HOME = lib.mkForce "/home/capcu";
-        restartTriggers = [
-          (pkgs.writeText "hermes-agent-gateway-config" (
-            builtins.toJSON {
-              inherit (config.services.hermes-agent) environment settings;
-            }
-          ))
-        ];
-        serviceConfig.TimeoutStopSec = 210;
-      };
-
-      systemd.services.hermes-webui = lib.mkIf secretsEnabled {
-        after = [ "hermes-agent.service" ];
-        requires = [ "hermes-agent.service" ];
-      };
-
       # Temporary: the office firewall blocks Headscale. LAN SSH/VNC stays usable.
       # Remove this override to re-enable this host without changing other nodes.
       services.tailscale.enable = lib.mkForce false;
@@ -316,7 +213,6 @@
 
       environment.systemPackages = with pkgs; [
         displaylink
-        llm-agents.packages.${stdenv.hostPlatform.system}.hermes-desktop
         virtio-win
       ];
     };

@@ -549,6 +549,7 @@
           servicedesk_api_key = mkWorkSecret { };
           servicedesk_verify_tls = mkWorkSecret { };
           servicedesk_timeout_seconds = mkWorkSecret { };
+          metabase_api_key = mkWorkSecret { };
 
           windows-share-capcu = {
             sopsFile = self + /secrets/work.json;

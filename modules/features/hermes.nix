@@ -16,7 +16,14 @@
       localModel = agent.settings.model // {
         api_key = "local-no-auth";
       };
-      localProfileConfig = (pkgs.formats.yaml { }).generate "hermes-local-config.yaml" {
+      # mcp_servers and tools come from modules such as hermesM365Email, which
+      # write them onto services.hermes-agent.settings. Include them so the
+      # local profile keeps the same MCP servers across rebuilds.
+      localProfileExtra = lib.filterAttrs (
+        name: _:
+        name == "mcp_servers" || name == "tools"
+      ) agent.settings;
+      localProfileConfig = (pkgs.formats.yaml { }).generate "hermes-local-config.yaml" ({
         inherit (agent.settings)
           custom_providers
           max_turns
@@ -56,7 +63,7 @@
               model = localModel.default;
               inherit (localModel) base_url api_key;
             });
-      };
+      } // localProfileExtra);
       localProfileEnv = pkgs.writeText "hermes-local.env" ''
         # No cloud credentials: this profile uses the machine's local-model proxy.
         OPENAI_BASE_URL=${localModel.base_url}

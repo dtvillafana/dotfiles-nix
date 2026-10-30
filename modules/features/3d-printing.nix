@@ -1,8 +1,10 @@
 { inputs, ... }:
 {
   flake.nixosModules.printing3d =
-    { pkgs, ... }:
+    { config, pkgs, ... }:
     {
+      environment.systemPackages = [ config.services.octoprint.package ];
+
       services.octoprint = {
         enable = true;
         host = "127.0.0.1";

@@ -5,7 +5,7 @@
   llama-cpp-k2-parser-fix,
 }:
 llama-cpp.overrideAttrs (old: {
-  version = "0.6.0-k2-cache-d6cf9ac-parserfix";
+  version = "0.8.0-parserfix";
   src = llama-cpp-k2-src;
   # The pinned source already initializes the backend in test-llama-archs.cpp.
   patches =
@@ -13,15 +13,20 @@ llama-cpp.overrideAttrs (old: {
       old.patches or [ ]
     )
     ++ [ llama-cpp-k2-parser-fix ];
-  # tools/ui/package-lock.json is unchanged from v0.6.0, so retain npmDepsHash.
+  # Pin the UI dependency cache independently of the nixpkgs source version.
+  npmDepsHash = "sha256-XLtEZsSFdk+2SyfXzBp8HQ2e27PQPpDCn1YjePU1/9w=";
   cmakeFlags = map (
     flag:
-    lib.replaceStrings
-      [ "LLAMA_BUILD_NUMBER=11429" "LLAMA_BUILD_COMMIT=d812350" ]
-      [ "LLAMA_BUILD_NUMBER=0" "LLAMA_BUILD_COMMIT=d6cf9ac" ]
+    if lib.hasPrefix "-DLLAMA_BUILD_NUMBER=" flag then
+      "-DLLAMA_BUILD_NUMBER=11960"
+    else if lib.hasPrefix "-DLLAMA_BUILD_COMMIT=" flag then
+      "-DLLAMA_BUILD_COMMIT=8642541b2"
+    else
       flag
   ) old.cmakeFlags;
-  preConfigure =
-    lib.replaceStrings [ "LLAMA_BUILD_NUMBER=11429" ] [ "LLAMA_BUILD_NUMBER=0" ]
-      old.preConfigure;
+  preConfigure = ''
+    pushd tools/ui
+    LLAMA_BUILD_NUMBER=11960 npm run build
+    popd
+  '';
 })

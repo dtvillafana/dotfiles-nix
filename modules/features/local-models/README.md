@@ -9,6 +9,20 @@ recommendations below; they are not yet final optimized settings.
 changing OpenCode's default model or the existing Nemotron/Hermes configuration.
 Both normal and bootstrap host configurations import this feature.
 
+### Runtime update (2026-10-29, rogdesktop only)
+
+The Pascal profile now pins the latest stable **llama.cpp v0.8.0** at
+`8642541b255bfb5dc39cd351a178be09013a55d6`. Upstream still supports SM 6.1
+with CUDA 12; CUDA 13 is unsuitable for this GPU, but an older llama.cpp is
+not required. The generic reasoning-closer fix from PR #30335 remains unmerged
+and is retained as a pinned patch. The UI npm dependency hash is pinned separately
+from the nixpkgs package version.
+
+Model weights, templates, contexts, placement, and sampling are unchanged, as is
+the separate Blackwell runtime. Historical measurements below apply to the older
+runtime, not v0.8.0. Rebuild and run `local-models-check` after activation to
+validate the new runtime; performance and model inference have not been retested.
+
 ### Accepted K2 MoVA 32K profile (2026-10-19, rogdesktop only)
 
 This profile supersedes the historical 16K MoVA settings below. The user accepted
@@ -23,7 +37,7 @@ longer context. It is persisted in `../local-models-pascal.nix`:
   and dense layers stay on GPU. Automatic fitting is disabled.
 - GPU expert caching remains **disabled**: 256–1,024 MiB cache experiments
   slowed decode to about 3.7–3.9 tok/s on this machine.
-- Runtime source is locked at `d6cf9acb25e6c657d6c6a4645ab7b69fce119995`, plus
+- Runtime source for these measurements was `d6cf9acb25e6c657d6c6a4645ab7b69fce119995`, plus
   the pinned generic reasoning-closer parser fix. Both are reproducible without
   any benchmark-cache scripts or files.
 

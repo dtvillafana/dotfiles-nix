@@ -27,8 +27,8 @@
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
     llama-cpp-k2-src = {
-      # Tested 32K K2 runtime; expert caching is supported but stays disabled.
-      url = "github:ggml-org/llama.cpp/d6cf9acb25e6c657d6c6a4645ab7b69fce119995";
+      # Latest stable v0.8.0; retain CUDA 12 for Pascal in the host profile.
+      url = "github:ggml-org/llama.cpp/8642541b255bfb5dc39cd351a178be09013a55d6";
       flake = false;
     };
     llama-cpp-k2-parser-fix = {

@@ -102,7 +102,7 @@
             self.homeModules.launcher
             self.homeModules.git
             self.homeModules.ai
-            self.homeModules.voxtype
+            self.homeModules.hex
             self.homeModules.agent-deck
             self.homeModules.tmux
             self.homeModules.zsh

@@ -203,42 +203,29 @@ the viewer; seamless login/logout continuity is not promised.
 - Webex is retained, but its native client's Wayland screen-sharing support
   depends on the vendor build. If sharing fails, use a supported browser client;
   XWayland alone cannot capture the complete Wayland desktop.
-- Voxtype starts in the graphical session for vir, capcu, and guest. Hyprland owns
-  Right Alt and Alt+Space dictation. Both read `[hotkey] mode` from the writable
-  Voxtype config on each press: `toggle` starts/stops on key release, while
-  `push_to_talk` starts on press and stops on release. Parakeet streaming forces
-  toggle activation, matching the daemon's override. Tap and release the shortcut
-  before speaking in toggle mode. Repeats and overlapping shortcuts are ignored;
-  Alt+Escape cancels without restarting on release. Restart Voxtype after changing
-  its settings so the daemon and shortcuts use the same config. Built-in keyboard
-  monitoring is disabled with `--no-hotkey`, so no input-group access or X11 global grabs are
-  needed. Shortcuts are controlled by Hyprland, not the tray's evdev controls.
-  The feature in `modules/features/voxtype.nix` exports `homeModules.voxtype`,
-  selected explicitly by each user profile, including bootstrap configurations.
-  PipeWire prerequisites are already provided by the shared desktop-services
-  feature; no additional host import is needed. The user module uses nixpkgs' ONNX-enabled
-  Voxtype with a local Parakeet INT8 model. After applying the configuration,
-  each user runs `voxtype setup model` and downloads `parakeet-tdt-0.6b-v3-int8`,
-  then runs `systemctl --user restart voxtype`. Models live under
-  `~/.local/share/voxtype/models/` and are not downloaded by Nix. Audio
-  capture uses the `pipewire` ALSA PCM and follows the default PipeWire source;
-  select the Meteor as the default microphone on rogdesktop. No direct USB
-  hardware access or never-suspend exception is needed. Text is inserted after
-  stopping (experimental streaming is disabled). Test insertion in your target
-  app; clipboard fallback is enabled if typing fails.
-- `voxtype-tray` adds the PyQt6 settings GUI and a Waybar tray icon for all
-  Voxtype users. It starts with the graphical session; right-click the icon
-  and choose **Settings...** to edit settings or download models. Start it
-  manually with `systemctl --user start voxtype-tray` or the **VoxType Tray**
-  application launcher entry. The upstream source is pinned in `flake.lock`.
-  Nix seeds `~/.config/voxtype/config.toml` only when absent, and converts the
-  previous Home Manager symlink to a writable copy without discarding settings.
-  Later rebuilds preserve GUI edits. Backend-switching buttons are disabled:
-  binary/ONNX/GPU support is managed through Nix, not writes to `/usr/bin`.
-  Keep built-in hotkey monitoring disabled to retain the Hyprland shortcuts.
-  Streaming requires a compatible model such as `parakeet-unified-en-0.6b`;
-  installing the tray does not enable it or download that model. The pinned
-  0.7.2 package supports this model with a manual download.
+- Hex starts in the graphical session for vir, capcu, and guest, with its own
+  settings window and Waybar tray icon. `modules/features/hex.nix` exports
+  `homeModules.hex`, selected explicitly by each user profile, including
+  bootstrap configurations. Its upstream Home Manager module owns the user
+  service; its flake input follows our nixpkgs for graphics-driver compatibility.
+  Hex alone uses a current Rust compiler from the pinned rust-overlay input,
+  since its dependencies require a newer compiler than our system nixpkgs.
+  Update with `nix flake update hex rust-overlay`, then rebuild.
+- Hyprland forwards Left Alt and Right Alt to Hex through the GlobalShortcuts
+  portal; Alt+Escape cancels. Choose Hold, Toggle, or double-tap behavior in
+  Hex's settings; the shortcut key recorded there does not replace these
+  compositor bindings. Release modifiers before text is pasted, since held Alt
+  can interfere with Wayland paste. No input-group membership is needed.
+- After switching, open `hex` and complete setup, or run `hex model install`
+  to download the selected local model. Models and writable settings live under
+  `~/.local/share/hex/`, outside the Nix store. No model downloads run during
+  activation. The old Voxtype settings and models are left untouched, but its
+  daemon and separate tray are no longer installed or started.
+  PipeWire prerequisites come from desktop-services; select the Meteor as the
+  default microphone on rogdesktop. Test recording and paste in your target app.
+  Diagnose startup with `systemctl --user status hex` and
+  `journalctl --user -u hex.service`. Hex needs a working Vulkan driver for its
+  window, even when transcription uses the CPU.
 - Super+Shift+G opens capcu's keepmenu database when secrets are enabled.
   Test username/password/Tab auto-typing into both native and XWayland apps.
   KeePassXC's own X11 auto-type is not made Wayland-compatible by this change;
@@ -316,7 +303,7 @@ After logging in, check:
 hyprctl configerrors
 hyprctl monitors all
 hyprctl clients
-systemctl --user status wayvnc hyprwhichkey hyprpolkitagent voxtype
+systemctl --user status wayvnc hyprwhichkey hyprpolkitagent hex
 systemctl --user status xdg-desktop-portal xdg-desktop-portal-hyprland
 journalctl --user -b -u wayvnc
 ```

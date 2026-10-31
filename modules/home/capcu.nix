@@ -246,7 +246,7 @@
             self.homeModules.monitors
             self.homeModules.launcher
             self.homeModules.workAi
-            self.homeModules.voxtype
+            self.homeModules.hex
             self.homeModules.agent-deck
             self.homeModules.tmux
             self.homeModules.zsh

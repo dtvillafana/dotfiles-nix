@@ -67,9 +67,14 @@
       url = "github:OctoPrint/OctoPrint-FirmwareCheck/2025.7.23";
       flake = false;
     };
-    voxtype-tray-src = {
-      url = "github:matt-shearing/voxtype-tray/6fcacd82fc52299c3b152962ff3737a16cc42b68";
-      flake = false;
+    hex = {
+      url = "github:anomalyco/hex";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     hyprwhichkey-src = {
       url = "github:Juhan280/hyprwhichkey/6f4408e456bbd6b33f43845d797b92407037ae74";

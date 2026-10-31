@@ -16,8 +16,6 @@ hl.on("hyprland.start", function()
 end)
 
 local function exec(key, command, flags)
-    flags = flags or {}
-    flags.description = flags.description or command
     hl.bind(key, hl.dsp.exec_cmd(command), flags)
 end
 
@@ -121,19 +119,27 @@ hl.bind("SUPER + SHIFT + A", function()
 end, { description = "Toggle Caps/Ctrl swap" })
 
 hl.define_submap("mouse", function()
-    for _, entry in ipairs({ { "H", -1, 0 }, { "J", 0, 1 }, { "K", 0, -1 }, { "L", 1, 0 } }) do
-        exec(entry[1], "ydotool mousemove -- " .. (entry[2] * 200) .. " " .. (entry[3] * 200), { repeating = true })
+    for _, entry in ipairs({
+        { "H", -1, 0, "left" },
+        { "J", 0, 1, "down" },
+        { "K", 0, -1, "up" },
+        { "L", 1, 0, "right" },
+    }) do
+        exec(entry[1], "ydotool mousemove -- " .. (entry[2] * 200) .. " " .. (entry[3] * 200), {
+            description = "Move pointer " .. entry[4],
+            repeating = true,
+        })
         exec(
             "SHIFT + " .. entry[1],
             "ydotool mousemove -- " .. (entry[2] * 18) .. " " .. (entry[3] * 18),
-            { repeating = true }
+            { description = "Move pointer " .. entry[4] .. " slowly", repeating = true }
         )
     end
-    exec("I", "ydotool click 0xC0")
-    exec("SHIFT + I", "ydotool click 0xC1")
-    exec("SHIFT + space", "ydotool click 0xC1")
-    exec("O", "ydotool mousemove --wheel -- 0 1", { repeating = true })
-    exec("P", "ydotool mousemove --wheel -- 0 -1", { repeating = true })
+    exec("I", "ydotool click 0xC0", { description = "Left-click" })
+    exec("SHIFT + I", "ydotool click 0xC1", { description = "Right-click" })
+    exec("SHIFT + space", "ydotool click 0xC1", { description = "Right-click" })
+    exec("O", "ydotool mousemove --wheel -- 0 1", { description = "Scroll down", repeating = true })
+    exec("P", "ydotool mousemove --wheel -- 0 -1", { description = "Scroll up", repeating = true })
     for _, key in ipairs({ "space", "Return" }) do
         hl.bind(key, function()
             hl.dispatch(hl.dsp.exec_cmd("ydotool click 0xC0"))

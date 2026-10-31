@@ -2,31 +2,12 @@
 { lib, ... }:
 let
   lua = lib.generators.mkLuaInline;
-  bind = key: action: {
+  bind = key: description: action: {
     _args = [
       key
       (lua action)
       {
-        description =
-          {
-            "hl.dsp.submap('reset')" = "Exit mode";
-            "hl.dsp.submap('resize')" = "Resize mode";
-            "hl.dsp.submap('bar')" = "Bar mode";
-            "hl.dsp.submap('workspaces')" = "Workspace mode";
-            "hl.dsp.submap('mouse')" = "Mouse mode";
-            "hl.dsp.window.close()" = "Close window";
-            "hl.dsp.window.fullscreen()" = "Toggle fullscreen";
-            "hl.dsp.window.float()" = "Toggle floating";
-            "hl.dsp.window.cycle_next()" = "Cycle windows";
-            "hl.dsp.focus({ last = true })" = "Focus previous window";
-            "hl.dsp.layout('preselect r')" = "Preselect split right";
-            "hl.dsp.layout('preselect d')" = "Preselect split down";
-            "hl.dsp.group.next()" = "Next group window";
-            "hl.dsp.group.prev()" = "Previous group window";
-            "hl.dsp.workspace.move({ monitor = 'l' })" = "Move workspace to left monitor";
-            "hl.dsp.workspace.move({ monitor = 'r' })" = "Move workspace to right monitor";
-          }
-          .${action} or (lib.removePrefix "hl.dsp." action);
+        inherit description;
       }
     ];
   };
@@ -34,10 +15,10 @@ let
     _args = [
       key
       (lua "hl.dsp.exec_cmd(${lib.generators.toLua { } command})")
-      ({ description = command; } // flags)
+      flags
     ];
   };
-  resetBinds = map (key: bind key "hl.dsp.submap('reset')") [
+  resetBinds = map (key: bind key "Exit mode" "hl.dsp.submap('reset')") [
     "Escape"
     "Return"
   ];
@@ -98,7 +79,15 @@ in
               (lua "hl.dsp.window.resize({ x = ${toString entry.x}, y = ${toString entry.y}, relative = true })")
               {
                 repeating = true;
-                description = "Resize window by ${toString entry.x}, ${toString entry.y}";
+                description =
+                  if entry.x < 0 then
+                    "Make window narrower"
+                  else if entry.x > 0 then
+                    "Make window wider"
+                  else if entry.y < 0 then
+                    "Make window shorter"
+                  else
+                    "Make window taller";
               }
             ];
           })
@@ -145,15 +134,15 @@ in
             }
           ]
         ++ resetBinds
-        ++ [ (bind "SUPER + R" "hl.dsp.submap('reset')") ];
+        ++ [ (bind "SUPER + R" "Exit resize mode" "hl.dsp.submap('reset')") ];
       bar.settings.bind = [
-        (exec "H" "pkill -SIGUSR1 -x waybar" { })
-        (exec "SHIFT + H" "pkill -SIGUSR2 -x waybar" { })
+        (exec "H" "pkill -SIGUSR1 -x waybar" { description = "Hide status bar"; })
+        (exec "SHIFT + H" "pkill -SIGUSR2 -x waybar" { description = "Show status bar"; })
       ]
       ++ resetBinds;
       workspaces.settings.bind = [
-        (bind "H" "hl.dsp.workspace.move({ monitor = 'l' })")
-        (bind "L" "hl.dsp.workspace.move({ monitor = 'r' })")
+        (bind "H" "Move workspace to left monitor" "hl.dsp.workspace.move({ monitor = 'l' })")
+        (bind "L" "Move workspace to right monitor" "hl.dsp.workspace.move({ monitor = 'r' })")
       ]
       ++ resetBinds;
     };
@@ -222,21 +211,28 @@ in
               key = toString (lib.mod i 10);
             in
             [
-              (bind "SUPER + ${key}" "hl.dsp.focus({ workspace = ${target} })")
-              (bind "SUPER + SHIFT + ${key}" "hl.dsp.window.move({ workspace = ${target}, follow = false })")
+              (bind "SUPER + ${key}" "Switch to ${workspace.name} workspace"
+                "hl.dsp.focus({ workspace = ${target} })"
+              )
+              (bind "SUPER + SHIFT + ${key}" "Move window to ${workspace.name} workspace"
+                "hl.dsp.window.move({ workspace = ${target}, follow = false })"
+              )
             ]
           ) workspaces
         )
         ++ [
           (exec "Super_L" "hypr-desktop-action bindings show-held" {
+            description = "Show keyboard shortcuts";
             long_press = true;
             non_consuming = true;
           })
           (exec "Super_R" "hypr-desktop-action bindings show-held" {
+            description = "Show keyboard shortcuts";
             long_press = true;
             non_consuming = true;
           })
           (exec "Super_L" "hypr-desktop-action bindings hide-held" {
+            description = "Hide keyboard shortcuts";
             release = true;
             ignore_mods = true;
             non_consuming = true;
@@ -244,6 +240,7 @@ in
             submap_universal = true;
           })
           (exec "Super_R" "hypr-desktop-action bindings hide-held" {
+            description = "Hide keyboard shortcuts";
             release = true;
             ignore_mods = true;
             non_consuming = true;
@@ -251,33 +248,50 @@ in
             submap_universal = true;
           })
           (exec "SUPER + F1" "hypr-desktop-action bindings" { description = "Toggle bindings help"; })
-          (exec "SUPER + Return" "ghostty" { })
-          (exec "SUPER + SHIFT + Return" "hypr-neovide" { })
-          (exec "SUPER + D" "hypr-desktop-action apps" { })
-          (exec "SUPER + SHIFT + D" "hypr-desktop-action run" { })
+          (exec "SUPER + Return" "ghostty" { description = "Open terminal"; })
+          (exec "SUPER + SHIFT + Return" "hypr-neovide" { description = "Open text editor"; })
+          (exec "SUPER + D" "hypr-desktop-action apps" { description = "Launch application"; })
+          (exec "SUPER + SHIFT + D" "hypr-desktop-action run" { description = "Run command/Open Application"; })
           (exec "SUPER + SHIFT + W" "hypr-desktop-action workspaces ${
             lib.escapeShellArgs (map (workspace: workspace.name) workspaces)
           }" { description = "Switch workspace"; })
-          (exec "SUPER + T" "hypr-desktop-action kill-user" { })
-          (exec "SUPER + SHIFT + T" "hypr-desktop-action kill-root" { })
-          (exec "SUPER + G" "hypr-desktop-action password" { })
-          (exec "SUPER + U" "hypr-desktop-action username" { })
-          (exec "SUPER + O" "hypr-desktop-action otp" { })
-          (exec "SUPER + SHIFT + S" "hypr-desktop-action screenshot" { release = true; })
-          (exec "SUPER + ALT + S" "hypr-desktop-action ocr" { release = true; })
-          (exec "SUPER + minus" "brightnessctl set 5%-" { repeating = true; })
+          (exec "SUPER + T" "hypr-desktop-action kill-user" { description = "Stop a process"; })
+          (exec "SUPER + SHIFT + T" "hypr-desktop-action kill-root" {
+            description = "Stop a process as administrator";
+          })
+          (exec "SUPER + G" "hypr-desktop-action password" { description = "Type saved password"; })
+          (exec "SUPER + U" "hypr-desktop-action username" { description = "Type saved username"; })
+          (exec "SUPER + O" "hypr-desktop-action otp" { description = "Type one-time password"; })
+          (exec "SUPER + SHIFT + S" "hypr-desktop-action screenshot" {
+            description = "Copy screenshot of selected area";
+            release = true;
+          })
+          (exec "SUPER + ALT + S" "hypr-desktop-action ocr" {
+            description = "Copy text from selected area";
+            release = true;
+          })
+          (exec "SUPER + minus" "brightnessctl set 5%-" {
+            description = "Decrease screen brightness";
+            repeating = true;
+          })
           # Use the unshifted keysym: '+' is Shift+'=' on the US laptop keyboard.
-          (exec "SUPER + equal" "brightnessctl set +5%" { repeating = true; })
-          (exec "SUPER + SHIFT + equal" "brightnessctl set +5%" { repeating = true; })
-          (exec "SUPER + SHIFT + E" "hypr-desktop-action logout" { })
-          (bind "SUPER + SHIFT + Q" "hl.dsp.window.close()")
-          (bind "SUPER + F" "hl.dsp.window.fullscreen()")
-          (bind "SUPER + SHIFT + space" "hl.dsp.window.float()")
-          (bind "SUPER + space" "hl.dsp.window.cycle_next()")
-          (bind "SUPER + Tab" "hl.dsp.group.next()")
-          (bind "SUPER + SHIFT + Tab" "hl.dsp.group.prev()")
-          (exec "SUPER + SHIFT + C" "hyprctl reload" { })
-          (exec "SUPER + SHIFT + R" "hyprctl reload" { })
+          (exec "SUPER + equal" "brightnessctl set +5%" {
+            description = "Increase screen brightness";
+            repeating = true;
+          })
+          (exec "SUPER + SHIFT + equal" "brightnessctl set +5%" {
+            description = "Increase screen brightness";
+            repeating = true;
+          })
+          (exec "SUPER + SHIFT + E" "hypr-desktop-action logout" { description = "Log out"; })
+          (bind "SUPER + SHIFT + Q" "Close window" "hl.dsp.window.close()")
+          (bind "SUPER + F" "Toggle fullscreen" "hl.dsp.window.fullscreen()")
+          (bind "SUPER + SHIFT + space" "Toggle floating window" "hl.dsp.window.float()")
+          (bind "SUPER + space" "Cycle windows" "hl.dsp.window.cycle_next()")
+          (bind "SUPER + Tab" "Next window in group" "hl.dsp.group.next()")
+          (bind "SUPER + SHIFT + Tab" "Previous window in group" "hl.dsp.group.prev()")
+          (exec "SUPER + SHIFT + C" "hyprctl reload" { description = "Reload desktop configuration"; })
+          (exec "SUPER + SHIFT + R" "hyprctl reload" { description = "Reload desktop configuration"; })
           {
             _args = [
               "SUPER + mouse:272"
@@ -298,23 +312,33 @@ in
               }
             ];
           }
-          (exec "SUPER + P" "hypr-desktop-action touchpad-off" { })
-          (exec "SUPER + SHIFT + P" "hypr-desktop-action touchpad-on" { })
+          (exec "SUPER + P" "hypr-desktop-action touchpad-off" { description = "Disable touchpad"; })
+          (exec "SUPER + SHIFT + P" "hypr-desktop-action touchpad-on" { description = "Enable touchpad"; })
           (exec "XF86AudioRaiseVolume" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 10%+" {
+            description = "Increase volume";
             locked = true;
             repeating = true;
           })
           (exec "XF86AudioLowerVolume" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 10%-" {
+            description = "Decrease volume";
             locked = true;
             repeating = true;
           })
-          (exec "XF86AudioMute" "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle" { locked = true; })
-          (exec "XF86AudioMicMute" "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle" { locked = true; })
-          (exec "SUPER + BackSpace" "hypr-desktop-action palette" { })
-          (bind "SUPER + R" "hl.dsp.submap('resize')")
-          (bind "SUPER + I" "hl.dsp.submap('bar')")
-          (bind "SUPER + M" "hl.dsp.submap('workspaces')")
-          (bind "SUPER + C" "hl.dsp.submap('mouse')")
+          (exec "XF86AudioMute" "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle" {
+            description = "Toggle speaker mute";
+            locked = true;
+          })
+          (exec "XF86AudioMicMute" "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle" {
+            description = "Toggle microphone mute";
+            locked = true;
+          })
+          (exec "SUPER + BackSpace" "hypr-desktop-action palette" {
+            description = "Open power and session menu";
+          })
+          (bind "SUPER + R" "Resize window mode" "hl.dsp.submap('resize')")
+          (bind "SUPER + I" "Status bar mode" "hl.dsp.submap('bar')")
+          (bind "SUPER + M" "Move workspace mode" "hl.dsp.submap('workspaces')")
+          (bind "SUPER + C" "Mouse control mode" "hl.dsp.submap('mouse')")
         ];
       window_rule =
         map (workspace: {

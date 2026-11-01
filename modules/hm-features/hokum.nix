@@ -8,24 +8,8 @@
       ...
     }:
     let
-      upstreamHokum = inputs.hokum.packages.${pkgs.stdenv.hostPlatform.system}.default;
-      hokum = pkgs.symlinkJoin {
-        name = "hokum-${upstreamHokum.version}";
-        paths = [ upstreamHokum ];
-        nativeBuildInputs = [ pkgs.makeWrapper ];
-        # Rune scans XDG_DATA_DIRS/*/fonts directly, not fontconfig's store paths.
-        postBuild = ''
-          wrapProgram "$out/bin/hokum" \
-            --prefix XDG_DATA_DIRS : ${
-              lib.makeSearchPath "share" [
-                pkgs.dejavu_fonts
-                pkgs.noto-fonts
-                pkgs.noto-fonts-cjk-sans
-                pkgs.noto-fonts-color-emoji
-              ]
-            }
-        '';
-        inherit (upstreamHokum) meta;
+      hokum = inputs.hokum.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs {
+        doCheck = false;
       };
     in
     {

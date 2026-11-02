@@ -99,6 +99,8 @@
         '';
     in
     {
+      key = "dotfiles-nix-ai";
+
       options.opencode.settings = lib.mkOption {
         type = lib.types.attrs;
         default = { };

@@ -68,7 +68,12 @@
         lib.mkIf (secretsEnabled && config.services.tailscale.enable)
           {
             wants = [ "network-online.target" ];
-            after = [ "network-online.target" ];
+            # VPN setup must not hold multi-user/graphical.target (and UWSM)
+            # hostage while Wi-Fi is unavailable. Keep retries in the background.
+            after = [
+              "multi-user.target"
+              "network-online.target"
+            ];
             unitConfig.StartLimitIntervalSec = 0;
             serviceConfig = {
               Restart = "on-failure";
@@ -76,6 +81,7 @@
             };
           };
       systemd.services.tailscaled-set = lib.mkIf (secretsEnabled && config.services.tailscale.enable) {
+        after = [ "multi-user.target" ];
         unitConfig.StartLimitIntervalSec = 0;
         serviceConfig = {
           Restart = "on-failure";
@@ -90,6 +96,7 @@
           "tailscaled.service"
         ];
         after = [
+          "multi-user.target"
           "systemd-resolved.service"
           "tailscaled.service"
           "tailscaled-autoconnect.service"

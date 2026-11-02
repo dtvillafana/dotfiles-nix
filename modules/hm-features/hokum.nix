@@ -8,9 +8,28 @@
       ...
     }:
     let
-      hokum = inputs.hokum.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs {
-        doCheck = false;
-      };
+      # Override Hokum's older Rune pin with the revision in our flake lock.
+      runeRev = inputs.hokum-rune-src.rev;
+      upstreamRuneRev =
+        (builtins.fromTOML (builtins.readFile "${inputs.hokum}/Cargo.toml")).dependencies.rune.rev;
+      cargoLockFile = ./_hokum/Cargo.lock;
+      lockedRune =
+        lib.findFirst (package: package.name == "rune") null
+          (builtins.fromTOML (builtins.readFile cargoLockFile)).package;
+      hokum =
+        assert lockedRune.source == "git+https://github.com/anomalyco/rune.git?rev=${runeRev}#${runeRev}";
+        inputs.hokum.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
+          doCheck = false;
+          cargoDeps = pkgs.rustPlatform.importCargoLock {
+            lockFile = cargoLockFile;
+            allowBuiltinFetchGit = true;
+          };
+          postPatch = (old.postPatch or "") + ''
+            substituteInPlace Cargo.toml \
+              --replace-fail ${lib.escapeShellArg upstreamRuneRev} ${lib.escapeShellArg runeRev}
+            cp ${cargoLockFile} Cargo.lock
+          '';
+        });
     in
     {
       key = "dotfiles-nix-hokum";

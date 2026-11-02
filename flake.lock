@@ -368,6 +368,23 @@
         "type": "github"
       }
     },
+    "hokum-rune-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793573363,
+        "narHash": "sha256-Vgn+0UHRZplR8AU1+BB5gkcLeFRIXcObKjRPwOfQTJY=",
+        "owner": "anomalyco",
+        "repo": "rune",
+        "rev": "761490e922fc472b153215ee879500ec2a6a53fa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "anomalyco",
+        "repo": "rune",
+        "rev": "761490e922fc472b153215ee879500ec2a6a53fa",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -1092,6 +1109,7 @@
         "hermes-webui": "hermes-webui",
         "hex": "hex",
         "hokum": "hokum",
+        "hokum-rune-src": "hokum-rune-src",
         "home-manager": "home-manager_2",
         "hyprmon-src": "hyprmon-src",
         "hyprwhichkey-src": "hyprwhichkey-src",

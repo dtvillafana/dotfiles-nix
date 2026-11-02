@@ -86,6 +86,11 @@
       flake = false;
     };
     hokum.url = "github:anomalyco/hokum";
+    hokum-rune-src = {
+      # Hokum still uses press_activation_token, removed in the next Rune commit.
+      url = "github:anomalyco/rune/761490e922fc472b153215ee879500ec2a6a53fa";
+      flake = false;
+    };
     m365-tui = {
       url = "github:dtvillafana/m365-tui";
       inputs.nixpkgs.follows = "nixpkgs";

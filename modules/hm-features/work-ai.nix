@@ -10,7 +10,10 @@
       ...
     }:
     {
-      imports = [ self.homeModules.ai ];
+      imports = [
+        self.homeModules.ai
+        self.homeModules.opencodeM365Email
+      ];
 
       config = lib.mkMerge [
         {

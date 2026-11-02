@@ -30,6 +30,18 @@ in
       packages.m365-attachment-reader = mkM365AttachmentReader pkgs;
     };
 
+  flake.homeModules.opencodeM365Email =
+    { lib, pkgs, ... }:
+    {
+      imports = [ self.homeModules.ai ];
+
+      opencode.settings.mcp.servers.m365-attachment-reader-local = {
+        type = "local";
+        command = [ (lib.getExe (mkM365AttachmentReader pkgs)) ];
+        environment = mcpEnv;
+      };
+    };
+
   flake.nixosModules.hermesM365Email =
     {
       lib,

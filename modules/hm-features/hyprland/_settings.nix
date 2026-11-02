@@ -251,7 +251,9 @@ in
           (exec "SUPER + Return" "ghostty" { description = "Open terminal"; })
           (exec "SUPER + SHIFT + Return" "hypr-neovide" { description = "Open text editor"; })
           (exec "SUPER + D" "hypr-desktop-action apps" { description = "Launch application"; })
-          (exec "SUPER + SHIFT + D" "hypr-desktop-action run" { description = "Run command/Open Application"; })
+          (exec "SUPER + SHIFT + D" "hypr-desktop-action run" {
+            description = "Run command/Open Application";
+          })
           (exec "SUPER + SHIFT + W" "hypr-desktop-action workspaces ${
             lib.escapeShellArgs (map (workspace: workspace.name) workspaces)
           }" { description = "Switch workspace"; })

@@ -20,50 +20,52 @@
       # write them onto services.hermes-agent.settings. Include them so the
       # local profile keeps the same MCP servers across rebuilds.
       localProfileExtra = lib.filterAttrs (
-        name: _:
-        name == "mcp_servers" || name == "tools"
+        name: _: name == "mcp_servers" || name == "tools"
       ) agent.settings;
-      localProfileConfig = (pkgs.formats.yaml { }).generate "hermes-local-config.yaml" ({
-        inherit (agent.settings)
-          custom_providers
-          max_turns
-          agent
-          memory
-          terminal
-          toolsets
-          ;
-        model = localModel;
-        fallback_model = [ ];
-        fallback_providers = [ ];
-        # Pin background calls too, rather than allowing their automatic cloud fallback.
-        auxiliary =
-          lib.genAttrs
-            [
-              "vision"
-              "compression"
-              "skills_hub"
-              "approval"
-              "review"
-              "mcp"
-              "title_generation"
-              "memory_query_rewrite"
-              "tts_audio_tags"
-              "triage_specifier"
-              "kanban_decomposer"
-              "profile_describer"
-              "goal_judge"
-              "curator"
-              "monitor"
-              "background_review"
-              "moa_reference"
-              "moa_aggregator"
-            ]
-            (_: {
-              provider = localModel.provider;
-              model = localModel.default;
-              inherit (localModel) base_url api_key;
-            });
-      } // localProfileExtra);
+      localProfileConfig = (pkgs.formats.yaml { }).generate "hermes-local-config.yaml" (
+        {
+          inherit (agent.settings)
+            custom_providers
+            max_turns
+            agent
+            memory
+            terminal
+            toolsets
+            ;
+          model = localModel;
+          fallback_model = [ ];
+          fallback_providers = [ ];
+          # Pin background calls too, rather than allowing their automatic cloud fallback.
+          auxiliary =
+            lib.genAttrs
+              [
+                "vision"
+                "compression"
+                "skills_hub"
+                "approval"
+                "review"
+                "mcp"
+                "title_generation"
+                "memory_query_rewrite"
+                "tts_audio_tags"
+                "triage_specifier"
+                "kanban_decomposer"
+                "profile_describer"
+                "goal_judge"
+                "curator"
+                "monitor"
+                "background_review"
+                "moa_reference"
+                "moa_aggregator"
+              ]
+              (_: {
+                provider = localModel.provider;
+                model = localModel.default;
+                inherit (localModel) base_url api_key;
+              });
+        }
+        // localProfileExtra
+      );
       localProfileEnv = pkgs.writeText "hermes-local.env" ''
         # No cloud credentials: this profile uses the machine's local-model proxy.
         OPENAI_BASE_URL=${localModel.base_url}

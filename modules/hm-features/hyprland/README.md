@@ -149,6 +149,31 @@ authentication/encryption boundary. **Local users can also connect to these
 loopback listeners.** Do not change the bind address to a public interface
 without configuring VNC authentication and encryption.
 
+### Dell cursor and dragging fixes
+
+The Dell enables `wayvnc.renderCursor` for capcu and the greeter. The cursor is
+embedded in screen frames, avoiding Hyprland's failing cursor-image capture.
+Its host-local WayVNC patch suppresses separate cursor capture in overlay mode
+so Remmina does not receive a second, potentially black-square cursor. Keep
+Remmina's **Show local cursor** disabled (the saved Dell profile already does).
+
+The Dell also backports Hyprland commit
+`259866f60ce497859aebf7fc0c475655a6787a9d`: absolute pointer motion must send a
+`wl_pointer.frame` event for applications to process movement during dragging.
+Remove that patch once the pinned compositor includes the upstream fix.
+Rebuilding alone does not replace a running compositor: save work, log out,
+and log back in to activate the input fix. Reconnect VNC after the handoff.
+
+The live cursor workaround applied on 2026-11-02 uses a runtime-only user unit
+drop-in. After deploying the declarative configuration, remove that override
+on the Dell (or reboot, which clears it automatically):
+
+```sh
+rm -f "$XDG_RUNTIME_DIR/systemd/user/wayvnc.service.d/90-vnc-cursor-fix.conf"
+systemctl --user daemon-reload
+systemctl --user restart wayvnc
+```
+
 ### Dell reboot acceptance gate
 
 Tailscale is temporarily disabled **only on capcuDell**, because the office

@@ -78,7 +78,7 @@
           # On logout, the old user server may briefly still own port 5901.
           # Retry while the greeter compositor is alive, never after it exits.
           while [ -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; do
-            wayvnc --desktop --disable-resizing --config ${greeterVncConfig} || true
+            wayvnc --desktop --disable-resizing${lib.optionalString config.home-manager.users.capcu.wayvnc.renderCursor " --render-cursor"} --config ${greeterVncConfig} || true
             sleep 2
           done
         '';

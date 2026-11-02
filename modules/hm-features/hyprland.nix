@@ -197,6 +197,12 @@
         description = "Local VNC port for this user's Hyprland session.";
       };
 
+      options.wayvnc.renderCursor = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Render the remote cursor into captured frames instead of relying on client-side cursor images.";
+      };
+
       config = {
         wayland.systemd.target = "graphical-session.target";
 
@@ -272,7 +278,7 @@
             StartLimitIntervalSec = 0;
           };
           Service = {
-            ExecStart = "${lib.getExe pkgs.wayvnc} --desktop --disable-resizing --config ${config.xdg.configHome}/wayvnc/config";
+            ExecStart = "${lib.getExe pkgs.wayvnc} --desktop --disable-resizing${lib.optionalString config.wayvnc.renderCursor " --render-cursor"} --config ${config.xdg.configHome}/wayvnc/config";
             Restart = "always";
             RestartSec = 2;
           };

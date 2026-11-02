@@ -11,8 +11,20 @@
       '';
     };
   flake.nixosModules.capcuDellDesktop = {
+    # Keep the backports local to the Dell, including its greeter and HM packages.
+    nixpkgs.overlays = [
+      (_final: prev: {
+        hyprland = prev.hyprland.overrideAttrs (old: {
+          patches = (old.patches or [ ]) ++ [ ./_vnc/hyprland-absolute-pointer-frame.patch ];
+        });
+        wayvnc = prev.wayvnc.overrideAttrs (old: {
+          patches = (old.patches or [ ]) ++ [ ./_vnc/wayvnc-overlay-cursor.patch ];
+        });
+      })
+    ];
     home-manager.sharedModules = [ self.homeModules.capcuDellMonitors ];
     # Preserve capcu's existing SSH-tunnel endpoint and greeter handoff.
     home-manager.users.capcu.wayvnc.port = 5901;
+    home-manager.users.capcu.wayvnc.renderCursor = true;
   };
 }

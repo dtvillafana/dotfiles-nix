@@ -5,7 +5,11 @@
     let
       lowBatteryDim = pkgs.writeShellApplication {
         name = "low-battery-dim";
-        runtimeInputs = [ pkgs.coreutils ];
+        runtimeInputs = [
+          pkgs.coreutils
+          pkgs.libnotify
+          pkgs.util-linux
+        ];
         text = ''
           shopt -s nullglob
           low_battery=false
@@ -41,6 +45,15 @@
             fi
           done
           touch "$state"
+
+          # The system service must send notifications through each user's bus.
+          for bus in /run/user/*/bus; do
+            [ -S "$bus" ] || continue
+            user=$(stat -c %U "$(dirname "$bus")")
+            runuser -u "$user" -- env DBUS_SESSION_BUS_ADDRESS="unix:path=$bus" \
+              notify-send --app-name=low-battery-dim --urgency=critical \
+                'Low battery' 'Battery below 10%. Display brightness reduced to minimum.' || true
+          done
         '';
       };
     in

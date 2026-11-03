@@ -98,6 +98,10 @@
           group = agent.user;
           createUser = false;
           extraPackages = config.home-manager.users.${agent.user}.home.packages;
+          mcpServers.nixos = {
+            command = lib.getExe pkgs.mcp-nixos;
+            env.MCP_NIXOS_TRANSPORT = "stdio";
+          };
           environment = {
             API_SERVER_HOST = "127.0.0.1";
             API_SERVER_PORT = "8642";
@@ -124,6 +128,7 @@
             ];
             max_turns = 100;
             agent = {
+              system_prompt = builtins.readFile ../hm-features/ai/nix-instructions.md;
               max_turns = 60;
               verbose = true;
               tool_use_enforcement = true;

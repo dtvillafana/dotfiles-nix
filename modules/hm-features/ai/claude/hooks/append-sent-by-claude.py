@@ -1,7 +1,9 @@
 #!@python313@/bin/python3
 from __future__ import annotations
 
+import html
 import json
+import re
 import sys
 from typing import Any
 
@@ -97,6 +99,43 @@ def recipients_are_internal(tool_input: dict[str, Any]) -> bool:
     )
 
 
+def plain_text_to_html(body: str) -> str:
+    paragraphs = re.split(r"\n\s*\n", body.replace("\r\n", "\n").strip())
+    return "".join(
+        "<p>" + html.escape(paragraph.strip()).replace("\n", "<br>\n") + "</p>"
+        for paragraph in paragraphs
+        if paragraph.strip()
+    )
+
+
+def with_html_body(tool_input: dict[str, Any]) -> dict[str, Any]:
+    updated = dict(tool_input)
+    for key in BODY_KEYS:
+        value = updated.get(key)
+        if not isinstance(value, str) or not value.strip():
+            continue
+        if not looks_like_html(value, body_type_of(updated)):
+            updated[key] = plain_text_to_html(value)
+        if key == "body":
+            updated["bodyType"] = "HTML"
+        break
+    return updated
+
+
+def with_footer(tool_input: dict[str, Any]) -> dict[str, Any]:
+    if not recipients_are_internal(tool_input):
+        return tool_input
+    updated = dict(tool_input)
+    body_type = body_type_of(updated)
+    for key in BODY_KEYS:
+        value = updated.get(key)
+        if isinstance(value, str):
+            updated[key] = append_footer(value, looks_like_html(value, body_type))
+            return updated
+    updated["body"] = append_footer("", looks_like_html("", body_type))
+    return updated
+
+
 def main() -> None:
     try:
         data = json.load(sys.stdin)
@@ -106,34 +145,9 @@ def main() -> None:
     tool_input = data.get("tool_input")
     if not isinstance(tool_input, dict):
         raise SystemExit(0)
-    if not recipients_are_internal(tool_input):
-        raise SystemExit(0)
 
-    updated = dict(tool_input)
-    body_type = body_type_of(updated)
-    changed = False
-
-    for key in BODY_KEYS:
-        value = updated.get(key)
-        if not isinstance(value, str):
-            continue
-        new_value = append_footer(value, looks_like_html(value, body_type))
-        if new_value != value:
-            updated[key] = new_value
-            changed = True
-            break
-
-    if not changed:
-        existing = updated.get("body")
-        existing_body = existing if isinstance(existing, str) else ""
-        new_value = append_footer(
-            existing_body, looks_like_html(existing_body, body_type)
-        )
-        if new_value != existing_body:
-            updated["body"] = new_value
-            changed = True
-
-    if not changed:
+    updated = with_footer(with_html_body(tool_input))
+    if updated == tool_input:
         raise SystemExit(0)
 
     json.dump(

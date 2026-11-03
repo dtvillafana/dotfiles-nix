@@ -123,6 +123,7 @@
             fastBrowserMcp
             fastBrowserLaunch
             openBrowserUseCli
+            pkgs.mcp-nixos
           ];
 
           xdg.configFile = {
@@ -141,6 +142,8 @@
           };
           home.file.".config/opencode/AGENTS.md".text =
             builtins.readFile ./ai/opencode/AGENTS.md
+            + "\n"
+            + builtins.readFile ./ai/nix-instructions.md
             + lib.optionalString (config.agentRuntimeSecrets != [ ]) ''
 
               ${runtimeSecretsText}
@@ -170,6 +173,35 @@
               run "$opencode" service set password web
             fi
           '';
+          # Claude owns this mutable file. Merge only our server, after any
+          # profile-specific MCP setup, preserving credentials and other servers.
+          home.activation.configureClaudeNixosMcp =
+            lib.hm.dag.entryAfter
+              [
+                "writeBoundary"
+                "configureClaudeMcp"
+              ]
+              ''
+                if [ -n "''${DRY_RUN_CMD:-}" ]; then
+                  echo "Would configure the Claude Code nixos MCP server"
+                else
+                  (
+                    set -eu
+                    umask 077
+                    claude_config="$HOME/.claude.json"
+                    temporary_config=$(mktemp "$HOME/.claude.json.XXXXXX")
+                    trap 'rm -f "$temporary_config"' EXIT
+                    source_config="$claude_config"
+                    if [ ! -e "$source_config" ]; then
+                      source_config=${pkgs.writeText "empty-claude-config.json" "{}"}
+                    fi
+                    ${lib.getExe pkgs.jq} --arg command "${lib.getExe pkgs.mcp-nixos}" \
+                      '.mcpServers.nixos = {type: "stdio", command: $command, args: [], env: {MCP_NIXOS_TRANSPORT: "stdio"}}' \
+                      "$source_config" > "$temporary_config"
+                    mv "$temporary_config" "$claude_config"
+                  )
+                fi
+              '';
           home.file.".grok/config.toml".text = ''
             [marketplace]
             default_skills_installs_purged = true
@@ -253,6 +285,11 @@
                 }
                 {
                   action = "websearch";
+                  resource = "*";
+                  effect = "allow";
+                }
+                {
+                  action = "nixos_*";
                   resource = "*";
                   effect = "allow";
                 }
@@ -475,6 +512,12 @@
                   catalog = 30000;
                 };
                 mcp.servers = {
+                  nixos = {
+                    type = "local";
+                    command = [ (lib.getExe pkgs.mcp-nixos) ];
+                    environment.MCP_NIXOS_TRANSPORT = "stdio";
+                    codemode = false;
+                  };
                   fast_browser = {
                     type = "local";
                     command = [

@@ -6,7 +6,9 @@ description: Search David's Microsoft 365 mailbox and read or download matching 
 # Microsoft 365 email
 
 Use the deferred `m365-attachment-reader-local` MCP tools (load them with
-`ToolSearch`) for `david.villafana@capcu.org`.
+`ToolSearch`) for `david.villafana@capcu.org`. Invoke this skill before
+composing, drafting, replying to, or editing any email — loading the tool
+schemas alone skips the formatting rules below.
 
 - Use `search_messages` for keyword searches across the mailbox.
 - Use `list_recent_messages` only for newest-first requests. Filter its results
@@ -43,7 +45,8 @@ Copy downloaded files from `hostTempPath` to the requested destination.
   `reply_outlook_email`, and `edit_outlook_draft` (when setting `body`), and
   write the body as simple HTML (`<p>`, `<br>`, `<ul>`/`<li>`, `<b>`,
   `<a href>`). Escape `&`, `<`, and `>` in literal text. Use `"Text"` only
-  when the user explicitly asks for plain text.
+  when the user explicitly asks for plain text. A PreToolUse hook converts
+  plain-text bodies to HTML as a safety net, but do not rely on it.
 - New mail: draft with `send_outlook_email`; set `send_now: true` only after
   explicit approval.
 - Replies: after `read_email`, call `reply_outlook_email` with that same

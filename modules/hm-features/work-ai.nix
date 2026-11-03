@@ -24,6 +24,11 @@
             `@capcu.org` addresses, end the body with a small footer that says
             exactly: Sent by Claude. Do not add that footer if any To/Cc/Bcc
             recipient is outside `@capcu.org`.
+
+            Email bodies must be simple HTML (`bodyType: "HTML"` with `<p>`,
+            `<br>`, `<ul>`/`<li>`), never plain text unless explicitly requested.
+            Invoke the `search-emails` skill before composing, replying, or
+            editing a draft.
           '';
           home.file.".claude/hooks/append-sent-by-claude.py" = {
             executable = true;
@@ -34,7 +39,7 @@
           home.activation.configureClaudeEmailFooter = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
             config="$HOME/.claude/settings.json"
             hook="${config.home.homeDirectory}/.claude/hooks/append-sent-by-claude.py"
-            matcher='mcp__.*__(send_outlook_email|reply_outlook_email|outlook_send_mail|outlook_send_email|outlook_send_draft)$'
+            matcher='mcp__.*__(send_outlook_email|reply_outlook_email|outlook_send_mail|outlook_send_email|outlook_send_draft|edit_outlook_draft)$'
             mkdir -p "$HOME/.claude"
             if [ ! -e "$config" ]; then
               echo '{}' >"$config"

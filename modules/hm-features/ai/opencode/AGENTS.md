@@ -4,15 +4,6 @@ Follow the repository's existing conventions and make the smallest correct chang
 Format modified files and run the relevant checks before finishing.
 Do not create tests unless explicitly asked to do so, or the project already has test coverage for the components being modified.
 
-## Nix
-
-- Use `nix fmt` for Nix formatting. If `nix fmt` is unavailable use `nixfmt`.
-- Prefer declarative Nix expressions and existing module options over imperative scripts.
-- Keep expressions simple; factor out bindings only when they improve clarity or avoid repetition.
-- Pin external inputs through the flake lock file. Do not use impure fetches.
-- Prompt the user to evaluate the affected flake or configuration after changes when practical instead of running the checks.
-- If something you're trying needs multiple dependencies, first try to get them all in a nix shell environment, and if this is not a one-off, or this requires NixOS configuration changes, recommend to the user to update their NixOS configuration to support what you are trying to do, then attempt a different method.
-
 ## Code guidelines
 
 - Suggest or use pinned Nix dependency management when possible, like uv2nix, cargo2nix, go2nix, etc...

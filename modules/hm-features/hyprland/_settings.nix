@@ -265,7 +265,7 @@ in
           (exec "SUPER + U" "hypr-desktop-action username" { description = "Type saved username"; })
           (exec "SUPER + O" "hypr-desktop-action otp" { description = "Type one-time password"; })
           (exec "SUPER + SHIFT + S" "hypr-desktop-action screenshot" {
-            description = "Copy screenshot of selected area";
+            description = "Save selected area to /tmp and copy screenshot";
             release = true;
           })
           (exec "SUPER + ALT + S" "hypr-desktop-action ocr" {

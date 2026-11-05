@@ -150,7 +150,9 @@
               if [ "$1" = ocr ]; then
                 grim -g "$geometry" - | tesseract stdin stdout | wl-copy
               else
-                grim -g "$geometry" - | wl-copy --type image/png
+                screenshot="$(mktemp "/tmp/screenshot-$(date +%Y-%m-%d_%H-%M-%S)-XXXXXX.png")"
+                grim -g "$geometry" "$screenshot"
+                wl-copy --type image/png < "$screenshot"
               fi
               ;;
             kill-user|kill-root)

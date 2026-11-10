@@ -7,7 +7,6 @@
         enable = true;
         commandLineArgs = [ "--password-store=basic" ];
         extensions = [
-          { id = "bgjoihaepiejlfjinojjfgokghnodnhd"; }
           { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; }
         ];
       };

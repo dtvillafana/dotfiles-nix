@@ -44,7 +44,6 @@
         git-agecrypt
         gnupg
         neovim
-        self.packages.${pkgs.stdenv.hostPlatform.system}.open-browser-use
         pinentry-tty
         ssh-to-age
         unzip

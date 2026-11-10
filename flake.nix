@@ -47,8 +47,8 @@
       url = "github:dtvillafana/agent-deck/main";
       flake = false;
     };
-    fast-browser-mcp-src = {
-      url = "github:kqlio67/fast-browser-mcp/v0.10.0";
+    browse-cli-src = {
+      url = "https://registry.npmjs.org/@opencode/browse-linux-x64/-/browse-linux-x64-0.0.16.tgz";
       flake = false;
     };
     octoprint-malyan-connection-fix-src = {
@@ -137,7 +137,6 @@
             mcp-for-blender = pkgs.callPackage ./packages/mcp-for-blender.nix {
               inherit (inputs) mcp-for-blender-src;
             };
-            open-browser-use = pkgs.callPackage ./packages/open-browser-use.nix { };
             scriberr = pkgs.callPackage ./packages/scriberr.nix { };
             sheepit-client = pkgs.callPackage ./packages/sheepit-client.nix { };
           };

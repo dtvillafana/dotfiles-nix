@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ self, ... }:
 {
   flake.homeModules.ai =
     {
@@ -11,50 +11,6 @@
       ...
     }:
     let
-      fastBrowserMcp = pkgs.callPackage ../../packages/fast-browser-mcp.nix {
-        inherit (inputs) fast-browser-mcp-src;
-      };
-      fastBrowserLaunch = pkgs.writeShellScriptBin "fast-browser-launch" ''
-        exec ${lib.getExe pkgs.brave} \
-          --remote-debugging-address=127.0.0.1 \
-          --remote-debugging-port=9222 \
-          --user-data-dir="''${XDG_DATA_HOME:-$HOME/.local/share}/fast-browser-mcp/brave" \
-          --no-first-run \
-          --no-default-browser-check \
-          "$@"
-      '';
-      openBrowserUse = pkgs.callPackage ../../packages/open-browser-use.nix { };
-      socketDir = "$XDG_RUNTIME_DIR/open-browser-use";
-      openBrowserUseCommand = ''
-        socket_dir="${socketDir}"
-        case "''${1:-}" in
-          call|cdp|claim-tab|finalize-tabs|history|info|mcp|move-mouse|name-session|navigate|open-tab|ping|run|set-file-chooser-files|tabs|turn-ended|user-tabs|wait-file-chooser)
-            command="$1"
-            shift
-            exec ${openBrowserUse}/bin/open-browser-use "$command" --socket-dir "$socket_dir" "$@"
-            ;;
-          *)
-            exec ${openBrowserUse}/bin/open-browser-use "$@"
-            ;;
-        esac
-      '';
-      openBrowserUseCli = pkgs.symlinkJoin {
-        name = "open-browser-use-wrapped";
-        paths = [
-          (pkgs.writeShellScriptBin "open-browser-use" openBrowserUseCommand)
-          (pkgs.writeShellScriptBin "obu" openBrowserUseCommand)
-        ];
-      };
-      openBrowserUseHost = pkgs.writeShellScript "open-browser-use-host" ''
-        exec ${openBrowserUse}/bin/open-browser-use host --socket-dir "${socketDir}"
-      '';
-      nativeMessagingManifest = builtins.toJSON {
-        name = "com.ifuryst.open_browser_use.extension";
-        description = "Open Browser Use Chrome native messaging host";
-        path = openBrowserUseHost;
-        type = "stdio";
-        allowed_origins = [ "chrome-extension://bgjoihaepiejlfjinojjfgokghnodnhd/" ];
-      };
       # OpenCode invokes the configured shell as `shell -c <command>`, which is
       # non-interactive and skips ~/.zshrc. This wrapper loads that startup so
       # `!` and shell-tool commands see the same aliases, functions, PATH, and
@@ -100,9 +56,10 @@
     in
     {
       key = "dotfiles-nix-ai";
+      imports = [ self.homeModules.browse ];
 
       options.opencode.settings = lib.mkOption {
-        type = lib.types.attrs;
+        type = lib.types.attrsOf lib.types.anything;
         default = { };
         description = "Additional OpenCode V2 configuration settings.";
       };
@@ -120,20 +77,9 @@
             llm-agents.packages.${system}.grok
             llm-agents.packages.${system}.herdr
             llm-agents.packages.${system}.opencode2
-            fastBrowserMcp
-            fastBrowserLaunch
-            openBrowserUseCli
             pkgs.mcp-nixos
           ];
 
-          xdg.configFile = {
-            "BraveSoftware/Brave-Browser/NativeMessagingHosts/com.ifuryst.open_browser_use.extension.json".text =
-              nativeMessagingManifest;
-            "chromium/NativeMessagingHosts/com.ifuryst.open_browser_use.extension.json".text =
-              nativeMessagingManifest;
-            "google-chrome/NativeMessagingHosts/com.ifuryst.open_browser_use.extension.json".text =
-              nativeMessagingManifest;
-          };
           home.file.".claude/CLAUDE.md".text =
             lib.mkBefore "@${config.home.homeDirectory}/.config/opencode/AGENTS.md\n";
           home.file.".claude/skills/tune-local-model-context" = {
@@ -453,30 +399,6 @@
                   compaction.mode = "provider";
                 };
                 permissions = [
-                  # Avoid exposing all upstream DevTools tools to fast models.
-                  {
-                    action = "fast_browser_*";
-                    resource = "*";
-                    effect = "deny";
-                  }
-                ]
-                ++
-                  map
-                    (tool: {
-                      action = "fast_browser_${tool}";
-                      resource = "*";
-                      effect = "allow";
-                    })
-                    [
-                      "browser_list_tabs"
-                      "browser_select_tab"
-                      "browser_new_tab"
-                      "browser_close_tab"
-                      "browser_snapshot"
-                      "browser_batch"
-                      "browser_screenshot"
-                    ]
-                ++ [
                   {
                     action = "read";
                     resource = "*.env";
@@ -517,28 +439,6 @@
                     command = [ (lib.getExe pkgs.mcp-nixos) ];
                     environment.MCP_NIXOS_TRANSPORT = "stdio";
                     codemode = false;
-                  };
-                  fast_browser = {
-                    type = "local";
-                    command = [
-                      (lib.getExe fastBrowserMcp)
-                      "--host"
-                      "127.0.0.1"
-                      "--port"
-                      "9222"
-                    ];
-                    codemode = false;
-                  };
-                  open_browser_use = {
-                    type = "local";
-                    disabled = true;
-                    command = [
-                      "${openBrowserUseCli}/bin/obu"
-                      "mcp"
-                    ];
-                    timeout = {
-                      catalog = 30000;
-                    };
                   };
                 };
               } config.opencode.settings

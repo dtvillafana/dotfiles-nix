@@ -34,6 +34,19 @@
         "type": "github"
       }
     },
+    "browse-cli-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 499162500,
+        "narHash": "sha256-OhHeY6UFwd27zqvS6T+/LM1lH2wYGGIE76F4XHGhxpk=",
+        "type": "tarball",
+        "url": "https://registry.npmjs.org/@opencode/browse-linux-x64/-/browse-linux-x64-0.0.16.tgz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://registry.npmjs.org/@opencode/browse-linux-x64/-/browse-linux-x64-0.0.16.tgz"
+      }
+    },
     "bun2nix": {
       "inputs": {
         "flake-parts": [
@@ -123,23 +136,6 @@
       "original": {
         "type": "file",
         "url": "https://install.determinate.systems/determinate-nixd/tag/v3.24.1/x86_64-linux"
-      }
-    },
-    "fast-browser-mcp-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1791665998,
-        "narHash": "sha256-Co0bjywz744i92CCeYURNSetZeRBeFnlfcDD4L4gljs=",
-        "owner": "kqlio67",
-        "repo": "fast-browser-mcp",
-        "rev": "e269204f2a6851d47b8bfae1903a7da8c69258d0",
-        "type": "github"
-      },
-      "original": {
-        "owner": "kqlio67",
-        "ref": "v0.10.0",
-        "repo": "fast-browser-mcp",
-        "type": "github"
       }
     },
     "flake-compat": {
@@ -1102,8 +1098,8 @@
     "root": {
       "inputs": {
         "agent-deck-src": "agent-deck-src",
+        "browse-cli-src": "browse-cli-src",
         "determinate": "determinate",
-        "fast-browser-mcp-src": "fast-browser-mcp-src",
         "flake-parts": "flake-parts_2",
         "hermes-agent": "hermes-agent",
         "hermes-webui": "hermes-webui",

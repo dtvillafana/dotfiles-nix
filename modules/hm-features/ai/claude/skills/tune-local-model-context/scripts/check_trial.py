@@ -14,7 +14,7 @@ class Criteria:
     context: int
     free_before_mib: int
     free_after_mib: int
-    target: float = 15.0
+    target: float = 9.0
     minimum_free_mib: int = 1536
     min_runs: int = 2
     min_generated: int = 512
@@ -73,7 +73,7 @@ def main() -> int:
     parser.add_argument("report", type=Path)
     parser.add_argument("--model", required=True)
     parser.add_argument("--context", type=int, required=True)
-    parser.add_argument("--target", type=float, default=15.0)
+    parser.add_argument("--target", type=float, default=9.0)
     parser.add_argument("--minimum-free-mib", type=int, default=1536)
     parser.add_argument("--free-before-mib", type=int, required=True)
     parser.add_argument("--free-after-mib", type=int, required=True)

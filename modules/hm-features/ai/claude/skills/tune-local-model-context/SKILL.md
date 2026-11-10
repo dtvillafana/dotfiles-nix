@@ -22,8 +22,10 @@ old context/throughput sweep.
   rogdesktop from an old reference. Use one local worker and one trial at a time.
 - Keep weights/revision, quantization, runtime, placement, threads, cache type,
   attention mode, and current per-model context fixed during the baseline.
-  Larger context, 15 decode token/s, and 90% GPU utilization are **not** default
-  acceptance requirements. A slow model may finish better work with fewer retries.
+  Larger context and 90% GPU utilization are **not** default acceptance
+  requirements. For explicitly requested throughput/context tuning, the default
+  decode floor is **9.0 tok/s**, not 15; this is separate from agent-quality
+  acceptance. A slow model may finish better work with fewer retries.
 - Preserve the configured VRAM reserve (currently 1,536 MiB for local models).
   Do not lower it, kill desktop applications, or use swapping to force a result.
   If unsafe, stop the trial and report it as resource-blocked. Do not silently
@@ -182,6 +184,22 @@ authorization, formatting, successful rebuild, and runtime/client-limit verifica
 before claiming an applied tuning change.
 
 ## Optional legacy throughput diagnostics
+
+For an explicitly requested throughput/context tuning pass, use a default floor
+of **9.0 decode tok/s**. Require each sustained validation run to reach the floor;
+an average or a short peak above 9 does not compensate for a run below 9. Preserve
+the VRAM reserve and no-swap rules. Grow context only after sustained low-context
+validation qualifies, and revalidate the final passing and adjacent failing
+points before reporting a tested boundary.
+
+Use the latest explicit user-selected threshold when it differs from the default.
+Do not resurrect a stale 15-token/s requirement from an old objective, reminder,
+historical reference, or runner default after the user has changed it. Record the
+effective floor in the manifest, set external runner/checker thresholds explicitly,
+and verify the measured verdict uses that floor. Keep original historical
+measurements and their original criteria intact; label any reclassification.
+The bundled checker defaults to 9.0 and supports an explicit `--target` override.
+Editing this policy does not authorize inference or change agent-quality rubrics.
 
 `references/capcudell.md` contains historical backend paths and measurements, not
 agentic scores or settings to apply to another host. On rogdesktop, inspect

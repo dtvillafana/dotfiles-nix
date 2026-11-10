@@ -6,7 +6,7 @@ from dataclasses import replace
 from check_trial import Criteria, evaluate
 
 
-def make_report(rates: tuple[float, ...] = (15.78, 15.83)) -> dict:
+def make_report(rates: tuple[float, ...] = (9.78, 9.83)) -> dict:
     return {
         "prompt_tokens": 44288,
         "tokens_per_run": 512,
@@ -34,11 +34,16 @@ class TrialTests(unittest.TestCase):
     def test_pass_and_minimum_rate(self) -> None:
         verdict = evaluate(make_report(), self.criteria)
         self.assertTrue(verdict.accepted)
-        self.assertEqual(verdict.minimum_decode_tok_s, 15.78)
+        self.assertEqual(verdict.minimum_decode_tok_s, 9.78)
 
     def test_minimum_inclusive_not_aggregate(self) -> None:
-        self.assertTrue(evaluate(make_report((15, 15)), self.criteria).accepted)
-        self.assertFalse(evaluate(make_report((30, 14.9)), self.criteria).accepted)
+        self.assertTrue(evaluate(make_report((9, 9)), self.criteria).accepted)
+        self.assertFalse(evaluate(make_report((30, 8.9)), self.criteria).accepted)
+
+    def test_explicit_target_override(self) -> None:
+        criteria = replace(self.criteria, target=15)
+        self.assertFalse(evaluate(make_report((15, 14.9)), criteria).accepted)
+        self.assertTrue(evaluate(make_report((15, 15)), criteria).accepted)
 
     def test_free_vram_both_before_and_after(self) -> None:
         for before, after in ((1516, 1700), (1700, 1516)):

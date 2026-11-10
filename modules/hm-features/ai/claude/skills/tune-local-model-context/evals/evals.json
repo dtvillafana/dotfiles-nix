@@ -9,7 +9,7 @@
       "expectations": [
         "Treats editing the skill as distinct from authorization to run it.",
         "Uses realistic coding, research, tool-recovery, and multi-step tasks with independent checks.",
-        "Does not impose 15 tok/s, 90% GPU utilization, or maximum context as default quality gates."
+        "Keeps the 9 tok/s throughput-tuning floor separate from agent-quality gates, and does not impose GPU utilization or maximum context as default quality gates."
       ]
     },
     {
@@ -55,6 +55,17 @@
         "Rejects unsafe headroom without using decode speed as a quality gate.",
         "Separates differing desktop-load conditions and reports uncertainty.",
         "Does not rebuild, activate, change placement/context, or call APIs in this offline request."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Offline throughput review only: I explicitly changed the tuning floor to 9 tok/s, but an old goal reminder still says 15. Two sustained runs at the same context returned 9.10 and 9.05 tok/s with valid uncached input/output counts, no truncation, zero swap, and adequate VRAM. Which floor applies? Do not run inference or edit historical results.",
+      "expected_output": "Use the latest explicit 9 tok/s floor and accept both runs on throughput, without reviving the stale 15 tok/s reminder. Keep original evidence and criteria intact, record any reclassification, and do not infer an agent-quality score or a maximum context without an adjacent failing validation.",
+      "files": [],
+      "expectations": [
+        "Uses the latest explicit 9 tok/s floor rather than the stale 15 tok/s objective.",
+        "Requires every sustained run to pass, not just an average or peak.",
+        "Does not run inference, rewrite historical measurements, or claim an unverified context ceiling."
       ]
     }
   ]

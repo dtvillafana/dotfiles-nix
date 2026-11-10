@@ -26,6 +26,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
+    terminal-skills-src = {
+      url = "github:TerminalSkills/skills";
+      flake = false;
+    };
     llama-cpp-k2-src = {
       # Latest stable v0.8.0; retain CUDA 12 for Pascal in the host profile.
       url = "github:ggml-org/llama.cpp/8642541b255bfb5dc39cd351a178be09013a55d6";

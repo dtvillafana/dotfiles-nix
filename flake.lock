@@ -1126,6 +1126,7 @@
         "octoprint-src": "octoprint-src",
         "rust-overlay": "rust-overlay",
         "sops-nix": "sops-nix",
+        "terminal-skills-src": "terminal-skills-src",
         "treefmt-nix": "treefmt-nix_2",
         "wrapper-modules": "wrapper-modules",
         "zoho-desk-mcp-server": "zoho-desk-mcp-server"
@@ -1214,6 +1215,22 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "terminal-skills-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794052222,
+        "narHash": "sha256-qZK0euMk3/j/cDafYzuwGPWlk7jn97R5/D05CSYKMrc=",
+        "owner": "TerminalSkills",
+        "repo": "skills",
+        "rev": "42289059901710441bfa8081c08c3a9f36b93f9c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "TerminalSkills",
+        "repo": "skills",
         "type": "github"
       }
     },

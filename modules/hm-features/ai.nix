@@ -1,4 +1,4 @@
-{ self, ... }:
+{ self, inputs, ... }:
 {
   flake.homeModules.ai =
     {
@@ -86,6 +86,8 @@
             source = ./ai/claude/skills/tune-local-model-context;
             recursive = true;
           };
+          home.file.".config/opencode/skills/ai-pentesting".source =
+            "${inputs.terminal-skills-src}/skills/ai-pentesting";
           home.file.".config/opencode/AGENTS.md".text =
             builtins.readFile ./ai/opencode/AGENTS.md
             + "\n"

@@ -107,6 +107,7 @@
               cache-type-v = model.cacheTypeV or "f16";
               model = toString (fetch model model.file model.hash);
             }
+            // (model.sampling or { })
             // lib.optionalAttrs (model ? projector) {
               mmproj = toString (fetch model model.projector model.projectorHash);
             }
@@ -180,7 +181,7 @@
         modelOverrides = lib.mkOption {
           type = lib.types.attrsOf lib.types.attrs;
           default = { };
-          description = "Recursive model metadata overrides and additional pinned model definitions; contextSize, flashAttention, cacheTypeK, cacheTypeV, and fitTarget override shared runtime defaults per model. gpuLayers sets explicit placement without automatic fitting, cpuFfnLayers keeps the first N dense FFN layers on CPU, cpuExpertLayers overrides MoE placement (null keeps all FFN experts on CPU), tensorOverrides supplies a list of tensor-pattern=buffer placement overrides, logVerbosity controls diagnostics, and requestBody adds per-model OpenCode request fields. chatTemplate selects a pinned Jinja template file. projector and projectorHash are optional for text-only models.";
+          description = "Recursive model metadata overrides and additional pinned model definitions; contextSize, flashAttention, cacheTypeK, cacheTypeV, and fitTarget override shared runtime defaults per model. gpuLayers sets explicit placement without automatic fitting, cpuFfnLayers keeps the first N dense FFN layers on CPU, cpuExpertLayers overrides MoE placement (null keeps all FFN experts on CPU), tensorOverrides supplies a list of tensor-pattern=buffer placement overrides, logVerbosity controls diagnostics, sampling sets llama.cpp preset sampler defaults for all clients, and requestBody adds per-model OpenCode request fields. chatTemplate selects a pinned Jinja template file. projector and projectorHash are optional for text-only models.";
         };
         contextSize = lib.mkOption {
           type = lib.types.ints.positive;

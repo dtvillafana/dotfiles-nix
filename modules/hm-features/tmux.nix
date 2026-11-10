@@ -15,7 +15,8 @@
           # system clipboard. On Hyprland the clipboard is WAYLAND_DISPLAY; without
           # it Neovim still sees DISPLAY=:0 and writes an XWayland selection that
           # Hyprland does not publish.
-          set -ga update-environment "KITTY_WINDOW_ID KITTY_LISTEN_ON WAYLAND_DISPLAY"
+          # Preserve SSH detection for Neovim's OSC 52 clipboard provider too.
+          set -ga update-environment "KITTY_WINDOW_ID KITTY_LISTEN_ON WAYLAND_DISPLAY SSH_TTY"
           set -sg escape-time 0
           set -g allow-passthrough on
 

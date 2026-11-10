@@ -41,6 +41,14 @@
         mode = "0400";
       };
       m365AttachmentReader = self.packages.${system}.m365-attachment-reader;
+      keepmenuClipboard = pkgs.keepmenu.overrideAttrs (old: {
+        postPatch = (old.postPatch or "") + ''
+          # One-shot selections can be consumed by XWayland before the user pastes.
+          # Keepmenu still clears the clipboard after its existing 30-second timeout.
+          substituteInPlace keepmenu/__init__.py \
+            --replace-fail "wl-copy -o" "${lib.getExe' pkgs.wl-clipboard "wl-copy"} --type text/plain"
+        '';
+      });
       # Keep the executable basename so keepmenu adds its prompt/password flags.
       keepmenuFuzzel = pkgs.writeShellApplication {
         name = "fuzzel";
@@ -406,7 +414,7 @@
           programs.home-manager.enable = true;
 
           xdg.configFile."hypr/user.lua".text = lib.optionalString secretsEnabled ''
-            hl.bind("SUPER + SHIFT + G", hl.dsp.exec_cmd("${lib.getExe pkgs.keepmenu} -C -c $HOME/.config/keepmenu/config.ini"))
+            hl.bind("SUPER + SHIFT + G", hl.dsp.exec_cmd("${lib.getExe keepmenuClipboard} -C -c $HOME/.config/keepmenu/config.ini"))
             hl.bind("SUPER + S", hl.dsp.exec_cmd("${lib.getExe workCredential} password"), { description = "Type work password" })
             hl.bind("SUPER + A", hl.dsp.exec_cmd("${lib.getExe workCredential} username"), { description = "Type work username" })
             hl.bind("SUPER + SHIFT + O", hl.dsp.exec_cmd("${lib.getExe workCredential} otp"), { description = "Type work OTP" })

@@ -242,6 +242,7 @@
             self.homeModules.hyprland
             self.homeModules.browsers
             self.homeModules.zathura
+            self.homeModules.remmina
             self.homeModules.terminal
             self.homeModules.monitors
             self.homeModules.launcher
@@ -309,7 +310,6 @@
               powershell
               pwgen-secure
               python313
-              remmina
               ripgrep
               ripgrep-all
               scli

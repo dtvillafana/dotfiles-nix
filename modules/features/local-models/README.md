@@ -1,5 +1,8 @@
 # Local Models options for OpenCode (rogdesktop)
 
+For the current user-requested **9 token/s context tuning** (initially 15), see
+[TUNING-20261108.md](TUNING-20261108.md).
+
 For CapCUDell's separate Blackwell profiles, see [BLACKWELL.md](BLACKWELL.md).
 For the ongoing real-agent benchmark and placement experiments, see
 [AGENTIC.md](AGENTIC.md). Its profiles supersede the older throughput-only

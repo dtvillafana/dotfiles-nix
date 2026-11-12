@@ -468,6 +468,10 @@
           '';
 
           home.file = {
+            # Keep the launcher/update location read-only: downloaded Webex
+            # binaries bypass Nix's ELF patching and fail to load libraries.
+            # Webex upgrades must come from the pinned Nix package instead.
+            ".local/share/WebexLauncher".source = "${pkgs.webex}/opt/Webex";
             ".local/share/applications/webex.desktop" = {
               force = true;
               text = ''

@@ -30,7 +30,7 @@
       # Hyprland delivers press/release events through the shortcuts portal;
       # Hex owns Hold/Toggle behavior, so changes in its GUI apply immediately.
       xdg.configFile."hypr/user.lua".text = lib.mkBefore ''
-        hl.bind("ALT + Space", hl.dsp.global("anomaly.hex:dictation-ALT-space"), {
+        hl.bind("ALT + Space", hl.dsp.global("anomaly.hex:dictation"), {
           description = "Hex dictation",
         })
       '';

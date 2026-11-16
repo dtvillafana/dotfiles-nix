@@ -5,11 +5,7 @@ type_credential() (
   local delay value clipboard_pid
   case "$1" in
   *[Rr]emmina* | *virt-manager* | *virt-viewer* | *remote-viewer*) delay=20 ;;
-  *[Bb]rave* | *[Cc]hromium* | *[Cc]hrome* | *[Ff]irefox* | *qutebrowser*) delay=10 ;;
-  *)
-    wtype -
-    return
-    ;;
+  *) delay=10 ;;
   esac
 
   # Read without trimming trailing newlines or putting credentials in argv.

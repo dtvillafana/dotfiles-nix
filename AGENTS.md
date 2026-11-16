@@ -14,6 +14,10 @@ Strictly follow the dendritic pattern for all new or modified Nix configuration.
 - Keep package expressions in `packages/` and explicitly imported implementation helpers excluded from automatic discovery (for example, `_settings.nix` or an underscore-prefixed directory). These are deliberate exceptions, not a precedent for new parallel module trees.
 - When a lower-level module can be imported through multiple dependency paths, ensure stable identity so Nix deduplicates it. Follow existing explicit `key` conventions where needed; do not hide duplicate imports with `mkForce` or `mkDefault`.
 
+## Validation
+
+Do not add or maintain test files or test suites in this dotfiles repository. Validate changes with formatting, relevant configuration evaluation/builds, and manual checks instead.
+
 ## Documentation
 
 The guidance above summarizes these upstream references, adapted to this repository's conventions (consulted 2026-10-16):

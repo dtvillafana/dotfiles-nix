@@ -86,5 +86,3 @@ points, then return and check the GPU is released. Repeat with another compute
 workload and suspend/resume. Compare points/hour, heat, and electricity before
 deciding whether both machines are worth running. Old-compatible job supply is
 not guaranteed.
-
-Policy unit tests: `python3 modules/features/sheepit/test_idle.py`.

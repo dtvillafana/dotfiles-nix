@@ -130,8 +130,8 @@
                 done
               ;;
             password|username|otp)
-              # Capture the target before fuzzel takes focus. Browsers, Remmina, and
-              # virt-manager do not consistently honor wtype's temporary virtual keymap.
+              # Capture the target before fuzzel takes focus so remote-desktop
+              # applications get extra typing delay.
               target_class="$(hyprctl -j activewindow | jq -r '.class // ""')"
               entry="$(gopass ls --flat | sort | fuzzel_menu "credentials-$1" --only-match --prompt 'Select credential… ')" || exit 0
               [ -n "$entry" ] || exit 0

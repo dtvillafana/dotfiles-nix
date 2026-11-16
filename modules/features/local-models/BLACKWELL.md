@@ -98,7 +98,6 @@ For example, at a 32,768-token context:
 
 ```sh
 local-models-bench --runs 2 --tokens 512 --prompt-tokens 32000
-python3 -m unittest discover -s modules/features/local-models -p 'test_*.py'
 ```
 
 These repeated-text throughput tests are not a long-context retrieval or

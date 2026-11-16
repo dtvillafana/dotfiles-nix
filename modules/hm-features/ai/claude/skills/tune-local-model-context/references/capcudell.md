@@ -16,7 +16,6 @@ Repository: `~/git-repos/dotfiles-nix`.
   provider model's own limit. Do not replace these with the shared fallback.
 - `modules/features/local-models/benchmark.py`: installed as `local-models-bench`;
   use `--model`, `--runs`, `--tokens`, `--prompt-tokens`, and `--json`.
-- `modules/features/local-models/test_benchmark.py`: offline regression tests.
 - `modules/features/local-models/BLACKWELL.md`: detailed measurements and caveats.
 
 `type nr` previously expanded to:

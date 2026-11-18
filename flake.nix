@@ -52,7 +52,7 @@
       flake = false;
     };
     browse-cli-src = {
-      url = "https://registry.npmjs.org/@opencode/browse-linux-x64/-/browse-linux-x64-0.0.16.tgz";
+      url = "github:anomalyco/browse";
       flake = false;
     };
     octoprint-malyan-connection-fix-src = {

@@ -1,31 +1,26 @@
 {
   lib,
-  stdenv,
+  rustPlatform,
   makeWrapper,
-  formatelf,
   browse-cli-src,
 }:
 
-stdenv.mkDerivation {
+rustPlatform.buildRustPackage {
   pname = "browse";
-  version = "0.0.16";
+  version =
+    (builtins.fromTOML (builtins.readFile "${browse-cli-src}/rust/Cargo.toml"))
+    .workspace.package.version;
   src = browse-cli-src;
+  sourceRoot = "source/rust";
 
-  nativeBuildInputs = [
-    formatelf
-    makeWrapper
-  ];
-  buildInputs = [ stdenv.cc.cc.lib ];
-  dontBuild = true;
-  # Preserve the Bun executable's embedded payload when fixing up its ELF.
-  dontStrip = true;
+  cargoLock.lockFile = "${browse-cli-src}/rust/Cargo.lock";
+  nativeBuildInputs = [ makeWrapper ];
+  # Upstream integration tests need a browser and a writable home directory.
+  doCheck = false;
 
-  installPhase = ''
-    runHook preInstall
-    install -Dm755 bin/browse "$out/bin/browse"
+  postInstall = ''
     wrapProgram "$out/bin/browse" \
       --set OPENCODE_BROWSER_AUTO_UPDATE off
-    runHook postInstall
   '';
 
   doInstallCheck = true;
@@ -41,6 +36,5 @@ stdenv.mkDerivation {
     license = lib.licenses.mit;
     mainProgram = "browse";
     platforms = [ "x86_64-linux" ];
-    sourceProvenance = [ lib.sourceTypes.binaryNativeCode ];
   };
 }

@@ -26,11 +26,20 @@ Existing automation-profile data is left untouched.
 
 ## Updates
 
-The CLI is currently packaged for `x86_64-linux`. Its npm tarball is pinned by
-`browse-cli-src` in `flake.nix` and hashed in `flake.lock`; update that URL and the
-version in `packages/browse.nix` together, then run `nix flake lock` and build
-`.#browse`. The ELF fixup hook comes from the already-pinned `llm-agents` input
-and preserves the Bun executable's embedded payload.
+The CLI is currently packaged for `x86_64-linux` and built from upstream Rust
+source. `browse-cli-src` tracks upstream's default branch, pinned by commit and
+hash in `flake.lock`. The package version and dependencies come from that source's
+`Cargo.toml` and `Cargo.lock`, so no separate version or dependency hash edits are
+needed:
+
+```sh
+nix flake update browse-cli-src
+nix build .#browse
+```
+
+Rebuild your host configuration to apply the update, then restart the Browse
+relay and reconnect agent MCP clients. Remove any manually installed
+`~/.local/bin/browse` that would shadow the Nix-managed command.
 
 The CLI wrapper disables upstream self-updates so Nix remains its owner. The
 Chrome Web Store updates the extension independently. Do not use `browse update`

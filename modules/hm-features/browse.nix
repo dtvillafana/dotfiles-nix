@@ -6,7 +6,6 @@
       packages = pkgs.lib.optionalAttrs (system == "x86_64-linux") {
         browse = pkgs.callPackage ../../packages/browse.nix {
           inherit (inputs) browse-cli-src;
-          inherit (inputs.llm-agents.packages.${system}) formatelf;
         };
       };
     };

@@ -37,14 +37,17 @@
     "browse-cli-src": {
       "flake": false,
       "locked": {
-        "lastModified": 499162500,
-        "narHash": "sha256-OhHeY6UFwd27zqvS6T+/LM1lH2wYGGIE76F4XHGhxpk=",
-        "type": "tarball",
-        "url": "https://registry.npmjs.org/@opencode/browse-linux-x64/-/browse-linux-x64-0.0.16.tgz"
+        "lastModified": 1794956337,
+        "narHash": "sha256-BIzCe/atioMcWg+UvuXeEpijh6CHIXe5tPpR5L0JYcU=",
+        "owner": "anomalyco",
+        "repo": "browse",
+        "rev": "be5528ff2194c8defab74d41e13abb7cb149548e",
+        "type": "github"
       },
       "original": {
-        "type": "tarball",
-        "url": "https://registry.npmjs.org/@opencode/browse-linux-x64/-/browse-linux-x64-0.0.16.tgz"
+        "owner": "anomalyco",
+        "repo": "browse",
+        "type": "github"
       }
     },
     "bun2nix": {

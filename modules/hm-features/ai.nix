@@ -364,7 +364,7 @@
                   "openai-general" = mkGeneral "openai/gpt-6.1-terra#medium" // {
                     description = "Terra: bounded research, source-backed synthesis, browser workflows, writing, and straightforward implementation with clear acceptance criteria. Use openai-complex instead for ambiguous requirements, architecture, difficult debugging, security-sensitive code, or tightly coupled cross-file changes.";
                   };
-                  "openai-complex" = mkGeneral "openai/gpt-6.1-sol#medium" // {
+                  "openai-complex" = mkGeneral "openai/gpt-6.2-sol#medium" // {
                     description = "Sol: complex coding, architectural analysis, difficult debugging, security-sensitive code, and tightly coupled cross-file changes. Also use when a bounded Terra task fails validation or reveals unexpected complexity. Prefer openai-explore for discovery and openai-general for routine, well-scoped work.";
                   };
                   "grok-build" = mkBuild {
@@ -380,7 +380,7 @@
                   };
                   "openai-build" =
                     (mkBuild {
-                      model = "openai/gpt-6.1-sol#high";
+                      model = "openai/gpt-6.2-sol#high";
                       explore = "openai-explore";
                       general = "openai-general";
                       description = "Sol high: primary implementation agent for architecture, debugging, and cross-file changes. When delegation is requested, choose Luna for discovery, Terra for bounded routine work, and Sol for complex work.";
@@ -391,7 +391,7 @@
                       ];
                     };
                   "openai-plan" = mkPlan {
-                    model = "openai/gpt-6.1-sol#high";
+                    model = "openai/gpt-6.2-sol#high";
                     explore = "openai-explore";
                     description = "Sol high: read-only architectural investigation and implementation planning. May delegate discovery to openai-explore when requested; switch to openai-build for implementation.";
                   };

@@ -68,6 +68,15 @@
 
                          Layout.fillWidth: true
                          Layout.preferredHeight: 60
+@@ -1625,4 +1635,8 @@
+     function _addSession(path, name, exec) {
++        // This host requires UWSM to start Waybar and the other desktop services.
++        // Ignore the unmanaged entry, including any remembered selection of it.
++        if (path.endsWith("/hyprland.desktop"))
++            return;
+         if (!name || !exec || GreeterState.sessionList.includes(name))
+             return;
+         GreeterState.sessionList = GreeterState.sessionList.concat([name]);
 --- a/quickshell/Modules/Greetd/assets/dms-greeter
 +++ b/quickshell/Modules/Greetd/assets/dms-greeter
 @@ -310,27 +310,20 @@

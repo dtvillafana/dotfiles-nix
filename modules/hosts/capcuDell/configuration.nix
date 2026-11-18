@@ -94,8 +94,9 @@
             name = "hyprland";
             customConfig = greeterConfig;
           };
-          # Keep the stock login/authentication flow, adding the lock screen's
-          # failure animation and Lua support for this host's Hyprland version.
+          # Keep the stock authentication flow, adding the lock screen's failure
+          # animation, Lua support, and excluding the unmanaged Hyprland session.
+          # DMS ignores defaultSession and can otherwise remember that entry.
           package = pkgs.dms-shell.overrideAttrs (old: {
             # Patch src itself: dms-shell installs QML directly from src.
             src = pkgs.applyPatches {

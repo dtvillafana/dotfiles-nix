@@ -128,6 +128,20 @@ gpgconf --kill gpg-agent
 gpg-agent --daemon
 ```
 
+The `capcu` profile treats encrypted gopass entries as binary in Git diffs.
+On activation it removes gopass's default decrypt-on-diff hook from the
+existing root store, so Git history and diffs don't open pinentry. Use
+`gopass show <entry>` or `gopass history --password <entry>` to intentionally
+decrypt current or historical values.
+
+To inspect a plaintext diff without restoring the hook, run this in a
+foreground shell where it is safe to display both versions of the secret:
+
+```bash
+gopass git -- --no-pager -c 'diff.gpg.textconv=gpg --no-tty --decrypt' \
+  diff HEAD^ HEAD -- path/to/entry.gpg
+```
+
 # First time setup notes
 
 1. First-time setup may require setting the profile user's password from the root account with `passwd`.

@@ -265,6 +265,7 @@
             self.homeModules.git-repos-work
             self.homeModules.git-repos-all
             self.homeModules.capcuGit
+            self.homeModules.gopass
           ];
 
           home.username = "capcu";
@@ -303,7 +304,6 @@
               fzf
               gemini-cli
               git
-              gopass
               jq
               keepmenu
               krita

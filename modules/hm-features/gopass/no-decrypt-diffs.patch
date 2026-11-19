@@ -1,0 +1,18 @@
+diff --git a/internal/backend/storage/gitfs/config.go b/internal/backend/storage/gitfs/config.go
+--- a/internal/backend/storage/gitfs/config.go
++++ b/internal/backend/storage/gitfs/config.go
+@@ -30,13 +30,10 @@ func (g *Git) fixConfig(ctx context.Context) error {
+ 		return fmt.Errorf("failed to set git config for pull.rebase: %w", err)
+ 	}
+ 
+-	// setup for proper diffs.
++	// Keep encrypted files binary; Git diffs must not ask for a passphrase.
+ 	if err := g.ConfigSet(ctx, "diff.gpg.binary", "true"); err != nil {
+ 		out.Errorf(ctx, "Error while initializing git: %s", err)
+ 	}
+-	if err := g.ConfigSet(ctx, "diff.gpg.textconv", "gpg --no-tty --decrypt"); err != nil {
+-		out.Errorf(ctx, "Error while initializing git: %s", err)
+-	}
+ 
+ 	// setup for persistent SSH connections.
+ 	if sc := gitSSHCommand(); sc != "" {

@@ -14,6 +14,7 @@ let
         self.nixosModules.headscale
         self.nixosModules.desktopServices
         self.nixosModules.office
+        self.nixosModules.packageUsage
         self.nixosModules.capcuDellConfig
         self.nixosModules.capcuDellDesktop
         self.nixosModules.capcuDellHardware

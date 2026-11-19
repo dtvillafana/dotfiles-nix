@@ -29,7 +29,7 @@ let
     }
     {
       name = "web";
-      class = "(qutebrowser|[Bb]rave-browser|[Cc]hromium(-browser)?|firefox|org\\.mozilla\\.firefox)";
+      class = "([Bb]rave-browser|[Cc]hromium(-browser)?|firefox|org\\.mozilla\\.firefox)";
     }
     {
       name = "documents";

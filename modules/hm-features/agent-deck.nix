@@ -20,10 +20,6 @@
         [updates]
         check_enabled = false
 
-        [tools.terminal]
-        command = "zsh"
-        icon = "⌨"
-
         [claude]
         dangerous_mode = false
 

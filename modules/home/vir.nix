@@ -61,6 +61,7 @@
           git
           neovim
           curl
+          legcord
         ];
         shell = pkgs.zsh;
       };

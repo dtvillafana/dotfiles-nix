@@ -153,9 +153,6 @@
         ];
       };
 
-      # Temporary: the office firewall blocks Headscale. LAN SSH/VNC stays usable.
-      # Remove this override to re-enable this host without changing other nodes.
-      services.tailscale.enable = lib.mkForce false;
       systemd.services.tailscaled = lib.mkIf config.services.tailscale.enable {
         environment.SSL_CERT_FILE = "${tailscaleCaBundle}";
       };

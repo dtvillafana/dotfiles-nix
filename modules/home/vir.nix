@@ -103,6 +103,7 @@
             self.homeModules.obs-zoom
             self.homeModules.launcher
             self.homeModules.git
+            self.homeModules.lazygit
             self.homeModules.ai
             self.homeModules.protonMail
             self.homeModules.hex
@@ -140,7 +141,6 @@
             heroic
             jq
             krita
-            lazygit
             networkmanager
             networkmanagerapplet
             nixfmt-tree

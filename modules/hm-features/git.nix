@@ -23,4 +23,17 @@
         lfs.enable = true;
       };
     };
+
+  flake.homeModules.lazygit =
+    { lib, pkgs, ... }:
+    {
+      home.packages = [
+        (pkgs.writeShellScriptBin "lazygit" ''
+          # OpenCode's embedded terminal can turn Shift+P into p:
+          # https://github.com/anomalyco/opencode/issues/65345
+          export TCELL_KEYBOARD_PROTOCOL="''${TCELL_KEYBOARD_PROTOCOL:-legacy}"
+          exec ${lib.getExe pkgs.lazygit} "$@"
+        '')
+      ];
+    };
 }

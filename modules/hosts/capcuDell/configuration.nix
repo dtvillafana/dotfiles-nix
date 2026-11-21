@@ -153,6 +153,13 @@
         ];
       };
 
+      # This workstation only initiates tailnet connections (notably Git).
+      # Keep replies working while rejecting connections initiated by peers.
+      services.tailscale = {
+        extraUpFlags = [ "--shields-up" ];
+        extraSetFlags = [ "--shields-up" ];
+      };
+
       systemd.services.tailscaled = lib.mkIf config.services.tailscale.enable {
         environment.SSL_CERT_FILE = "${tailscaleCaBundle}";
       };

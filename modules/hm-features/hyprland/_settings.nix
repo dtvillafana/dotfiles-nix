@@ -41,7 +41,7 @@ let
     }
     {
       name = "comms";
-      class = "([Ss]ignal|org\\.signal\\.Signal|TelegramDesktop|org\\.telegram\\.desktop|com\\.ayugram\\.desktop|Microsoft Teams - Preview|teams-for-linux)";
+      class = "([Ss]ignal|org\\.signal\\.Signal|TelegramDesktop|org\\.telegram\\.desktop|com\\.ayugram\\.desktop|Microsoft Teams - Preview|teams-for-linux|legcord)";
     }
     {
       name = "VMs";

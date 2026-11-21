@@ -1,7 +1,32 @@
 { inputs, ... }:
 {
   flake.homeModules.agent-deck =
-    { llm-agents, system, ... }:
+    {
+      config,
+      lib,
+      llm-agents,
+      pkgs,
+      system,
+      ...
+    }:
+    let
+      python = pkgs.python3.withPackages (p: [ p.tomlkit ]);
+      configPath = lib.escapeShellArg "${config.xdg.configHome}/agent-deck/config.toml";
+      legacyConfigPath = lib.escapeShellArg "${config.home.homeDirectory}/.agent-deck/config.toml";
+      defaultConfig = (pkgs.formats.toml { }).generate "agent-deck-config.toml" {
+        default_tool = "claude";
+        theme = "dark";
+        updates.check_enabled = false;
+        claude.dangerous_mode = false;
+        global_search = {
+          enabled = true;
+          tier = "auto";
+          recent_days = 90;
+        };
+        recall.enabled = true;
+        instances.allow_multiple = true;
+      };
+    in
     {
       home.packages = [
         (llm-agents.packages.${system}.agent-deck.overrideAttrs (old: rec {
@@ -13,26 +38,10 @@
         }))
       ];
 
-      home.file.".config/agent-deck/config.toml".text = ''
-        default_tool = "claude"
-        theme = "dark"
-
-        [updates]
-        check_enabled = false
-
-        [claude]
-        dangerous_mode = false
-
-        [global_search]
-        enabled = true
-        tier = "auto"
-        recent_days = 90
-
-        [recall]
-        enabled = true
-
-        [instances]
-        allow_multiple = true
+      # Merge after Home Manager removes the old read-only symlink.
+      home.activation.mergeAgentDeckConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+        run ${python}/bin/python ${./agent-deck/merge-config.py} \
+          ${defaultConfig} ${configPath} ${legacyConfigPath}
       '';
     };
 }

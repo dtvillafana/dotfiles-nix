@@ -146,3 +146,25 @@ gopass git -- --no-pager -c 'diff.gpg.textconv=gpg --no-tty --decrypt' \
 
 1. First-time setup may require setting the profile user's password from the root account with `passwd`.
 2. You may have to connect to predefined SSH hosts to add them to `known_hosts`.
+
+## Attach to remote Agent Deck sessions
+
+Run Agent Deck on the machine where you copy the screenshot, not inside an SSH
+shell. Register the SSH host once, then attach to the existing session:
+
+```sh
+agent-deck remote add work capcu@capcuDell
+agent-deck remote attach work <session-title-or-id>
+```
+
+Home Manager merges its settings into a writable Agent Deck config on each
+activation. Nix wins for keys it defines; other keys, including remotes added
+with `remote add`, are preserved. Agent Deck's saved sessions are not touched.
+If `remote add` reports a read-only Nix store path, apply the updated Home
+Manager configuration on the client first.
+If SSH cannot find the remote binary on its default `PATH`, pass
+`--agent-deck-path /etc/profiles/per-user/capcu/bin/agent-deck` to `remote add`.
+
+The current Agent Deck build doesn't forward clipboard images to OpenCode 2.
+To attach an image, copy it to the server with `scp`, then paste its absolute
+server path by itself into OpenCode.

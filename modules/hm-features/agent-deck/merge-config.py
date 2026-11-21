@@ -1,9 +1,11 @@
 """Overlay Nix-managed settings without removing Agent Deck's own entries."""
 
+import json
 import os
 import sys
 from collections.abc import MutableMapping
 from pathlib import Path
+from stat import S_IMODE
 from tempfile import NamedTemporaryFile
 
 import tomlkit
@@ -18,7 +20,9 @@ def overlay(current: MutableMapping, managed: MutableMapping) -> None:
             current[key] = value
 
 
-def merge_config(defaults: Path, preferred: Path, legacy: Path) -> None:
+def merge_config(
+    defaults: Path, preferred: Path, legacy: Path, telegram: Path | None = None
+) -> None:
     target = preferred
     if not preferred.exists() and not preferred.is_symlink():
         if legacy.exists() or legacy.is_symlink():
@@ -28,6 +32,9 @@ def merge_config(defaults: Path, preferred: Path, legacy: Path) -> None:
 
     managed_text = defaults.read_bytes()
     managed = tomlkit.parse(managed_text)
+    if telegram is not None:
+        managed.setdefault("conductor", {})["telegram"] = json.loads(telegram.read_text())
+        managed_text = tomlkit.dumps(managed).encode()
     original = target.read_bytes() if target.exists() else None
     if original is None:
         updated = managed_text
@@ -35,7 +42,9 @@ def merge_config(defaults: Path, preferred: Path, legacy: Path) -> None:
         current = tomlkit.parse(original)
         overlay(current, managed)
         updated = tomlkit.dumps(current).encode()
-        if updated == original:
+        if updated == original and (
+            telegram is None or S_IMODE(target.stat().st_mode) == 0o600
+        ):
             return
 
     target.parent.mkdir(mode=0o700, parents=True, exist_ok=True)

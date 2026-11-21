@@ -28,6 +28,7 @@
     {
       imports = [
         self.nixosModules.hyprlandDesktop
+        self.nixosModules.agent-deck-telegram-vir
       ];
 
       hardware.graphics = {

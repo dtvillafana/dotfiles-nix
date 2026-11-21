@@ -110,6 +110,7 @@
                 "agent.cycle" = "tab";
                 "agent.cycle.reverse" = "shift+tab";
               };
+              prompt.paste = "full";
               theme = {
                 name = "catppuccin-macchiato";
               };

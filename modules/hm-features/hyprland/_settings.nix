@@ -1,5 +1,5 @@
 # Private Home Manager module: excluded from the flake's recursive import-tree.
-{ lib, ... }:
+{ config, lib, ... }:
 let
   lua = lib.generators.mkLuaInline;
   bind = key: description: action: {
@@ -44,7 +44,7 @@ let
       class = "([Ss]ignal|org\\.signal\\.Signal|TelegramDesktop|org\\.telegram\\.desktop|com\\.ayugram\\.desktop|Microsoft Teams - Preview|teams-for-linux|legcord)";
     }
     {
-      name = "VMs";
+      name = config.hyprland.vmWorkspaceName;
       class = "(\\.virt-manager-wrapped|virt-manager|steam)";
     }
     {

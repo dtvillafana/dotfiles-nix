@@ -3,11 +3,11 @@
     "agent-deck-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1795236078,
-        "narHash": "sha256-mdBLJUhh+BLnoPB54dVvL42beJk/n3PamRasmum+CzI=",
+        "lastModified": 1795256916,
+        "narHash": "sha256-YSwttHwyl5xBWlsYYQqfBvUpCncHYziDS8gc1MvOwXU=",
         "owner": "dtvillafana",
         "repo": "agent-deck",
-        "rev": "9f533741af7b4fc5cab7f11702745ad36e73226f",
+        "rev": "d94f72a4b25e2af790cbcf3e5d508d213e8e025d",
         "type": "github"
       },
       "original": {

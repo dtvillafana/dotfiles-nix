@@ -292,7 +292,6 @@
             with pkgs;
             [
               age
-              inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.antigravity-cli
               ast-grep
               audacity
               azure-cli

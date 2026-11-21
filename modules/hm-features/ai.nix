@@ -11,6 +11,107 @@
       ...
     }:
     let
+      sharedWorkspaceDirs = [
+        "git-repos/orgfiles"
+        "git-repos/dotfiles-nix"
+      ];
+      externalDirectoryRules = map (dir: {
+        action = "external_directory";
+        resource = "~/${dir}/*";
+        effect = "allow";
+      }) sharedWorkspaceDirs;
+      antigravity = llm-agents.packages.${system}.antigravity-cli;
+      antigravityCli = pkgs.writeShellScriptBin "agy" ''
+        dirs=()
+        for dir in ${lib.escapeShellArgs sharedWorkspaceDirs}; do
+          if [ -d "$HOME/$dir" ]; then
+            dirs+=(--add-dir "$HOME/$dir")
+          fi
+        done
+        if [ "''${1-}" = acp ]; then
+          shift
+          exec ${lib.getExe antigravity} acp "''${dirs[@]}" "$@"
+        fi
+        exec ${lib.getExe antigravity} "''${dirs[@]}" "$@"
+      '';
+      mcpServers = lib.recursiveUpdate {
+        nixos = {
+          type = "local";
+          command = [ (lib.getExe pkgs.mcp-nixos) ];
+          environment.MCP_NIXOS_TRANSPORT = "stdio";
+          codemode = false;
+        };
+      } (config.opencode.settings.mcp.servers or { });
+      antigravityMcp = pkgs.writeText "antigravity-mcp.json" (
+        builtins.toJSON (
+          lib.mapAttrs (
+            name: server:
+            let
+              headers = server.headers or { };
+              fileHeaders = lib.filterAttrs (_: value: fileRef value != null) headers;
+              fileRef = builtins.match "[{]file:([^}]+)[}]";
+              timeout = server.timeout or { };
+              timeoutMs = timeout.execution or (timeout.startup or (timeout.catalog or null));
+              transport =
+                if server.type == "local" then
+                  {
+                    command = builtins.head server.command;
+                    args = builtins.tail server.command;
+                  }
+                  // lib.optionalAttrs (server ? environment) { env = server.environment; }
+                  // lib.optionalAttrs (server ? cwd) { inherit (server) cwd; }
+                else if fileHeaders != { } then
+                  # Antigravity does not support OpenCode's {file:...} headers.
+                  # Read them only in the proxy process, never into JSON or argv.
+                  let
+                    headerEnv =
+                      header:
+                      "AGY_MCP_HEADER_${
+                        toString (lib.lists.findFirstIndex (h: h == header) null (builtins.attrNames headers))
+                      }";
+                    exports = lib.mapAttrsToList (
+                      header: value:
+                      let
+                        env = headerEnv header;
+                        path = builtins.head (fileRef value);
+                      in
+                      ''
+                        ${env}=$(< ${lib.escapeShellArg path})
+                        export ${env}
+                      ''
+                    ) fileHeaders;
+                    args = lib.concatLists (
+                      lib.mapAttrsToList (header: value: [
+                        "--header"
+                        "${header}:${if fileRef value == null then value else "\${${headerEnv header}}"}"
+                      ]) headers
+                    );
+                  in
+                  {
+                    command = "${pkgs.writeShellScript "agy-mcp-${name}" ''
+                      set -eu
+                      ${lib.concatStrings exports}
+                      exec ${lib.getExe llm-agents.packages.${system}.mcp-remote} \
+                        ${lib.escapeShellArgs (
+                          [
+                            server.url
+                            "--transport"
+                            "http-only"
+                            "--silent"
+                          ]
+                          ++ args
+                        )}
+                    ''}";
+                  }
+                else
+                  { serverUrl = server.url; } // lib.optionalAttrs (headers != { }) { inherit headers; };
+            in
+            transport
+            // lib.optionalAttrs (server ? disabled) { inherit (server) disabled; }
+            // lib.optionalAttrs (timeoutMs != null) { timeoutSeconds = (timeoutMs + 999) / 1000; }
+          ) mcpServers
+        )
+      );
       # OpenCode invokes the configured shell as `shell -c <command>`, which is
       # non-interactive and skips ~/.zshrc. This wrapper loads that startup so
       # `!` and shell-tool commands see the same aliases, functions, PATH, and
@@ -73,12 +174,53 @@
       config = lib.mkMerge [
         {
           home.packages = [
+            antigravityCli
             llm-agents.packages.${system}.claude-code
             llm-agents.packages.${system}.grok
             llm-agents.packages.${system}.herdr
             llm-agents.packages.${system}.opencode2
             pkgs.mcp-nixos
           ];
+
+          # Keep the global MCP file writable and remove only previously managed
+          # servers when they are no longer enabled by this profile.
+          home.activation.configureAntigravityMcp = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+            if [ -n "''${DRY_RUN_CMD:-}" ]; then
+              echo "Would configure Antigravity CLI MCP servers"
+            else
+              (
+                set -eu
+                umask 077
+                dir="$HOME/.gemini/config"
+                mkdir -p "$dir"
+                config="$dir/mcp_config.json"
+                state="$dir/.dotfiles-managed-mcp.json"
+                temp=$(mktemp "$dir/.mcp_config.json.XXXXXX")
+                trap 'rm -f "$temp" "''${next_state:-}"' EXIT
+                next_state=$(mktemp "$dir/.dotfiles-managed-mcp.json.XXXXXX")
+                source=/dev/null
+                previous=/dev/null
+                if [ -e "$config" ]; then
+                  source="$config"
+                fi
+                if [ -e "$state" ]; then
+                  previous="$state"
+                fi
+                jq=${lib.getExe pkgs.jq}
+                "$jq" 'keys' ${antigravityMcp} > "$next_state"
+                "$jq" -s --slurpfile previous "$previous" --slurpfile managed ${antigravityMcp} '
+                  if length > 1 then error("expected one MCP config object") else .[0] // {} end
+                  | .mcpServers = (
+                      (.mcpServers // {})
+                      | delpaths(($previous[0] // []) | map([.]))
+                      | . + $managed[0]
+                    )
+                ' "$source" > "$temp"
+                mv "$temp" "$config"
+                mv "$next_state" "$state"
+              )
+            fi
+          '';
 
           home.file.".claude/CLAUDE.md".text =
             lib.mkBefore "@${config.home.homeDirectory}/.config/opencode/AGENTS.md\n";
@@ -252,16 +394,9 @@
                   resource = "*";
                   effect = "ask";
                 }
-                {
-                  action = "external_directory";
-                  resource = "~/git-repos/orgfiles/*";
-                  effect = "allow";
-                }
-                {
-                  action = "external_directory";
-                  resource = "~/git-repos/dotfiles-nix/*";
-                  effect = "allow";
-                }
+              ]
+              ++ externalDirectoryRules
+              ++ [
                 {
                   action = "subagent";
                   resource = "*";
@@ -422,28 +557,12 @@
                     resource = "git push *";
                     effect = "ask";
                   }
-                  {
-                    action = "external_directory";
-                    resource = "~/git-repos/orgfiles/*";
-                    effect = "allow";
-                  }
-                  {
-                    action = "external_directory";
-                    resource = "~/git-repos/dotfiles-nix/*";
-                    effect = "allow";
-                  }
-                ];
+                ]
+                ++ externalDirectoryRules;
                 timeout = {
                   catalog = 30000;
                 };
-                mcp.servers = {
-                  nixos = {
-                    type = "local";
-                    command = [ (lib.getExe pkgs.mcp-nixos) ];
-                    environment.MCP_NIXOS_TRANSPORT = "stdio";
-                    codemode = false;
-                  };
-                };
+                mcp.servers = mcpServers;
               } config.opencode.settings
             );
         }

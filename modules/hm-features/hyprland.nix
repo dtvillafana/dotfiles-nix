@@ -193,6 +193,12 @@
         self.homeModules.hokum
       ];
 
+      options.hyprland.vmWorkspaceName = lib.mkOption {
+        type = lib.types.str;
+        default = "VMs";
+        description = "Name of the workspace for virtual machines and Steam.";
+      };
+
       options.wayvnc.port = lib.mkOption {
         type = lib.types.port;
         default = 5903;

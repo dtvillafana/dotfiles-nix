@@ -60,6 +60,7 @@
 
           home.packages = with pkgs; [
             age
+            inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.antigravity-cli
             audacity
             bc
             blueman
@@ -67,7 +68,6 @@
             btop
             fd
             fzf
-            gemini-cli
             git
             gopass
             jq

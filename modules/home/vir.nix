@@ -122,6 +122,7 @@
 
           home.packages = with pkgs; [
             age
+            inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.antigravity-cli
             ast-grep
             audacity
             ayugram-desktop
@@ -132,7 +133,6 @@
             bun
             fd
             fzf
-            gemini-cli
             git
             gopass
             pass

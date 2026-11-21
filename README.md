@@ -58,6 +58,23 @@ This setup targets stock Blender; only one Blender instance should listen on por
 9876 at a time. Enable optional asset integrations and their credentials in Blender
 only when needed.
 
+## Proton Mail MCP (vir)
+
+The `protonMail` Home Manager feature installs `protonmail-bridge-mcp` and registers
+`protonmail_bridge` plus the Proton Mail skill globally in OpenCode. It uses the
+vendored server from NDRL-notes; that checkout is not needed at runtime.
+
+After switching, sign in with `protonmail-bridge --cli` if needed, then run
+`protonmail-bridge-mcp --configure` with the Bridge-generated IMAP password.
+Existing credentials in `$XDG_CONFIG_HOME/ndrl-board/bridge.env` (normally
+`~/.config/ndrl-board/bridge.env`) are reused, never copied into the Nix store.
+The server starts Bridge when its local IMAP port is unavailable.
+
+Use `/mcps` to verify the connection. Attachments are confined to the active
+project, or `NDRL_BOARD_ROOT` when explicitly set. Sending still requires approval
+of the exact recipients, subject, and body. A project-local server with the same
+name overrides the global entry; remove that entry to use the packaged version.
+
 ## Headscale
 
 Normal NixOS hosts connect to `https://ts.dvilla.me` automatically (the connection is

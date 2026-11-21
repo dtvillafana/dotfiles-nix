@@ -104,6 +104,7 @@
             self.homeModules.launcher
             self.homeModules.git
             self.homeModules.ai
+            self.homeModules.protonMail
             self.homeModules.hex
             self.homeModules.agent-deck
             self.homeModules.tmux

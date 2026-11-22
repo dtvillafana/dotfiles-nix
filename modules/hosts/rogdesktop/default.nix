@@ -7,6 +7,7 @@ let
         inputs.determinate.nixosModules.default
         inputs.home-manager.nixosModules.home-manager
         self.nixosModules.hermesRogdesktop
+        self.nixosModules.buddyWatcher
         inputs.sops-nix.nixosModules.sops
         self.nixosModules.baseSystem
         self.nixosModules.nixPolicy

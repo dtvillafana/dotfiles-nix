@@ -75,6 +75,37 @@ project, or `NDRL_BOARD_ROOT` when explicitly set. Sending still requires approv
 of the exact recipients, subject, and body. A project-local server with the same
 name overrides the global entry; remove that entry to use the packaged version.
 
+## Buddy GitHub watcher
+
+`rogdesktop` runs the Buddy watcher for `vir` via Home Manager. The feature
+registers or updates the loopback watcher, merges its GitHub sender routes,
+and starts a headless Agent Deck engine and a Cloudflare Quick Tunnel.
+SOPS installs the webhook signing secret and repo-scoped worker PAT at
+runtime; neither plaintext value is part of a Nix build.
+
+The machine still needs the `master` conductor configured and running,
+`opencode2` authenticated, a checkout at `~/git-repos/i-got-a-buddy-web`, and
+`gh` authenticated as a repo administrator to update and inspect deliveries
+for existing hook `715126227`. Those logins, the hook itself, and the GitHub
+label are not created by activation. Agent Deck's database, worktrees and
+per-issue dispatch claims are writable state; back them up if migrating.
+The tunnel is temporary and updates only that hook's URL and signing
+configuration when it reconnects. Headscale is unchanged.
+
+On the first switch from the manual setup, run
+`systemctl --user disable --now github-watcher-tunnel agent-deck-watcher-engine`
+as `vir` just before rebuilding. Home Manager backs up the two unmanaged
+unit files, the dispatcher and the conductor policy to `.hm-bak` files;
+check for existing backups with those names before switching. After the
+switch, check both units and run
+`~/.local/libexec/agent-deck/buddy-issues.py --dry-run`.
+Nix's Git flake only sees tracked files: add the new module, helpers and
+encrypted secrets to Git before rebuilding, or explicitly use `path:.#rogdesktop`.
+
+If GitHub invalidates the worker token or you rotate the webhook secret,
+update `secrets/buddy-watcher.json` through SOPS and rebuild. Restart
+`agent-deck-watcher-engine` and then `github-watcher-tunnel` if needed.
+
 ## Headscale
 
 Normal NixOS hosts connect to `https://ts.dvilla.me` automatically (the connection is

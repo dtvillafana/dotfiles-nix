@@ -3,11 +3,11 @@
     "agent-deck-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1795260044,
-        "narHash": "sha256-0lMcEhfR2PJJSntghqOETYfOj6neXk0Ny6GdJueFZwI=",
+        "lastModified": 1795450518,
+        "narHash": "sha256-v4EY18C3TyeUIsENjnwuddgvMdTk5C8f/eMz8g099Zk=",
         "owner": "dtvillafana",
         "repo": "agent-deck",
-        "rev": "b7260b6094bdabb0d41760827afe63404b103783",
+        "rev": "f1b76331ba737e5bf5ee91b9053ad274addec433",
         "type": "github"
       },
       "original": {
@@ -484,6 +484,19 @@
       "original": {
         "type": "file",
         "url": "https://huggingface.co/Avicennasis/K2-Horizon-7B-heretic/resolve/b364bdb85dca419c662cfa82bcdca75b592036b6/chat_template.jinja"
+      }
+    },
+    "llama-cpp-inkling-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1795439161,
+        "narHash": "sha256-xwJ6HicNHeJbgQX65rA7+UVtMl4dj40KgJBCfE+WnqM=",
+        "type": "tarball",
+        "url": "https://github.com/unslothai/llama.cpp/releases/download/b12649-mix-c7059d6/llama.cpp-source-commit-189f431bf58f433d376d718c7788b1bf4467fa72.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://github.com/unslothai/llama.cpp/releases/download/b12649-mix-c7059d6/llama.cpp-source-commit-189f431bf58f433d376d718c7788b1bf4467fa72.tar.gz"
       }
     },
     "llama-cpp-k2-parser-fix": {
@@ -1092,6 +1105,7 @@
         "hyprwhichkey-src": "hyprwhichkey-src",
         "import-tree": "import-tree",
         "k2-horizon-7b-chat-template": "k2-horizon-7b-chat-template",
+        "llama-cpp-inkling-src": "llama-cpp-inkling-src",
         "llama-cpp-k2-parser-fix": "llama-cpp-k2-parser-fix",
         "llama-cpp-k2-src": "llama-cpp-k2-src",
         "llm-agents": "llm-agents",

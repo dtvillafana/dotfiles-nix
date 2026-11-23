@@ -78,7 +78,7 @@
         (llm-agents.packages.${system}.agent-deck.overrideAttrs (old: rec {
           version = "${old.version}-fork";
           src = inputs.agent-deck-src;
-          vendorHash = "sha256-cuiMn9Pd4VQD4KpodLe+Sw+6P+Vou7aCm4NlAmR9Jfc=";
+          vendorHash = "sha256-0bftNm4C61irFt1mt9jPlu3xRXZb7WkW2qoFBOy8JDs=";
           doCheck = false;
           ldflags = map (builtins.replaceStrings [ old.version ] [ version ]) old.ldflags;
         }))

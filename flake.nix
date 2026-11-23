@@ -41,6 +41,12 @@
       url = "https://github.com/ggml-org/llama.cpp/commit/406bd24fe19818796bbf4ceed4828ad2482f934a.patch";
       flake = false;
     };
+    llama-cpp-inkling-src = {
+      # The merged release tree, NOT the tag's unmerged upstream source.
+      # b12649-mix-c7059d6: looped Inkling + expert scales/cache fixes.
+      url = "https://github.com/unslothai/llama.cpp/releases/download/b12649-mix-c7059d6/llama.cpp-source-commit-189f431bf58f433d376d718c7788b1bf4467fa72.tar.gz";
+      flake = false;
+    };
     k2-horizon-7b-chat-template = {
       # The GGUF's minimal replacement template drops tool definitions.
       type = "file";

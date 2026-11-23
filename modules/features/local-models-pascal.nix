@@ -9,7 +9,51 @@
       };
     in
     {
-      imports = [ self.nixosModules.localModels ];
+      imports = [
+        self.nixosModules.localModels
+        self.nixosModules.localModelsInkling
+      ];
+
+      services.local-inkling = {
+        package = pkgs.callPackage ../../packages/llama-cpp-inkling.nix {
+          inherit (inputs) llama-cpp-inkling-src;
+          cuda_nvml_dev = llmPkgs.cudaPackages_12.cuda_nvml_dev;
+          llama-cpp = llmPkgs.llama-cpp.override {
+            cudaSupport = true;
+            cudaPackages = llmPkgs.cudaPackages_12;
+          };
+        };
+        quant = "UD-Q3_K_XL";
+        modelHash = "ccfe25a649b22e2450d4d5ca2e2ad9c4779b286345f6bf1f7cc4e9e12fe15360";
+        # Start conservatively: GPU attention, CPU experts, no swap/oversubscription.
+        cpuExpertLayers = [
+          0
+          1
+          2
+          3
+          4
+          5
+          6
+          7
+          8
+          9
+          10
+          11
+          12
+          13
+          14
+          15
+          16
+          17
+          18
+          19
+          20
+          21
+          22
+          23
+        ];
+        contextSize = 16384;
+      };
 
       services.local-models = {
         package = pkgs.callPackage ../../packages/llama-cpp-k2.nix {

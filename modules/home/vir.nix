@@ -62,6 +62,7 @@
           git
           neovim
           curl
+          sqlitebrowser
           legcord
         ];
         shell = pkgs.zsh;

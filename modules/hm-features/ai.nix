@@ -253,6 +253,7 @@
                 "agent.cycle.reverse" = "shift+tab";
               };
               prompt.paste = "full";
+              session.verbosity = "high";
               theme = {
                 name = "catppuccin-macchiato";
               };

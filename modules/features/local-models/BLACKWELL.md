@@ -46,6 +46,39 @@ runtime dependencies. Artifacts have pinned revisions and SHA-256 hashes;
 Ollama downloads are not reused or deleted. No flake input update is needed.
 CUDA 12 and all placement defaults remain unchanged for rogdesktop.
 
+## Inkling 2 Mini Abliterated (2026-11-23)
+
+OpenCode model: `local-inkling/inkling-2-mini-abliterated`. The text-only
+Balanced UD-Q4_K_XL GGUF adds a 16.42 GiB download and uses a separate pinned
+CUDA 13 worker. Its loopback socket is `127.0.0.1:18084`. Starting Inkling can
+stop the Qwen router, so finish other local inference requests before switching.
+The OpenCode default and Hermes provider are unchanged.
+
+The Blackwell profile keeps expert blocks 0 and 6–17 on GPU, including the
+three-pass loop core, and the other 11 expert blocks on CPU. At 16K, this
+split decoded a 2,093-token prompt at 29.5–30.7 tok/s, versus 15.2–16.1 with
+all experts on CPU. A single structured API tool-call smoke test passed.
+
+| Context | Fresh input | Prefill | Decode | Minimum free VRAM |
+| ---: | ---: | ---: | ---: | ---: |
+| 16,384 | 8,192 | 91–93 s | 28.7–28.9 tok/s | 4,997 MiB |
+| 32,768 | 24,576 | 272–274 s | 27.1–27.5 tok/s | 4,347 MiB |
+| 65,536 | 57,344 | 647–657 s | 23.5–24.0 tok/s | 3,381 MiB |
+| 110,592 | 102,400 | 1,137–1,149 s | 20.2–20.5 tok/s | 1,893 MiB |
+| **114,688** | **106,496** | **1,184–1,194 s** | **20.3–20.4 tok/s** | **1,759 MiB** |
+
+The 114,688-token setting is the largest validated at this split and desktop
+load. OpenCode and llama.cpp use the same context, including an 8,192-token
+output budget. Two uncached requests generated 384 tokens at each reported
+point. The initial 112K trial hit a 20-minute request deadline after prefill;
+both repeats passed with a 25-minute deadline. The next 4K step was not
+tested: the estimated extra KV allocation would leave only about 95 MiB above
+the 1,536 MiB reserve. This is a measured operating point, not a VRAM guarantee,
+a maximum over other splits or cache types, or a test of long-context recall.
+Prefer a smaller context if desktop load routinely grows during inference.
+
+Raw split and context measurements are in `~/.cache/inkling-split-20261123-*/`.
+
 ## Evaluate and activate
 
 Please evaluate both affected configurations before activating. The `path:`

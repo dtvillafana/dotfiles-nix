@@ -38,7 +38,7 @@
           description = "SHA-256 of the pinned GGUF.";
         };
         contextSize = lib.mkOption {
-          type = lib.types.ints.between 8193 65536;
+          type = lib.types.ints.between 8193 114688;
           default = 16384;
           description = "Worker and client context; includes the output budget.";
         };

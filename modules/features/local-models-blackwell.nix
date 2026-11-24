@@ -9,7 +9,38 @@
       };
     in
     {
-      imports = [ self.nixosModules.localModels ];
+      imports = [
+        self.nixosModules.localModels
+        self.nixosModules.localModelsInkling
+      ];
+
+      services.local-inkling = {
+        package = pkgs.callPackage ../../packages/llama-cpp-inkling.nix {
+          inherit (inputs) llama-cpp-inkling-src;
+          cuda_nvml_dev = llmPkgs.cudaPackages_13.cuda_nvml_dev;
+          llama-cpp = llmPkgs.llama-cpp.override {
+            cudaSupport = true;
+            cudaPackages = llmPkgs.cudaPackages_13;
+          };
+        };
+        quant = "UD-Q4_K_XL";
+        modelHash = "7b59eb8c11fbeaca0dde93208aaa1c949aa66afae14bbe314ea6f04565fd5cf0";
+        contextSize = 114688;
+        # Keep block 0 and the three-pass loop core (6–17) on the GPU.
+        cpuExpertLayers = [
+          1
+          2
+          3
+          4
+          5
+          18
+          19
+          20
+          21
+          22
+          23
+        ];
+      };
 
       services.local-models = {
         # Hermes and OpenCode are clients of this router, not competing backends.

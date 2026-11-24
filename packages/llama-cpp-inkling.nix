@@ -15,6 +15,11 @@ llama-cpp.overrideAttrs (old: {
   ) old.nativeBuildInputs;
   npmDeps = null;
   preConfigure = "";
+  # The Inkling release archive does not ship the full tokenizer fixture set.
+  ctestFlags = (old.ctestFlags or [ ]) ++ [
+    "--exclude-regex"
+    "^test-tokenizer-0-"
+  ];
   cmakeFlags =
     builtins.filter (
       flag: !(lib.hasPrefix "-DLLAMA_BUILD_NUMBER" flag || lib.hasPrefix "-DLLAMA_BUILD_COMMIT" flag)

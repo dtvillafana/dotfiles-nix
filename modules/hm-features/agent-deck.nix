@@ -70,6 +70,7 @@
         };
         recall.enabled = true;
         instances.allow_multiple = true;
+        group_defaults.max_concurrent = 15;
         conductor.heartbeat_interval = 15;
       };
     in

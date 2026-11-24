@@ -16,13 +16,17 @@ browser extensions are unchanged.
 3. Run `browse pair`. In Browse's extension options, choose **Pair with a code**
    (under advanced), enter the printed code, and connect. Pairing is private,
    per-user runtime state, not a Nix-managed secret.
-4. Run `browse doctor` and `browse status` to verify the connection. OpenCode
+4. Run `browse status` to verify the connection. OpenCode
    reloads its configuration automatically; `/mcps` shows the `browse` server.
 
 Do not run `browse install` to rewrite the Nix-managed agent configuration. No
 remote-debugging port, separate automation profile, native-messaging host, or
 always-running system service is needed. Browse starts its local relay on demand.
 Existing automation-profile data is left untouched.
+
+On `rogdesktop`, the `capcu` account uses `127.0.0.1:19990` so it can run
+Browse alongside `vir`. Enter that address explicitly when pairing from
+`capcu`'s browser.
 
 ## Updates
 

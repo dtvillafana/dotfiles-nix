@@ -26,6 +26,8 @@ let
         self.nixosModules.experiment
         self.nixosModules.localModelsPascal
         self.nixosModules.sheepit
+        # vir's Browse relay uses the upstream default port on this host.
+        { home-manager.users.capcu.browse.relayPort = 19990; }
       ];
       specialArgs = {
         inherit secretsEnabled;

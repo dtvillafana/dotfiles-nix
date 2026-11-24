@@ -17,6 +17,12 @@
 
       gitRepos.repositories = [
         {
+          name = "genealogy";
+          url = "https://david:$(cat ${dvillaSecret})@git.dvilla.me/david/genealogy";
+          path = "$HOME/git-repos/genealogy";
+          secret = dvillaSecret;
+        }
+        {
           name = "NDRL-notes";
           url = "https://david:$(cat ${dvillaSecret})@git.dvilla.me/david/NDRL-notes";
           path = "$HOME/git-repos/NDRL-notes";

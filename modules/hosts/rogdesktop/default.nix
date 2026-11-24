@@ -22,6 +22,7 @@ let
         self.nixosModules.virHome
         self.nixosModules.blender
         self.nixosModules.capcuHome
+        self.nixosModules.braveCapcu
         self.nixosModules.guestHome
         self.nixosModules.experiment
         self.nixosModules.localModelsPascal

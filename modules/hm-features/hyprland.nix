@@ -229,6 +229,7 @@
           hyprmonLauncher
           wtype
           wdisplays
+          waypipe
           wayvnc
           (writeShellApplication {
             name = "xdg-open";

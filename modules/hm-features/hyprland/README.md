@@ -213,6 +213,30 @@ collect that generation until the complete reboot/login/logout test passes.
 Unlike the old single X11 server, the Wayland greeter/user handoff disconnects
 the viewer; seamless login/logout continuity is not promised.
 
+## Single window forwarding
+
+Waypipe forwards one Wayland application into the local Hyprland session. It is
+not a cropped VNC view: the remote process connects to waypipe, not to the
+Dell compositor, so the Dell does not need an unlocked local desktop. The
+Hyprland home module installs `waypipe` for capcu, vir, and guest. Rebuild and
+switch both the client and the remote host first. SSH remains the
+authentication and encryption boundary. From a local Wayland session:
+
+```sh
+waypipe ssh capcu@capcuDell firefox
+```
+
+Use `capcu@capcudell.capcu.org` if `capcuDell` does not resolve. Electron and
+Chromium apps need the same Ozone flag as the local session:
+
+```sh
+waypipe ssh capcu@capcuDell env NIXOS_OZONE_WL=1 code
+```
+
+If a window stays black or waypipe fails while opening a GPU buffer, retry with
+`waypipe --no-gpu ssh ...`. The Dell's NVIDIA and DisplayLink outputs do not
+reliably export dmabufs to another machine.
+
 ## Applications and screen sharing
 
 - Browsers and Electron apps receive `NIXOS_OZONE_WL=1` through UWSM. Legacy

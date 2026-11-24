@@ -63,7 +63,7 @@
           neovim
           curl
           sqlitebrowser
-          legcord
+          discord
         ];
         shell = pkgs.zsh;
       };

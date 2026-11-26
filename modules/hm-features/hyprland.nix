@@ -88,6 +88,19 @@
               shift
               exec astal -i hyprwhichkey "$@"
               ;;
+            command-palette)
+              # Read live bindings, including user.lua and Lua-defined submaps.
+              actions="$(hyprctl -j binds | jq -f ${./hyprland/binding-actions.jq})"
+              selection="$(printf '%s' "$actions" | jq -r '.[].label' |
+                fuzzel_menu binding-actions --only-match --prompt 'Desktop action… ')" || exit 0
+              [ -n "$selection" ] || exit 0
+              action="$(printf '%s' "$actions" | jq -c --arg label "$selection" '.[] | select(.label == $label)')"
+              id="$(printf '%s' "$action" | jq -r '.arg')"
+              [[ "$id" =~ ^[0-9]+$ ]] || exit 1
+              description="$(printf '%s' "$action" | jq '.description')"
+              # Dispatch the original callback, not a simulated keypress.
+              exec hyprctl eval "dotfiles_run_binding('$id', $description)"
+              ;;
             run)
               # List executable files from the session PATH, not Bash builtins.
               IFS=: read -r -a path_dirs <<< "$PATH"
@@ -121,13 +134,10 @@
                   ;;
               esac
               ;;
-            touchpad-on|touchpad-off)
-              enabled=false
-              [ "$1" != touchpad-on ] || enabled=true
-              hyprctl -j devices | jq -r '.mice[] | select(.name | test("touchpad"; "i")) | .name | @json' |
-                while IFS= read -r device; do
-                  hyprctl eval "hl.device({ name = $device, enabled = $enabled })"
-                done
+            touchpad-toggle)
+              devices="$(hyprctl -j devices |
+                jq -r '[.mice[] | select(.name | test("touchpad"; "i")) | .name | @json] | join(",")')"
+              exec hyprctl eval "dotfiles_toggle_touchpad($devices)"
               ;;
             password|username|otp)
               # Capture the target before fuzzel takes focus so remote-desktop
@@ -153,6 +163,11 @@
                 screenshot="$(mktemp "/tmp/screenshot-$(date +%Y-%m-%d_%H-%M-%S)-XXXXXX.png")"
                 grim -g "$geometry" "$screenshot"
                 wl-copy --type image/png < "$screenshot"
+                action="$(notify-send --app-name 'Screenshot' --action='copy-path=Copy path' \
+                  'Screenshot saved' "$screenshot")" || exit 0
+                if [ "$action" = copy-path ]; then
+                  printf '%s' "$screenshot" | wl-copy --type text/plain
+                fi
               fi
               ;;
             kill-user|kill-root)
@@ -255,6 +270,9 @@
         ];
 
         xdg.configFile."hypr/user.lua".text = lib.mkDefault "";
+        xdg.configFile."hypr/hyprland.lua".text = lib.mkBefore (
+          builtins.readFile ./hyprland/command-palette.lua
+        );
         home.pointerCursor = {
           package = pkgs.adwaita-icon-theme;
           name = "Adwaita";

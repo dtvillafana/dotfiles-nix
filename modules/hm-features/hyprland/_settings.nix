@@ -314,8 +314,12 @@ in
               }
             ];
           }
-          (exec "SUPER + P" "hypr-desktop-action touchpad-off" { description = "Disable touchpad"; })
-          (exec "SUPER + SHIFT + P" "hypr-desktop-action touchpad-on" { description = "Enable touchpad"; })
+          (exec "SUPER + P" "hypr-desktop-action command-palette" {
+            description = "Open command palette";
+          })
+          (exec "SUPER + SHIFT + P" "hypr-desktop-action touchpad-toggle" {
+            description = "Toggle touchpad";
+          })
           (exec "XF86AudioRaiseVolume" "wpctl set-volume @DEFAULT_AUDIO_SINK@ 10%+" {
             description = "Increase volume";
             locked = true;

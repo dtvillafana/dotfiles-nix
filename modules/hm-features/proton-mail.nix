@@ -8,6 +8,29 @@
       };
     };
 
+  flake.nixosModules.protonMailCap765 =
+    {
+      lib,
+      secretsEnabled ? true,
+      ...
+    }:
+    let
+      sopsFile = self + /secrets/proton-bridge-cap765.json;
+      credentialsPath = "/run/secrets/proton-bridge-cap765";
+    in
+    lib.mkIf secretsEnabled {
+      sops.secrets.proton-bridge-cap765 = lib.mkIf (builtins.pathExists sopsFile) {
+        inherit sopsFile;
+        format = "json";
+        key = "";
+        owner = "vir";
+        mode = "0400";
+        path = credentialsPath;
+      };
+      home-manager.users.vir.opencode.settings.mcp.servers.protonmail_bridge.environment.PROTON_BRIDGE_CREDENTIALS_FILE =
+        credentialsPath;
+    };
+
   flake.homeModules.protonMail =
     { lib, pkgs, ... }:
     let

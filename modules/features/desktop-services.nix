@@ -1,8 +1,10 @@
-{ ... }:
+{ self, ... }:
 {
   flake.nixosModules.desktopServices =
     { pkgs, ... }:
     {
+      imports = [ self.nixosModules.peripheralDefaults ];
+
       fonts.packages = with pkgs.nerd-fonts; [
         jetbrains-mono
         symbols-only

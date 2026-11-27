@@ -17,6 +17,7 @@ let
         self.nixosModules.cap765Hardware
         self.nixosModules.virHome
         self.nixosModules.capcuHome
+        self.nixosModules.protonMailCap765
       ];
       specialArgs = {
         inherit secretsEnabled;

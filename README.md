@@ -64,10 +64,28 @@ The `protonMail` Home Manager feature installs `protonmail-bridge-mcp` and regis
 `protonmail_bridge` plus the Proton Mail skill globally in OpenCode. It uses the
 vendored server from NDRL-notes; that checkout is not needed at runtime.
 
-After switching, sign in with `protonmail-bridge --cli` if needed, then run
-`protonmail-bridge-mcp --configure` with the Bridge-generated IMAP password.
-Existing credentials in `$XDG_CONFIG_HOME/ndrl-board/bridge.env` (normally
-`~/.config/ndrl-board/bridge.env`) are reused, never copied into the Nix store.
+On `cap765`, sign in to the local Bridge and run `info` at its CLI prompt.
+Create or edit the encrypted secret from the repo root:
+
+```sh
+sops edit secrets/proton-bridge-cap765.json
+```
+
+Use the values from `info` on `cap765` in this JSON object:
+
+```json
+{
+  "bridge_username": "<IMAP username>",
+  "bridge_password": "<Bridge-generated IMAP password>"
+}
+```
+
+Add only the encrypted JSON file to Git and switch to the
+`cap765` configuration. Sops-nix installs the credential as a `0400` file owned
+by `vir`, and OpenCode passes only its path to the MCP.
+
+Other hosts can run `protonmail-bridge-mcp --configure` to save their credentials
+in `$XDG_CONFIG_HOME/ndrl-board/bridge.env` (normally `~/.config/ndrl-board/bridge.env`).
 The server starts Bridge when its local IMAP port is unavailable.
 
 Use `/mcps` to verify the connection. Attachments are confined to the active
@@ -149,11 +167,9 @@ The `default` output is under `nixOnDroidConfigurations`; use
 `path:/path/to/dotfiles-nix#default` for a local checkout. It includes the shared Git and tmux Home
 Manager modules.
 
-## Secrets
+## SSH access between NixOS hosts
 
-### SSH access between NixOS hosts
-
-`secrets/ssh-public-keys.nix` lists the users' generated SSH public keys by host and
+`modules/home/ssh.nix` lists the users' generated SSH public keys by host and
 username. Every NixOS host (including bootstrap configurations) authorizes all listed
 keys for its existing `vir` and `capcu` accounts; root and guest are unchanged.
 SSH clients offer `~/.ssh/id_ed25519` as well as the existing SOPS-managed key.
@@ -165,6 +181,8 @@ on `rogdesktop`, `capcu` on `capcuDell`, and `vir` on `hp-xeon` and `thinkpad`.
 The keys for `capcu` on `thinkpad`, `vir` and `capcu` on `hpenvynix`, and `capcu`
 on `cap765` still need to be added.
 Do not overwrite existing private keys: they may also be needed to decrypt SOPS secrets.
+
+## Secrets
 
 `~/.config/sops/age/keys.txt` may be populated from gopass for interactive SOPS use. NixOS secret
 activation uses `/home/USERNAME/.ssh/id_ed25519`.

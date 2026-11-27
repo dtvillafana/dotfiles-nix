@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import getpass
 import imaplib
+import json
 import os
 import re
 import smtplib
@@ -175,8 +176,6 @@ def credential_file_paths() -> list[Path]:
 
 
 def parse_env_file(path: Path) -> dict[str, str]:
-    if not path.is_file():
-        return {}
     values: dict[str, str] = {}
     for raw in path.read_text(encoding="utf-8").splitlines():
         line = raw.strip()
@@ -192,17 +191,6 @@ def parse_env_file(path: Path) -> dict[str, str]:
     return values
 
 
-def apply_saved_credentials() -> None:
-    for key in CREDENTIAL_KEYS:
-        if os.environ.get(key, "").strip():
-            continue
-        for path in credential_file_paths():
-            saved = parse_env_file(path).get(key, "").strip()
-            if saved:
-                os.environ[key] = saved
-                break
-
-
 def write_credentials(username: str, password: str) -> Path:
     dest = credential_file_paths()[-1]
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -215,9 +203,43 @@ def write_credentials(username: str, password: str) -> Path:
 
 
 def require_config() -> ImapConfig:
-    apply_saved_credentials()
-    username = os.environ.get("bridge_username", "").strip()
-    password = os.environ.get("bridge_password", "").strip()
+    credentials_file = os.environ.get("PROTON_BRIDGE_CREDENTIALS_FILE")
+    if credentials_file:
+        try:
+            saved = json.loads(Path(credentials_file).read_text(encoding="utf-8"))
+        except (OSError, UnicodeError):
+            raise ToolError(
+                f"Cannot read Bridge credentials at {credentials_file}. "
+                "Provision the Proton Bridge secret with sops-nix."
+            ) from None
+        except json.JSONDecodeError:
+            raise ToolError(
+                f"Bridge credentials at {credentials_file} must be valid JSON."
+            ) from None
+        if not isinstance(saved, dict) or not all(
+            isinstance(value := saved.get(key), str) and value.strip()
+            for key in CREDENTIAL_KEYS
+        ):
+            raise ToolError(
+                f"Bridge credentials at {credentials_file} must be a JSON object "
+                "with non-empty `bridge_username` and `bridge_password` strings."
+            )
+        return ImapConfig(
+            username=saved["bridge_username"].strip(),
+            password=saved["bridge_password"].strip(),
+        )
+
+    credentials = {key: os.environ.get(key, "").strip() for key in CREDENTIAL_KEYS}
+    for path in credential_file_paths():
+        if all(credentials.values()):
+            break
+        try:
+            saved = parse_env_file(path)
+        except FileNotFoundError:
+            continue
+        for key in CREDENTIAL_KEYS:
+            credentials[key] = credentials[key] or saved.get(key, "").strip()
+    username, password = (credentials[key] for key in CREDENTIAL_KEYS)
     if not username or not password:
         raise ToolError(
             "Missing Bridge IMAP login. Run "
@@ -228,7 +250,6 @@ def require_config() -> ImapConfig:
 
 
 def configure_main() -> None:
-    apply_saved_credentials()
     username = os.environ.get("bridge_username", "").strip()
     password = os.environ.get("bridge_password", "").strip()
     if not username:
@@ -239,14 +260,12 @@ def configure_main() -> None:
         ).strip()
     if not username or not password:
         raise SystemExit("bridge_username and bridge_password are required.")
-    dest = write_credentials(username, password)
-    os.environ["bridge_username"] = username
-    os.environ["bridge_password"] = password
     try:
-        mail = connect(require_config())
+        mail = connect(ImapConfig(username=username, password=password))
         mail.logout()
     except ToolError as exc:
         raise SystemExit(str(exc)) from exc
+    dest = write_credentials(username, password)
     print(f"Wrote {dest} (mode 600)")
     print("IMAP login ok. OpenCode MCP command is protonmail-bridge-mcp.")
 
@@ -285,11 +304,14 @@ def connect(config: ImapConfig) -> imaplib.IMAP4:
         raise ToolError(
             "STARTTLS failed. Official Proton Mail Bridge requires STARTTLS on 1143."
         ) from exc
-    status, _ = mail.login(config.username, config.password)
-    if status != "OK":
+    try:
+        mail.login(config.username, config.password)
+    except imaplib.IMAP4.error:
+        mail.shutdown()
         raise ToolError(
-            "IMAP login failed. Use your Proton address and the Bridge password from `info`."
-        )
+            "Bridge rejected the IMAP login. Confirm the account is signed in to this "
+            "Bridge and the IMAP username and password match its `info` output."
+        ) from None
     return mail
 
 

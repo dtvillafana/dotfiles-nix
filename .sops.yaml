@@ -42,6 +42,7 @@ creation_rules:
         - *primary
         - *vir-rog
         - *vir-thinkpad
+        - *cap765
   - path_regex: secrets/hermes-dell.(yaml|json)$
     key_groups:
       - age:
@@ -53,3 +54,4 @@ creation_rules:
         - *vir-rog
         - *vir-thinkpad
         - *hp-xeon
+        - *cap765

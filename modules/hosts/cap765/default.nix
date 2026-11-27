@@ -15,6 +15,7 @@ let
         self.nixosModules.office
         self.nixosModules.lowBatteryDim
         self.nixosModules.cap765Hardware
+        self.nixosModules.virHome
         self.nixosModules.capcuHome
       ];
       specialArgs = {

@@ -77,8 +77,6 @@
           opencode.settings.mcp.servers.metabase = {
             type = "remote";
             url = "https://metabase.capcu.org/api/metabase-mcp";
-            oauth = false;
-            headers."X-API-Key" = "{file:${osConfig.sops.secrets.metabase_api_key.path}}";
           };
           opencode.settings.mcp.servers.servicedesk = {
             type = "local";

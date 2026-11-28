@@ -98,6 +98,7 @@
             inputs.nix-index-database.homeModules.nix-index
             self.homeModules.hyprland
             self.homeModules.browsers
+            self.homeModules.braveVir
             self.homeModules.zathura
             self.homeModules.remmina
             self.homeModules.terminal

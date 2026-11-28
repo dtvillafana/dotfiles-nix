@@ -54,7 +54,10 @@
         gemini.yolo_mode = true;
         security.auto_trust_folders = true;
         worktree.auto_cleanup = false;
-        notifications.enabled = true;
+        notifications = {
+          enabled = true;
+          desktop = config.systemd.user.services ? hokum;
+        };
         system_stats = {
           enabled = true;
           format = "compact";
@@ -73,17 +76,38 @@
         group_defaults.max_concurrent = 15;
         conductor.heartbeat_interval = 15;
       };
+      agentDeck = llm-agents.packages.${system}.agent-deck.overrideAttrs (old: rec {
+        version = "${old.version}-fork";
+        src = inputs.agent-deck-src;
+        vendorHash = "sha256-0bftNm4C61irFt1mt9jPlu3xRXZb7WkW2qoFBOy8JDs=";
+        doCheck = false;
+        ldflags = map (builtins.replaceStrings [ old.version ] [ version ]) old.ldflags;
+        nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.makeWrapper ];
+        postFixup = (old.postFixup or "") + ''
+          wrapProgram "$out/bin/agent-deck" \
+            --prefix PATH : ${lib.makeBinPath [ pkgs.libnotify ]}
+        '';
+      });
     in
     {
-      home.packages = [
-        (llm-agents.packages.${system}.agent-deck.overrideAttrs (old: rec {
-          version = "${old.version}-fork";
-          src = inputs.agent-deck-src;
-          vendorHash = "sha256-0bftNm4C61irFt1mt9jPlu3xRXZb7WkW2qoFBOy8JDs=";
-          doCheck = false;
-          ldflags = map (builtins.replaceStrings [ old.version ] [ version ]) old.ldflags;
-        }))
-      ];
+      home.packages = [ agentDeck ];
+
+      systemd.user.services.agent-deck-notify = {
+        Unit = {
+          Description = "Agent Deck desktop notifications";
+          After = [ "hokum.service" ];
+          PartOf = [ "graphical-session.target" ];
+        };
+        Service = {
+          ExecStart = "${agentDeck}/bin/agent-deck notify-daemon";
+          Environment = "PATH=${lib.makeBinPath [ pkgs.tmux ]}:${config.home.profileDirectory}/bin:/run/current-system/sw/bin";
+          Restart = "on-failure";
+          RestartSec = 2;
+        };
+        Install.WantedBy = lib.optionals (config.systemd.user.services ? hokum) [
+          "graphical-session.target"
+        ];
+      };
 
       xdg.dataFile."agent-deck/conductor/venv" = {
         source = bridgePython;

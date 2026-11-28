@@ -65,6 +65,12 @@ The old i3, startx, autorandr, and Plasma session definitions are removed.
   Home Manager seeds a writable `~/.config/hokum/config.kdl` once (with update
   checks disabled). Hokum owns subsequent settings and DND changes; rebuilds
   preserve them and migrate any previous Nix-store symlink to a writable copy.
+  An Agent Deck app rule is seeded if absent, enabling its notification sound
+  without enabling sounds for other apps. Agent Deck's desktop alerts are enabled
+  on Hokum desktops; the pinned Agent Deck fork includes idle/completed turns alongside
+  input/permission prompts and errors. Repeated polls of the same state are silent.
+  The `agent-deck-notify` user service monitors transitions during the desktop session.
+  Hokum's DND and per-app settings still apply.
 - `programs.waybar`, `services.hypridle`, `programs.hyprlock`, and
   `services.hyprpolkitagent` own their settings and services. UWSM owns
   `graphical-session.target`; Home Manager's separate Hyprland session target

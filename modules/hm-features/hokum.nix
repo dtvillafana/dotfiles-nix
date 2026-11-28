@@ -13,6 +13,7 @@
       upstreamRuneRev =
         (builtins.fromTOML (builtins.readFile "${inputs.hokum}/Cargo.toml")).dependencies.rune.rev;
       cargoLockFile = ./_hokum/Cargo.lock;
+      agentDeckSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/message-new-instant.oga";
       lockedRune =
         lib.findFirst (package: package.name == "rune") null
           (builtins.fromTOML (builtins.readFile cargoLockFile)).package;
@@ -28,6 +29,10 @@
             substituteInPlace Cargo.toml \
               --replace-fail ${lib.escapeShellArg upstreamRuneRev} ${lib.escapeShellArg runeRev}
             cp ${cargoLockFile} Cargo.lock
+          '';
+          postFixup = (old.postFixup or "") + ''
+            wrapProgram "$out/bin/hokum" \
+              --prefix PATH : ${lib.makeBinPath [ pkgs.pipewire ]}
           '';
         });
     in
@@ -62,6 +67,15 @@
                 esac
               elif [ ! -e "$settings" ]; then
                 install -m 0600 ${config.xdg.configFile."hokum/config.kdl".source} "$settings"
+              fi
+              # Seed only this app's sound rule; preserve UI settings and DND.
+              if ! grep -Eq 'rule[[:space:]]+app="agent-deck"' "$settings"; then
+                cat >> "$settings" <<'EOF'
+
+              rule app="agent-deck" {
+                  sound "${agentDeckSound}"
+              }
+              EOF
               fi
             ''}
           '';

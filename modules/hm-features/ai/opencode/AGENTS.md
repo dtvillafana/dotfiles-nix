@@ -8,7 +8,8 @@
 ## OpenAI agent routing
 
 - Keep implementation and architectural planning in primary Sol high (`openai-build` or `openai-plan`); don't switch session models for small tasks. Honor explicit user model choices.
-- Delegate only when the user or applicable instructions explicitly request it; routing rules aren't authorization. In plan mode, delegate only read-only discovery to `openai-explore`; don't use implementation subagents or leave plan mode to finish.
+- `openai-use` (Terra 6.1 medium) is the primary agent for opencomputeruse, local Browse workflows, and MCP orchestration. It may delegate quick, easy, read-only exploration to `openai-explore` (Luna); keep UI control and MCP mutations in the primary session.
+- Otherwise, delegate only when the user or applicable instructions explicitly request it; routing rules aren't authorization. In plan mode, delegate only read-only discovery to `openai-explore`; don't use implementation subagents or leave plan mode to finish.
 - `openai-explore` (Luna medium): read-only file discovery, symbol searches, and targeted codebase questions. Specify a concrete question and thoroughness level; no design or complex diagnosis.
 - `openai-general` (Terra medium): bounded research, source-backed synthesis, browser workflows, writing, and straightforward implementation with clear acceptance criteria and limited dependencies.
 - `openai-complex` (Sol medium): ambiguous requirements, architectural tradeoffs, difficult debugging, security-sensitive code, and tightly coupled cross-file changes. Don't route complex coding to Terra just to save tokens.

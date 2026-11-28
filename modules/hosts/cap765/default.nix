@@ -18,6 +18,7 @@ let
         self.nixosModules.virHome
         self.nixosModules.capcuHome
         self.nixosModules.protonMailCap765
+        { home-manager.users.capcu.imports = [ self.homeModules.opencomputeruse-remmina ]; }
       ];
       specialArgs = {
         inherit secretsEnabled;

@@ -1,0 +1,111 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Remmina agent view</title>
+<style>
+body { background: #202124; color: white; font: 16px sans-serif; margin: 16px }
+canvas { display: block; max-width: 100%; outline: none; margin-top: 12px }
+button, select { font: inherit; margin-right: 12px }
+</style>
+<h1>Remmina agent view</h1>
+<p>Choose the session, then click the picture to type. Ask the agent to pause while you sign in.</p>
+<button id="refresh">Refresh sessions</button><select id="sessions"></select>
+<span id="status"></span>
+<canvas id="screen" tabindex="0"></canvas>
+<script>
+"use strict";
+const token = location.hash.slice(1);
+history.replaceState(null, "", "/");
+const canvas = document.querySelector("#screen");
+const sessions = document.querySelector("#sessions");
+const status = document.querySelector("#status");
+let pending = Promise.resolve();
+async function call(name, args = {}) {
+  const response = await fetch("/call", {
+    method: "POST",
+    headers: {"Authorization": `Bearer ${token}`, "Content-Type": "application/json"},
+    body: JSON.stringify({name, arguments: args}),
+  });
+  if (!response.ok) throw Error(`View request failed (${response.status})`);
+  const reply = await response.json();
+  if (reply.error) throw Error(reply.error.message);
+  if (reply.result.isError) throw Error(reply.result.content[0].text);
+  return reply.result;
+}
+function run(action) {
+  pending = pending.then(action).catch(error => { status.textContent = error.message; });
+  return pending;
+}
+async function refresh() {
+  const result = await call("list_sessions");
+  const data = JSON.parse(result.content[0].text);
+  const list = Array.isArray(data) ? data : data.sessions;
+  const previous = sessions.value;
+  sessions.replaceChildren();
+  for (const item of list) {
+    const id = item.session_id || item.id || item.session?.id;
+    sessions.add(new Option(id, id));
+  }
+  if ([...sessions.options].some(option => option.value === previous)) sessions.value = previous;
+  status.textContent = list.length ? "Click the picture to control Remmina." : "Ask the agent to start a Remmina session.";
+}
+async function picture() {
+  if (!sessions.value) return;
+  const result = await call("screenshot", {session_id: sessions.value});
+  const image = result.content.find(item => item.type === "image");
+  if (!image) return;
+  const bytes = Uint8Array.from(atob(image.data), char => char.charCodeAt(0));
+  const bitmap = await createImageBitmap(new Blob([bytes], {type: image.mimeType}));
+  canvas.width = bitmap.width; canvas.height = bitmap.height;
+  canvas.getContext("2d").drawImage(bitmap, 0, 0);
+  bitmap.close();
+}
+function input(name, args) {
+  if (!sessions.value) return;
+  run(async () => {
+    await call(name, {session_id: sessions.value, screenshot: false, ...args});
+    await picture();
+  });
+}
+function point(event) {
+  const rect = canvas.getBoundingClientRect();
+  return {x: (event.clientX - rect.left) * canvas.width / rect.width,
+          y: (event.clientY - rect.top) * canvas.height / rect.height};
+}
+canvas.addEventListener("contextmenu", event => event.preventDefault());
+canvas.addEventListener("click", event => {
+  canvas.focus();
+  input("click", {...point(event), count: event.detail > 1 ? 2 : 1});
+});
+canvas.addEventListener("contextmenu", event => input("click", {...point(event), button: "right"}));
+canvas.addEventListener("wheel", event => {
+  event.preventDefault();
+  input("scroll", {...point(event), dx: event.deltaX, dy: event.deltaY});
+}, {passive: false});
+const names = {Enter:"enter", Tab:"tab", Escape:"escape", Backspace:"backspace",
+  Delete:"delete", ArrowUp:"up", ArrowDown:"down", ArrowLeft:"left", ArrowRight:"right",
+  Home:"home", End:"end", PageUp:"pageup", PageDown:"pagedown", " ":"space"};
+canvas.addEventListener("keydown", event => {
+  if (["Control", "Shift", "Alt", "Meta"].includes(event.key)) return;
+  event.preventDefault();
+  if (event.key.length === 1 && !event.ctrlKey && !event.altKey && !event.metaKey) {
+    input("type_text", {text: event.key});
+  } else {
+    const key = names[event.key] || (/^F\d+$/.test(event.key) ? event.key.toLowerCase() :
+      event.key.length === 1 ? event.key.toLowerCase() : null);
+    if (!key) return;
+    const modifiers = [];
+    if (event.ctrlKey) modifiers.push("ctrl");
+    if (event.altKey) modifiers.push("alt");
+    if (event.shiftKey) modifiers.push("shift");
+    if (event.metaKey) modifiers.push("cmd");
+    input("press_key", {keys: [...modifiers, key].join("+")});
+  }
+});
+document.querySelector("#refresh").onclick = () => run(async () => { await refresh(); await picture(); });
+sessions.onchange = () => run(picture);
+async function tick() {
+  if (!document.hidden) await run(picture);
+  setTimeout(tick, 1000);
+}
+run(async () => { await refresh(); await picture(); }).then(tick);
+</script>

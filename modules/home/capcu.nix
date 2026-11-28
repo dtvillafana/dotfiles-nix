@@ -249,6 +249,7 @@
             inputs.nix-index-database.homeModules.nix-index
             self.homeModules.hyprland
             self.homeModules.browsers
+            self.homeModules.braveCapcu
             self.homeModules.zathura
             self.homeModules.remmina
             self.homeModules.terminal
